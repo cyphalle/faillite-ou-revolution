@@ -114,9 +114,8 @@ h1 span { color: var(--muted); }
 /* Plateau de jeu */
 main.board { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 20px; }
 .console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--dash-h, 150px) + 12px); max-height: calc(100vh - env(safe-area-inset-top, 0px) - var(--dash-h, 150px) - var(--ab-h, 88px) - 24px); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-.presets { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); display: flex; gap: 6px; padding: 12px 16px 2px; overflow-x: auto; scrollbar-width: none; align-items: center; }
-.presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); white-space: nowrap; }
-.chipbtn { white-space: nowrap; flex: none; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); }
+.presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); width: 100%; }
 .chipbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow); }
 .chipbtn:hover:not(:disabled) { background: var(--secondary); }
 .chipbtn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
@@ -537,9 +536,6 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
   <main class="board" id="playView">
     <section class="console" aria-label="Leviers">
-      <div class="presets" id="presets">
-        <span>Partir de</span>
-      </div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="levers" id="levers"></div>
     </section>
@@ -1502,19 +1498,6 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     </div>`;
   }
 
-  const presetsEl = $("presets");
-  PRESETS.forEach(([key, label]) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "chipbtn"; b.dataset.preset = key; b.textContent = label;
-    presetsEl.appendChild(b);
-  });
-  presetsEl.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-preset]"); if (!b || b.disabled) return;
-    const p = PRESETS.find(x => x[0] === b.dataset.preset);
-    Object.assign(state, REF_POLICY, p[2]);
-    syncInputs(); update(); save();
-    presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-  });
   const tabsEl = $("tabs");
   TABS.forEach(([key, label]) => {
     const b = document.createElement("button");
@@ -1535,7 +1518,20 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     `<div data-tab-body="${tab}"><p class="group-intro" data-intro></p>${secs.filter(s => s.startsWith(tab)).map(s =>
       `<div class="lsec"><div class="group-title">${SEC_TITLES[s]}</div>${LEVERS.filter(l => l.sec === s).map(paramHTML).join("")}</div>`).join("")}
       <button type="button" class="btn btn-outline morebtn" data-more="${tab}"></button></div>`
-  ).join("");
+  ).join("") + `<div class="presets" id="presets"><span>Ou repartir d'une stratégie type</span></div>`;
+  const presetsEl = $("presets");
+  PRESETS.forEach(([key, label]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chipbtn"; b.dataset.preset = key; b.textContent = label;
+    presetsEl.appendChild(b);
+  });
+  presetsEl.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-preset]"); if (!b || b.disabled) return;
+    const p = PRESETS.find(x => x[0] === b.dataset.preset);
+    Object.assign(state, REF_POLICY, p[2]);
+    syncInputs(); update(); save();
+    presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+  });
   // Un clic sur − ou + avance d'un cran lisible : une vingtaine de crans sur toute la plage
   function stepOf(p) { return p.step * Math.max(1, Math.round((p.max - p.min) / p.step / 20)); }
   $("engGrid").innerHTML = ENG_SECS.map(([key, title, sub]) =>
@@ -2221,7 +2217,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   const TOUR = [
     { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer ».` },
     { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, déficit, dette et colère, pour la dernière année votée. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
-    { target: "levers", mview: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Les douze qui pèsent le plus sont affichés, les autres se déplient. Les boutons − et + avancent d'un cran, et le trait gris marque la valeur en vigueur. Chaque cran fait bouger les prévisions du tableau de bord. Sous chaque levier, des pastilles : ce que la mesure change au déficit de 2030, la colère qu'elle provoque, et le groupe de l'Assemblée qu'elle fait le plus bouger. Les politiques types, en haut, servent de point de départ.` },
+    { target: "levers", mview: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Les douze qui pèsent le plus sont affichés, les autres se déplient. Les boutons − et + avancent d'un cran, et le trait gris marque la valeur en vigueur. Chaque cran fait bouger les prévisions du tableau de bord. Sous chaque levier, des pastilles : ce que la mesure change au déficit de 2030, la colère qu'elle provoque, et le groupe de l'Assemblée qu'elle fait le plus bouger. Tout en bas, des stratégies types servent de point de départ.` },
     { target: null, title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose souvent un arbitrage : une grève, une crue, une usine qui ferme. Une fenêtre s'ouvre en début d'année, et il faut trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
     { target: "assemblyPanel", tab: "asm", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
     { target: "actionBar", title: "Le vote", text: () => `La barre du bas suit votre année : dossier, leviers, vote. Son bouton fait toujours le geste suivant. Sur téléphone, elle bascule aussi entre les leviers et les résultats. Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
