@@ -552,7 +552,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.10</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.13</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -675,7 +675,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="panel" data-pane="src">
         <details class="sources" open>
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.10. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.13. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -1480,7 +1480,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const F = forecast(A), iy = idx(y);
     recap = { year: y, cap0: game.capital, force, pour: A.pour, contre: A.contre, abst: A.abst, censure: A.censure,
       fc: force && A.falls ? null : { defR: F.defR[iy], d: F.d[iy], rate: F.rate[iy], anger: F.anger[iy] } };
-    game.capital -= negoSpent();
+    game.capital = Math.max(0, game.capital - negoSpent());
     Object.keys(game.nego).forEach(id => note(y, "info", `Accord avec : ${blocLabel(id)}`, `Contre ${f0(state.negoCost)} points de capital, le groupe obtient des concessions sur le budget ${y}.`));
     game.nego = {};
     pickYear = y;
@@ -1530,8 +1530,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const o = game && game.over; if (!o || o.type === "fin") return "";
     const i = idx(o.year), pts = (x) => `${f1(x)} point${x >= 2 ? "s" : ""}`;
     if (o.type === "censure") {
-      const m = o.votes - MAJ + 1;
-      return `La censure passe avec ${f0(m)} voix de plus que nécessaire.${o.near ? ` Il suffisait que le groupe « ${BLOCS.find(b => b.id === o.near.id).label} » vote contre sans censurer : il ${o.near.gap < 0.05 ? "s'en est fallu d'un rien" : `lui manquait ${pts(o.near.gap)} de note`}.` : ""}`;
+      const m = o.votes - MAJ;
+      return `${m ? `La censure passe avec ${f0(m)} voix de plus que nécessaire.` : "La censure passe à une voix près."}${o.near ? ` Il suffisait que le groupe « ${BLOCS.find(b => b.id === o.near.id).label} » vote contre sans censurer : il ${o.near.gap < 0.05 ? "s'en est fallu d'un rien" : `lui manquait ${pts(o.near.gap)} de note`}.` : ""}`;
     }
     if (o.type === "fmi") return `Le taux à dix ans dépasse le seuil de ${pts(P.rate[i] - state.ruleFMI)}.`;
     if (o.type === "chute") return `La colère dépasse le seuil de ${pts(P.anger[i] - state.ruleChute)}.`;
@@ -1578,6 +1578,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   function choose(j) {
     const d = dossierNow(); if (!d || !pending()) return;
     const o = d.opts[j], y = game.year;
+    if (o.capital < 0 && game.capital - negoSpent() < -o.capital) return;
     game.picks[y] = j;
     if (o.capital) game.capital = clamp(game.capital + o.capital, 0, 150);
     note(y, "info", d.title, `Vous choisissez : ${lc(o.label)}. ${o.text}`);
@@ -1732,21 +1733,22 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (game.nego[id]) delete game.nego[id]; else if (game.capital - negoSpent() >= state.negoCost) game.nego[id] = true;
     update(); save();
   });
+  // Avant le premier vote, changer de niveau relance la partie. En fin de partie, le niveau attend la suivante :
+  // l'appliquer tout de suite recalculerait la partie finie avec d'autres seuils
   const onModeClick = (e) => {
     const m = e.target.closest("[data-mode]"); if (!m) return false;
-    applyMode(m.dataset.mode); if (game && !game.over) startNew(); else { syncInputs(); update(); save(); }
+    if (game && game.over) { game.next = m.dataset.mode; update(); save(); }
+    else { applyMode(m.dataset.mode); startNew(); }
     return true;
   };
   $("modeTop").addEventListener("click", onModeClick);
   $("verdictActions").addEventListener("click", (e) => {
-    const m = e.target.closest("[data-mode]");
-    // Changer de niveau avant le premier vote relance la partie avec ses réglages ; en fin de partie, il vaut pour la suivante
-    if (m) { applyMode(m.dataset.mode); if (game && !game.over) startNew(); else { syncInputs(); update(); save(); } return; }
+    if (onModeClick(e)) return;
     const b = e.target.closest("[data-act]"); if (!b) return;
     if (b.dataset.act === "end") { endOpen = true; update(); } else startNew(b.dataset.act === "replay");
   });
   // Rejouer garde la graine : mêmes crises, mêmes dossiers, aux mêmes dates
-  function startNew(replay) { recap = null; dossierLater = false; endOpen = false; setMview("levers"); newGame(replay && game ? game.seed : undefined); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
+  function startNew(replay) { recap = null; dossierLater = false; endOpen = false; setMview("levers"); if (game && game.over && game.next) applyMode(game.next); newGame(replay && game ? game.seed : undefined); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
 
   function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
   function syncInputs() {
@@ -1901,7 +1903,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const w = (n) => `${(n / SEATS * 100).toFixed(2)}%`;
     return `<div class="votebar${compact ? " compact" : ""}" role="img" aria-label="${f0(A.pour)} pour, ${f0(A.abst)} abstentions, ${f0(A.contre)} contre dont ${f0(A.censure)} prêts à censurer">
       <div class="vb-track"><span class="vb-pour" style="width:${w(A.pour)}"></span><span class="vb-abst" style="width:${w(A.abst)}"></span><span class="vb-contre" style="width:${w(A.contre - A.censure)}"></span><span class="vb-censure" style="width:${w(A.censure)}"></span><i class="vb-maj" style="left:50%"></i></div>
-      <div class="vb-legend"><span><i class="d-pour"></i>Pour ${f0(A.pour)}</span><span><i class="d-abst"></i>Abstention ${f0(A.abst)}</span><span><i class="d-contre"></i>Contre ${f0(A.contre - A.censure)}</span><span><i class="d-censure"></i>Censure ${f0(A.censure)}</span></div>
+      <div class="vb-legend"><span><i class="d-pour"></i>Pour ${f0(A.pour)}</span><span><i class="d-abst"></i>Abstention ${f0(A.abst)}</span><span><i class="d-contre"></i>Contre ${f0(A.contre)}</span><span><i class="d-censure"></i>dont censure ${f0(A.censure)}</span></div>
     </div>`;
   }
   const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : g === "dossier" ? "dossier de l'année" : lc(GROUPS[g]);
@@ -1955,8 +1957,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("dKicker").textContent = `Dossier de l'année ${game.year} · à trancher avant le budget`;
     $("dTitle").textContent = d.title;
     $("dText").textContent = d.text;
-    $("dOpts").innerHTML = d.opts.map((o, j) => `<button type="button" class="d-opt" data-pick="${j}">
-      <span class="d-opt-title">${o.label}</span><span class="d-opt-text">${o.text}</span><span class="d-fx">${fxChips(o) || `<span class="delta neutral">sans effet chiffré</span>`}</span></button>`).join("");
+    const avail = game.capital - negoSpent();
+    $("dOpts").innerHTML = d.opts.map((o, j) => `<button type="button" class="d-opt" data-pick="${j}" ${o.capital < 0 && avail < -o.capital ? "disabled" : ""}>
+      <span class="d-opt-title">${o.label}${o.capital < 0 && avail < -o.capital ? ` · capital insuffisant` : ""}</span><span class="d-opt-text">${o.text}</span><span class="d-fx">${fxChips(o) || `<span class="delta neutral">sans effet chiffré</span>`}</span></button>`).join("");
   }
   const sortEvents = (list) => list.map((e, j) => [e, j]).sort((a, b) => a[0].year - b[0].year || (a[0].kind === "end") - (b[0].kind === "end") || !!a[0].late - !!b[0].late || a[1] - b[1]).map(x => x[0]);
   const evHTML = (e) => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`;
@@ -1992,15 +1995,15 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("rcHead").textContent = head;
     let k = 0;
     // Le prévu sort de la prévision affichée avant le vote : l'écart, c'est le hasard de l'année
-    const rk = (label, now, before, fmt, upIsBad, fc) => {
+    const rk = (label, now, before, fmt, upIsBad, fc, dfmt = f1) => {
       const dlt = now - before, cls = Math.abs(dlt) < 0.05 ? "neutral" : (dlt > 0) === upIsBad ? "bad" : "good";
       const miss = fc != null && fmt(fc) !== fmt(now) ? `<span class="rk-fc ${(now > fc) === upIsBad ? "bad" : "good"}">prévu ${fmt(fc)}</span>` : "";
-      return `<div class="rk" style="--i:${k++}"><span>${label}</span><b>${fmt(now)}</b><span class="delta ${cls}">${signed(Math.round(dlt * 10) / 10, f1)}</span>${miss}</div>`;
+      return `<div class="rk" style="--i:${k++}"><span>${label}</span><b>${fmt(now)}</b><span class="delta ${cls}">${signed(Math.round(dlt * 10) / 10, dfmt)}</span>${miss}</div>`;
     };
     const fc = recap.fc || {};
     $("rcKpis").innerHTML = rk("Déficit", P.defR[i], P.defR[i - 1], v => `${f1(v)} %`, true, fc.defR) + rk("Dette", P.d[i], P.d[i - 1], v => `${f0(v)} %`, true, fc.d)
       + rk("Taux à 10 ans", P.rate[i], P.rate[i - 1], v => `${f1(v)} %`, true, fc.rate) + rk("Colère", P.anger[i], P.anger[i - 1], v => `${f0(v)}/100`, true, fc.anger)
-      + rk("Capital", game.capital, recap.cap0, v => f0(v), false);
+      + rk("Capital", game.capital, recap.cap0, v => f0(v), false, null, f0);
     const evs = sortEvents(game.extra.filter(e => e.year === y && !e.title.startsWith(`Budget ${y}`)).concat(P.events.filter(e => e.year === y)));
     $("rcEvents").innerHTML = evs.map(evHTML).join("");
     [...$("rcEvents").children].forEach((li, j) => li.style.setProperty("--i", k + j));
@@ -2037,7 +2040,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const r0 = RATINGS[P.notch[i0]], r1 = RATINGS[P.notch[i]];
     const ek = (label, val, sub, cls = "") => `<div class="ek ${cls}"><span>${label}</span><b>${val}</b><em>${sub}</em></div>`;
     $("endKpis").innerHTML =
-      ek("Dette publique", `${f0(P.d[i0])} → ${f0(P.d[i])} %`, `${addMd >= 0 ? "+" : "−"}${f0(Math.abs(addMd))} Md€, soit ${f0(Math.abs(perHab) / 1.1)} baguettes par Français`, P.d[i] > P.d[i0] ? "bad" : "good") +
+      ek("Dette publique", `${f0(P.d[i0])} → ${f0(P.d[i])} %`, `${addMd >= 0 ? "+" : "−"}${f0(Math.abs(addMd))} Md€, soit ${f0(Math.abs(perHab) / 1.1)} baguettes ${addMd >= 0 ? "par Français" : "rendues à chaque Français"}`, P.d[i] > P.d[i0] ? "bad" : "good") +
       ek("Déficit", `${f1(P.defR[i0])} → ${f1(P.defR[i])} %`, P.defR[i] <= state.ruleUE ? "sous les 3 % : Bruxelles vous envoie des fleurs" : "Bruxelles garde votre dossier sur le dessus de la pile", P.defR[i] <= state.ruleUE ? "good" : "bad") +
       ek("Intérêts payés", `${f0(interest)} Md€`, `de quoi s'offrir ${f0(interest / 10)} porte-avions`) +
       ek("Pic de colère", `${f0(peak)}/100`, ANGER_WORD(peak), peak > state.ruleChute ? "bad" : "") +
@@ -2283,8 +2286,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("ending").innerHTML = `${endT ? `<span class="ending-title">Fin de partie · ${endT}</span>` : ""}${head}`;
     $("verdict").innerHTML = v;
     const atStart = mandat && !game.over && game.year === FIRST && !Object.keys(game.path).length;
+    const nextMode = (game && game.over && game.next) || state.mode || "difficile";
     const modeSeg = `<div class="modepick"><span>${game && game.over ? "Prochaine partie" : "Difficulté"}</span><div class="viewseg" role="group" aria-label="Difficulté">${Object.entries(MODES).map(([k, m]) =>
-      `<button type="button" data-mode="${k}" aria-pressed="${(state.mode || "difficile") === k}">${m.label}</button>`).join("")}</div><em>${MODES[state.mode || "difficile"].desc}</em></div>`;
+      `<button type="button" data-mode="${k}" aria-pressed="${nextMode === k}">${m.label}</button>`).join("")}</div><em>${MODES[nextMode].desc}</em></div>`;
     $("modeTop").hidden = !atStart; $("modeTop").innerHTML = atStart ? modeSeg : "";
     $("verdictActions").innerHTML = atStart ? modeSeg : mandat && game.over ? modeSeg +  `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button><button class="btn btn-ghost" data-act="end" type="button">Revoir le bilan</button>` : "";
 
@@ -2434,8 +2438,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   // ---------- Tutoriel ----------
   // target : élément à éclairer. S'il est caché (dossier absent cette année), l'étape s'affiche sans repère.
   const TOUR = [
-    { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer ».` },
-    { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, déficit, dette et colère, pour la dernière année votée. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
+    { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer » (« Aide » sur téléphone).` },
+    { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, puis ce que donnerait le budget en préparation pour Bruxelles (déficit), les marchés (taux) et la rue (colère). Chaque cran de levier les fait bouger, mais les crises de l'année restent cachées jusqu'au vote. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
     { target: "levers", mview: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Les douze qui pèsent le plus sont affichés, les autres se déplient. Les boutons − et + avancent d'un cran, et le trait gris marque la valeur en vigueur. Chaque cran fait bouger les prévisions du tableau de bord. Sous chaque levier, des pastilles : ce que la mesure change au déficit de 2030, la colère qu'elle provoque, et le groupe de l'Assemblée qu'elle fait le plus bouger. Tout en bas, des stratégies types servent de point de départ.` },
     { target: null, title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose souvent un arbitrage : une grève, une crue, une usine qui ferme. Une fenêtre s'ouvre en début d'année, et il faut trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
     { target: "assemblyPanel", tab: "asm", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
