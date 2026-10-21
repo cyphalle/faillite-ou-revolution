@@ -235,7 +235,7 @@ svg.hemi .hemi-small { font-family: var(--f-body); font-size: 11px; fill: var(--
 .vb-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
 .d-pour { background: var(--good); } .d-abst { background: var(--ref); } .d-contre { background: var(--warn); } .d-censure { background: var(--bad); }
 .blocs { display: grid; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.bloc { display: grid; grid-template-columns: 10px minmax(0, 1fr) 40px 44px 92px; gap: 4px 12px; align-items: center; padding: 10px 14px; }
+.bloc { display: grid; grid-template-columns: 10px minmax(0, 1fr) 40px 44px 92px 156px; gap: 4px 12px; align-items: center; padding: 10px 14px; }
 .bloc + .bloc { border-top: 1px solid var(--line); }
 .b-dot { width: 10px; height: 10px; border-radius: 3px; }
 .b-name { font-weight: 500; font-size: 13.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -244,7 +244,7 @@ svg.hemi .hemi-small { font-family: var(--f-body); font-size: 11px; fill: var(--
 .b-seats, .b-score { font-size: 12.5px; text-align: right; color: var(--muted); }
 .b-score { color: var(--ink); }
 .bloc > .badge { justify-self: end; }
-.b-nego { grid-column: 2 / -1; display: flex; justify-content: flex-end; }
+.b-nego { display: flex; justify-content: flex-end; }
 
 /* Journal */
 .journal { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -380,7 +380,7 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .ab-acts .btn-ghost { padding: 0 12px; }
 .ab-acts .btn-sub { font-weight: 400; opacity: .75; font-size: 12.5px; }
 .ab-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.ab-undo, .btn-mini, .mswitch, .ab-y { display: none; }
+.ab-undo, .btn-mini, .mswitch, .ab-y, .tb-short { display: none; }
 .mswitch { gap: 2px; padding: 3px; background: var(--secondary); border-radius: 10px; flex: none; }
 .mswitch button { border: 0; background: none; border-radius: 7px; padding: 0 12px; height: 38px; font-weight: 500; font-size: 13px; color: var(--muted); }
 .mswitch button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
@@ -488,12 +488,19 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .kpi { padding: 8px 10px; }
   .kpi .k-sub { display: none; }
   .kpi.status .k-sub { display: block; white-space: normal; }
-  .viewhint { display: none; }
+  .viewhint, .tb-long { display: none; }
+  .tb-short { display: inline; }
+  .viewbar { flex-wrap: nowrap; }
+  .viewseg button { padding: 5px 10px; }
+  .tourbtn { margin-left: auto; }
   .split { grid-template-columns: minmax(0, 1fr); }
   .objectives li { grid-template-columns: 70px minmax(0, 1fr); }
   .objectives .o-val { grid-column: 2; text-align: left; }
   .bloc { grid-template-columns: 10px minmax(0, 1fr) auto; }
   .b-seats, .b-score { display: none; }
+  .bloc { grid-template-columns: 10px minmax(0, 1fr) auto; }
+  .b-nego { grid-column: 2 / -1; }
+  .b-nego:empty { display: none; }
   .panel { padding: 16px; }
 }
 @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -529,7 +536,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <button type="button" data-view="engine" aria-pressed="false">Moteur<span class="badge" id="engBadge"></span></button>
       </div>
       <span class="viewhint" id="viewHint"></span>
-      <button type="button" class="btn btn-outline btn-sm tourbtn" id="tourBtn">Comment jouer</button>
+      <button type="button" class="btn btn-outline btn-sm tourbtn" id="tourBtn"><span class="tb-long">Comment jouer</span><span class="tb-short">Aide</span></button>
     </div>
     <div class="kpis" id="kpis"></div>
   </div>
@@ -553,7 +560,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <h2>L'Assemblée nationale</h2>
         <p class="sub" id="asmSub"></p>
         <div class="asm">
-          <svg class="hemi" id="hemi" viewBox="0 0 420 222" role="img" aria-label="Hémicycle : répartition des 577 sièges par bloc"></svg>
+          <svg class="hemi" id="hemi" viewBox="0 0 420 236" role="img" aria-label="Hémicycle : répartition des 577 sièges par bloc"></svg>
           <div class="asm-side" id="asmSide"></div>
         </div>
         <div class="blocs" id="blocs"></div>
@@ -1242,8 +1249,10 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     }
     return o;
   }
+  // Minuscule initiale, sauf pour un sigle (« FMI », « RN »)
+  const lc = (t) => /^[A-Z]{2}/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
   function topGroups(groups) {
-    const top = Object.entries(groups).filter(([g, v]) => g !== "entreprises" && v > 1.5).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([g]) => GROUPS[g].toLowerCase());
+    const top = Object.entries(groups).filter(([g, v]) => g !== "entreprises" && v > 1.5).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([g]) => lc(GROUPS[g]));
     return top.length ? `En tête du cortège : ${top.join(" et ")}.` : "";
   }
   const idx = (y) => y - 2024;
@@ -1332,7 +1341,6 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   const pending = () => !!dossierNow() && game.picks[game.year] == null;
   const voteBonus = () => { const d = dossierNow(); return d && game.picks[game.year] != null ? d.opts[game.picks[game.year]].vote || {} : {}; };
   const negoSpent = () => Object.keys(game.nego).length * state.negoCost;
-  const lc = (t) => /^[A-Z]{2}/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
   const blocLabel = (id) => lc(BLOCS.find(b => b.id === id).label);
   const note = (year, kind, title, detail, late) => game.extra.push({ year, kind, title, detail, late: !!late });
 
@@ -1752,8 +1760,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       }
     });
     const mine = gov.reduce((a, id) => a + (seats[id] || 0), 0);
-    svg.appendChild(el("text", { x: 210, y: 186, "text-anchor": "middle", class: "hemi-big" }, f0(mine)));
-    svg.appendChild(el("text", { x: 210, y: 204, "text-anchor": "middle", class: "hemi-small" }, `sièges pour la coalition · majorité ${MAJ}`));
+    svg.appendChild(el("text", { x: 210, y: 200, "text-anchor": "middle", class: "hemi-big" }, f0(mine)));
+    svg.appendChild(el("text", { x: 210, y: 230, "text-anchor": "middle", class: "hemi-small" }, `sièges pour la coalition · majorité ${MAJ}`));
   }
   function voteBar(A, compact) {
     const w = (n) => `${(n / SEATS * 100).toFixed(2)}%`;
@@ -1762,7 +1770,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="vb-legend"><span><i class="d-pour"></i>Pour ${f0(A.pour)}</span><span><i class="d-abst"></i>Abstention ${f0(A.abst)}</span><span><i class="d-contre"></i>Contre ${f0(A.contre - A.censure)}</span><span><i class="d-censure"></i>Censure ${f0(A.censure)}</span></div>
     </div>`;
   }
-  const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : g === "dossier" ? "dossier de l'année" : GROUPS[g].toLowerCase();
+  const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : g === "dossier" ? "dossier de l'année" : lc(GROUPS[g]);
   const POS_BADGE = { pour: "ok", abst: "muted", contre: "warn", censure: "ko" };
   function renderAssembly(A, mandat) {
     const gov = mandat ? game.gov : (GOVS[state.gov] || GOVS.centre);
@@ -1788,7 +1796,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <span class="b-seats num">${f0(b.n)}</span>
         <span class="b-score num">${signed(Math.round(b.score * 10) / 10, f1)}</span>
         <span class="badge ${POS_BADGE[b.pos]}">${POS_LABEL[b.pos]}</span>
-        ${nego ? `<div class="b-nego">${nego}</div>` : ""}
+        <div class="b-nego">${nego}</div>
       </div>`;
     }).join("");
     const foot = $("asmFoot");
@@ -1865,18 +1873,19 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
   // ---------- Rendu ----------
   function moneyChip(node, dMd) {
-    if (Math.abs(dMd) < 0.05) { node.className = "delta neutral"; node.textContent = "0 Md€"; return; }
+    node.hidden = Math.abs(dMd) < 0.05; if (node.hidden) return;
     node.className = "delta " + (dMd > 0 ? "good" : "bad");
     node.textContent = `${signed(dMd, f1)} Md€`;
   }
   function painChip(node, pv) {
     const street = pv ? pv.street : 0, biz = pv ? pv.biz : 0;
+    node.hidden = false;
     if (Math.abs(street) < 0.1 && Math.abs(biz) >= 0.1) {
       node.className = "delta " + (biz > 0 ? "warn" : "good");
       node.textContent = `entreprises ${signed(biz, f1)}`;
       return;
     }
-    if (Math.abs(street) < 0.1) { node.className = "delta neutral"; node.textContent = "colère 0"; return; }
+    node.hidden = Math.abs(street) < 0.1 && Math.abs(biz) < 0.1; if (node.hidden) return;
     node.className = "delta " + (street > 0 ? "bad" : "good");
     node.textContent = `colère ${signed(street, f1)}`;
   }
@@ -1921,6 +1930,10 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         moneyChip(node.querySelector("[data-delta]"), pr ? refDef30(refState, cache) - pr.def : 0);
         painChip(node.querySelector("[data-pain]"), pr || null);
         voteChip(node.querySelector("[data-vote]"), blocSwing(pr, refState, cache));
+        // Un levier au repos n'affiche que sa valeur : la ligne « en vigueur » et les pastilles arrivent quand il bouge
+        const meta = node.querySelector(".lever-meta");
+        meta.hidden = !ch && [...meta.querySelectorAll(".delta")].every(c => c.hidden);
+        meta.querySelector("[data-today]").hidden = !ch;
         const label = mandat ? (game.year === FIRST && !game.over ? "Aujourd'hui" : "En vigueur") : "Aujourd'hui";
         const pv = prev[p.id];
         node.querySelector("[data-today]").textContent = `${label} : ${p.type === "toggle" ? (pv ? "oui" : "non") : p.fmt(pv)}`;
@@ -1953,7 +1966,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("engBadge").textContent = changedE ? ` ${changedE}` : "";
     leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = "Pastilles : effet sur le déficit 2030, colère à terme, et le groupe dont la mesure fait le plus bouger le vote."; });
     const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
-    $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
+    $("irNote").textContent = `${ir ? `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %, au lieu de` : "Barème actuel :"} 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
     presetsEl.querySelectorAll("[data-preset]").forEach(b => { b.disabled = mandat && !!game.over; });
 
     // Barre d'action : où en est l'année, et le geste suivant
@@ -1965,7 +1978,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <div class="ab-mid"><span>Présenté en 2026, ce budget serait ${fc} (${f0(A.pour)} pour, ${f0(A.contre)} contre, censure ${f0(A.censure)}).</span>${voteBar(A, true)}</div>
         <div class="ab-acts">${mswitch()}${changedL ? `<button class="btn btn-outline" data-act="reset" type="button">Remettre à zéro</button>` : ""}</div></div>`;
     } else if (game.over) {
-      bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Partie terminée</b>${game.over.type === "fin" ? "mandat tenu jusqu'en 2035" : DEFEAT_SUB[game.over.type].toLowerCase()}</span></div>
+      bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Partie terminée</b>${game.over.type === "fin" ? "mandat tenu jusqu'en 2035" : lc(DEFEAT_SUB[game.over.type])}</span></div>
         <div class="ab-mid"><span>${nearMiss(P) || "Le bilan est dans les onglets : journal, trajectoires, objectifs."}</span></div>
         <div class="ab-acts">${mswitch()}${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la partie</button><button class="btn btn-outline ab-new" data-act="new" type="button">Nouvelle</button>` : `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>`}</div></div>`;
     } else {
@@ -2049,7 +2062,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       head = "Septembre 2026. Votre premier budget.";
       v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Votre coalition (${game.gov.map(blocLabel).join(" et ")}) compte <b>${f0(game.gov.reduce((a, id) => a + game.seats[id], 0))} députés</b> sur 577 : sans majorité absolue, chaque budget dépend des oppositions. Vous avez <b>${f0(game.capital)} points</b> de capital pour négocier avec elles. Récessions, crises et élections tombent sans prévenir. Réglez vos leviers, regardez l'hémicycle, puis votez avec le bouton en bas à droite.`;
     } else if (!finished) {
-      const yearEv = P.events.filter(e => e.year === lastY).map(e => e.title.toLowerCase());
+      const yearEv = P.events.filter(e => e.year === lastY).map(e => lc(e.title));
       head = `Septembre ${game.year}. Préparez le budget ${game.year}.`;
       v = `En ${lastY}, le déficit est de <b>${f1(P.defR[lastI])} %</b> du PIB, la dette de <b>${f0(P.d[lastI])} %</b>, l'État emprunte à <b>${f1(P.rate[lastI])} %</b> et la colère est à <b>${f0(P.anger[lastI])}/100</b>.`;
       v += yearEv.length ? ` L'année a été marquée par : ${yearEv.join(", ")}.` : " Une année sans surprise.";
