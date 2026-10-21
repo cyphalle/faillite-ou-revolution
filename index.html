@@ -197,6 +197,11 @@ input[type="checkbox"][role="switch"]:checked::before { transform: translateX(16
 .panel.verdict-panel::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
 .panel.verdict-panel.lost::before { background: var(--bad); }
 .panel.verdict-panel.ok::before { background: var(--good); }
+.modepick { display: grid; gap: 6px; width: 100%; }
+.mode-top { display: none; padding: 14px 16px 0; }
+.modepick > span { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.modepick .viewseg { width: fit-content; }
+.modepick em { font-size: 13px; font-style: normal; color: var(--muted); }
 .ending-title { display: block; font-family: var(--f-body); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 .press { margin: 2px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--ink); border-radius: 0 var(--radius) var(--radius) 0; background: var(--secondary); }
 .press figcaption { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
@@ -476,6 +481,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   main.board { grid-template-columns: minmax(0, 1fr); }
   .console { position: static; max-height: none; }
   .mswitch { display: flex; }
+  .mode-top:not([hidden]) { display: block; }
   main.board[data-mview="levers"] .results, main.board[data-mview="results"] .console { display: none; }
   .charts { grid-template-columns: minmax(0, 1fr); }
 }
@@ -576,6 +582,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
   <main class="board" id="playView">
     <section class="console" aria-label="Leviers">
+      <div class="mode-top" id="modeTop" hidden></div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="levers" id="levers"></div>
     </section>
@@ -1417,14 +1424,28 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     for (let y = FIRST + 1; y <= LAST && pool.length; y++) if (r() < freq) out[y] = pool.splice(Math.floor(r() * pool.length), 1)[0];
     return out;
   }
-  let state = { ...REF };
+  // Niveaux de difficulté : des réglages du moteur, posés au début d'une partie. Difficile = les valeurs par défaut.
+  const MODES = {
+    facile: { label: "Facile", desc: "Moins de crises, plus de capital, une rue plus patiente et des marchés plus indulgents.",
+      set: { capital0: 90, capRegen: 20, shockFreq: 0.5, dossierFreq: 0.5, ruleChute: 80, ruleElection: 70, ruleFMI: 8, censureAt: 5, govLoyalty: 5, negoCost: 15, force493Anger: 4 } },
+    difficile: { label: "Difficile", desc: "Le jeu tel qu'il est calé sur la France de 2026.", set: {} },
+    dingue: { label: "Dinguerie", desc: "Une crise presque chaque année, un dossier tous les ans, des marchés nerveux, une rue à cran et une Assemblée qui censure pour un rien.",
+      set: { capital0: 40, capRegen: 10, shockFreq: 2.5, dossierFreq: 1, ruleChute: 68, ruleElection: 58, ruleFMI: 6.5, censureAt: 3.5, negoCost: 25, force493Anger: 7, kAnger: 1.5, prime: 4, anger0: 43 } }
+  };
+  const MODE_IDS = [...new Set(Object.values(MODES).flatMap(m => Object.keys(m.set)))];
+  function applyMode(m) {
+    MODE_IDS.forEach(id => { state[id] = REF[id]; });
+    Object.assign(state, MODES[m].set);
+    state.mode = m;
+  }
+  let state = { ...REF, mode: "difficile" };
   let game = null;
   let view = "mandat", activeTab = "rec", pickYear = 2030;
 
   function newGame(seed = Math.floor(Math.random() * 1e9)) {
     game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null,
       gov: GOVS[state.gov] || GOVS.centre, govKey: state.gov, seats: { ...SEATS0 }, nego: {}, extra: [],
-      dossiers: drawDossiers(seed, state.dossierFreq), picks: {}, lastDiss: 2024 };
+      dossiers: drawDossiers(seed, state.dossierFreq), picks: {}, lastDiss: 2024, mode: state.mode || "difficile" };
     draftPolicy = null;
     if (lastPlay === "mandat") Object.assign(state, REF_POLICY);
   }
@@ -1666,7 +1687,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     state[id] = b.dataset.choice; syncInputs(); update(); save();
   }
   [leversEl, $("engGrid")].forEach(c => { c.addEventListener("input", onInput); c.addEventListener("click", onChoice); });
-  $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); syncInputs(); update(); save(); });
+  $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); applyMode(state.mode || "difficile"); syncInputs(); update(); save(); });
   $("actionBar").addEventListener("click", (e) => {
     const m = e.target.closest("[data-mview]");
     if (m) { setMview(m.dataset.mview); update(); $("playView").scrollIntoView?.({ block: "start" }); return; }
@@ -1711,7 +1732,16 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (game.nego[id]) delete game.nego[id]; else if (game.capital - negoSpent() >= state.negoCost) game.nego[id] = true;
     update(); save();
   });
+  const onModeClick = (e) => {
+    const m = e.target.closest("[data-mode]"); if (!m) return false;
+    applyMode(m.dataset.mode); if (game && !game.over) startNew(); else { syncInputs(); update(); save(); }
+    return true;
+  };
+  $("modeTop").addEventListener("click", onModeClick);
   $("verdictActions").addEventListener("click", (e) => {
+    const m = e.target.closest("[data-mode]");
+    // Changer de niveau avant le premier vote relance la partie avec ses réglages ; en fin de partie, il vaut pour la suivante
+    if (m) { applyMode(m.dataset.mode); if (game && !game.over) startNew(); else { syncInputs(); update(); save(); } return; }
     const b = e.target.closest("[data-act]"); if (!b) return;
     if (b.dataset.act === "end") { endOpen = true; update(); } else startNew(b.dataset.act === "replay");
   });
@@ -1987,7 +2017,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const o = game.over, last = played(), i = idx(last), i0 = idx(FIRST) - 1, won = o.type === "fin";
     const n = last - FIRST + 1, card = $("endModal").querySelector(".modal-card");
     card.classList.toggle("lost", !won); card.classList.toggle("good", won);
-    $("endKicker").textContent = `Bilan du mandat · ${FIRST} → ${last}`;
+    $("endKicker").textContent = `Bilan du mandat · ${FIRST} → ${last} · ${MODES[game.mode || "difficile"].label}`;
     $("endTitle").textContent = endingTitle(o.type, P, R, i);
     const forced = Object.keys(game.force).length, deals = game.extra.filter(e => e.title.startsWith("Accord avec")).length;
     // Un budget censuré n'est pas adopté : il ne compte pas
@@ -2108,7 +2138,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         const rm = node.querySelector(".refmark");
         if (rm) rm.style.setProperty("--pos", `${(pv - p.min) / (p.max - p.min) * 100}`);
       } else {
-        const ch = state[p.id] !== p.ref;
+        // Un réglage posé par le niveau de difficulté ne compte pas comme une modification
+        const base = MODES[state.mode || "difficile"].set[p.id] ?? p.ref;
+        const ch = state[p.id] !== base;
         node.classList.toggle("changed", ch);
         if (ch) changedE++;
       }
@@ -2179,7 +2211,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     let status;
     if (P.defeat) status = kpi("Statut", `${DEFEAT_LABEL[P.defeat.type]} ${P.defeat.year}`, DEFEAT_SUB[P.defeat.type], "status lost");
     else if (finished) status = kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[lastI]]}`, "status ok");
-    else status = kpi("Statut", `Budget ${game.year}`, `Année ${game.year - FIRST + 1} sur 10 · note ${RATINGS[P.notch[lastI]]}`, "status turn");
+    else status = kpi("Statut", `Budget ${game.year}`, `Année ${game.year - FIRST + 1} sur 10 · note ${RATINGS[P.notch[lastI]]}${mandat ? ` · ${MODES[game.mode || "difficile"].label}` : ""}`, "status turn");
     if (mandat && !game.over) {
       // Pendant l'année, les chiffres montrent ce que donnerait le budget en préparation
       const F = forecast(A), y = game.year, iy = idx(y), j = iy - 1;
@@ -2250,7 +2282,11 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const endT = mandat && game.over ? endingTitle(game.over.type, P, R, lastI) : "";
     $("ending").innerHTML = `${endT ? `<span class="ending-title">Fin de partie · ${endT}</span>` : ""}${head}`;
     $("verdict").innerHTML = v;
-    $("verdictActions").innerHTML = mandat && game.over ? `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button><button class="btn btn-ghost" data-act="end" type="button">Revoir le bilan</button>` : "";
+    const atStart = mandat && !game.over && game.year === FIRST && !Object.keys(game.path).length;
+    const modeSeg = `<div class="modepick"><span>${game && game.over ? "Prochaine partie" : "Difficulté"}</span><div class="viewseg" role="group" aria-label="Difficulté">${Object.entries(MODES).map(([k, m]) =>
+      `<button type="button" data-mode="${k}" aria-pressed="${(state.mode || "difficile") === k}">${m.label}</button>`).join("")}</div><em>${MODES[state.mode || "difficile"].desc}</em></div>`;
+    $("modeTop").hidden = !atStart; $("modeTop").innerHTML = atStart ? modeSeg : "";
+    $("verdictActions").innerHTML = atStart ? modeSeg : mandat && game.over ? modeSeg +  `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button><button class="btn btn-ghost" data-act="end" type="button">Revoir le bilan</button>` : "";
 
     renderAssembly(A, mandat);
     renderDossier(mandat);
@@ -2460,7 +2496,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { /* stockage indisponible : la partie vit le temps de la page */ } }
   function restore(data) {
     if (!data || !data.state) return false;
-    state = { ...REF, ...data.state };
+    state = { ...REF, mode: "difficile", ...data.state };
     game = data.game || null;
     if (game && !game.dossiers) Object.assign(game, { dossiers: {}, picks: {}, lastDiss: 2024 });
     activeTab = data.activeTab || "rec";
