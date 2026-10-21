@@ -2,260 +2,349 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
 <style>
-/* Layout : bandeau de bord collant (vue + statut + 4 jauges). Vues « Mandat » (tour par tour) et « Bac à sable » : pupitre de leviers à gauche, conséquences à droite. Vue « Moteur » : grille de réglages du modèle. */
+/* Layout : bandeau de bord collant (vue + statut + jauges). Vues « Mandat » et « Bac à sable » : pupitre de leviers à gauche, conséquences à droite, l'hémicycle en tête. Vue « Moteur » : grille de réglages. Langage visuel : cartes sobres à filet fin, neutres zinc, une seule couleur d'accent pour « votre politique ». */
 :root {
-  --paper: #F1F3F7;
+  --paper: #FAFAFA;
   --surface: #FFFFFF;
-  --ink: #131A2C;
-  --muted: #586179;
-  --line: #D8DDE7;
-  --accent: #2E45C2;
-  --accent-soft: #E2E7FB;
-  --good: #16775A;
-  --good-soft: #DDF1E9;
-  --bad: #BE3A2B;
-  --bad-soft: #F8E1DD;
-  --warn: #A1660F;
-  --warn-soft: #F7EBD4;
-  --ref: #8790A5;
-  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --f-body: "Public Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --f-data: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ink: #09090B;
+  --muted: #71717A;
+  --line: #E4E4E7;
+  --secondary: #F4F4F5;
+  --primary: #18181B;
+  --primary-fg: #FAFAFA;
+  --accent: #2563EB;
+  --accent-soft: #DBEAFE;
+  --good: #15803D;
+  --good-soft: #DCFCE7;
+  --bad: #DC2626;
+  --bad-soft: #FEE2E2;
+  --warn: #B45309;
+  --warn-soft: #FEF3C7;
+  --ref: #A1A1AA;
+  --ring: #A1A1AA;
+  --shadow: 0 1px 2px rgb(9 9 11 / .05);
+  --b-lfi: #B91C1C; --b-ps: #DB2777; --b-liot: #A1A1AA; --b-centre: #F59E0B; --b-lr: #3B82F6; --b-rn: #1E3A8A;
+  --radius: 10px;
+  --f-display: "Geist", "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Geist", "Inter", "Segoe UI", system-ui, sans-serif;
+  --f-data: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0E1220; --surface: #171C2D; --ink: #E7EBF5; --muted: #9AA3B9; --line: #2A3148;
-    --accent: #8FA3FF; --accent-soft: #232C55; --good: #4FC89B; --good-soft: #163A2F;
-    --bad: #F27D6E; --bad-soft: #43231F; --warn: #E2A84B; --warn-soft: #3A2E17; --ref: #6E7792;
+    --paper: #09090B; --surface: #111114; --ink: #FAFAFA; --muted: #A1A1AA; --line: #27272A; --secondary: #1F1F23;
+    --primary: #FAFAFA; --primary-fg: #18181B; --accent: #60A5FA; --accent-soft: #172554;
+    --good: #4ADE80; --good-soft: #0B2E17; --bad: #F87171; --bad-soft: #3B1010; --warn: #FBBF24; --warn-soft: #3A2405;
+    --ref: #52525B; --ring: #52525B; --shadow: 0 1px 2px rgb(0 0 0 / .4);
+    --b-lfi: #EF4444; --b-ps: #F472B6; --b-liot: #71717A; --b-centre: #FBBF24; --b-lr: #60A5FA; --b-rn: #818CF8;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0E1220; --surface: #171C2D; --ink: #E7EBF5; --muted: #9AA3B9; --line: #2A3148;
-  --accent: #8FA3FF; --accent-soft: #232C55; --good: #4FC89B; --good-soft: #163A2F;
-  --bad: #F27D6E; --bad-soft: #43231F; --warn: #E2A84B; --warn-soft: #3A2E17; --ref: #6E7792;
+  --paper: #09090B; --surface: #111114; --ink: #FAFAFA; --muted: #A1A1AA; --line: #27272A; --secondary: #1F1F23;
+  --primary: #FAFAFA; --primary-fg: #18181B; --accent: #60A5FA; --accent-soft: #172554;
+  --good: #4ADE80; --good-soft: #0B2E17; --bad: #F87171; --bad-soft: #3B1010; --warn: #FBBF24; --warn-soft: #3A2405;
+  --ref: #52525B; --ring: #52525B; --shadow: 0 1px 2px rgb(0 0 0 / .4);
+  --b-lfi: #EF4444; --b-ps: #F472B6; --b-liot: #71717A; --b-centre: #FBBF24; --b-lr: #60A5FA; --b-rn: #818CF8;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background: var(--paper); color: var(--ink);
-  font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  font-family: var(--f-body); font-size: 14px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 0 48px;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
-.wrap { max-width: 1260px; margin: 0 auto; }
+.wrap { max-width: 1280px; margin: 0 auto; }
 .num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
-header.hero { padding-block: 28px 14px; display: grid; gap: 10px; }
-.eyebrow { font-family: var(--f-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(38px, 6vw, 64px); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-h1 span { color: var(--accent); }
-.lede { max-width: 66ch; margin: 0; color: var(--muted); font-size: 16px; }
+/* En-tête */
+header.hero { padding-block: 32px 18px; display: grid; gap: 12px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; width: fit-content; font-size: 12px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; }
+.eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(34px, 5vw, 52px); line-height: 1; letter-spacing: -.035em; margin: 0; text-wrap: balance; }
+h1 span { color: var(--muted); }
+.lede { max-width: 70ch; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
 .lede strong { color: var(--ink); font-weight: 600; }
-.ledger { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--f-data); font-size: 12.5px; color: var(--muted); padding-top: 6px; border-top: 1px solid var(--line); }
-.ledger b { color: var(--ink); font-weight: 600; }
+.ledger { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+.ledger span { font-family: var(--f-data); font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; }
+.ledger span:first-child { border-color: transparent; background: none; padding-left: 0; }
+.ledger b { color: var(--ink); font-weight: 500; }
 
-.dash { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); padding-block: 10px; display: grid; gap: 8px; }
-.viewbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.viewseg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; flex-wrap: wrap; }
-.viewseg button { border: 0; background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
-.viewseg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
-.viewseg .badge { font-family: var(--f-data); font-size: 11px; margin-left: 6px; color: var(--warn); }
-.viewhint { font-size: 12.5px; color: var(--muted); }
+/* Bandeau collant */
+.dash { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding-block: 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-inline: max(16px, env(safe-area-inset-left, 0px)); }
+.dash > * { max-width: 1280px; width: 100%; margin-inline: auto; }
+.viewbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.viewseg { display: inline-flex; background: var(--secondary); border-radius: 8px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.viewseg button { border: 0; background: none; border-radius: 6px; padding: 5px 12px; font-weight: 500; font-size: 13.5px; color: var(--muted); }
+.viewseg button:hover { color: var(--ink); }
+.viewseg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.viewseg .badge { margin-left: 6px; }
+.viewhint { font-size: 13px; color: var(--muted); }
 .kpis { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 8px; }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; display: grid; gap: 1px; min-width: 0; align-content: start; }
-.kpi .k-label { font-size: 12px; color: var(--muted); }
-.kpi .k-val { font-family: var(--f-display); font-weight: 700; font-size: clamp(19px, 2.4vw, 28px); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.kpi .k-sub { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kpi.is-bad { border-color: var(--bad); }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 10px 14px; display: grid; gap: 2px; min-width: 0; align-content: start; }
+.kpi .k-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.kpi .k-val { font-weight: 600; font-size: clamp(19px, 2.2vw, 24px); line-height: 1.15; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi .k-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi.is-bad .k-val { color: var(--bad); }
 .kpi.is-warn .k-val { color: var(--warn); }
 .kpi.is-good .k-val { color: var(--good); }
-.kpi.status { border-width: 2px; }
-.kpi.status.ok { border-color: var(--good); background: var(--good-soft); }
+.kpi.status { position: relative; overflow: hidden; }
+.kpi.status::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); }
+.kpi.status.ok::before { background: var(--good); }
+.kpi.status.lost::before { background: var(--bad); }
 .kpi.status.ok .k-val { color: var(--good); }
-.kpi.status.lost { border-color: var(--bad); background: var(--bad-soft); }
 .kpi.status.lost .k-val { color: var(--bad); }
-.kpi.status.turn { border-color: var(--accent); background: var(--accent-soft); }
-.kpi.status.turn .k-val { color: var(--accent); }
-.capbar { height: 5px; background: var(--paper); border-radius: 3px; overflow: hidden; margin-top: 3px; }
-.capbar div { height: 100%; background: var(--accent); border-radius: 3px; }
+.capbar { height: 4px; background: var(--secondary); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.capbar div { height: 100%; background: var(--primary); border-radius: 999px; }
 
-main.board { display: grid; grid-template-columns: minmax(0, 430px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 8px; }
-.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 150px); max-height: calc(100vh - 166px); display: flex; flex-direction: column; min-width: 0; }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 0; }
-.presets span { font-size: 12px; color: var(--muted); width: 100%; }
-button { font: inherit; color: inherit; cursor: pointer; }
-button:disabled { cursor: not-allowed; opacity: .45; }
-.chipbtn { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 11px; font-size: 13px; }
-.chipbtn:hover:not(:disabled) { border-color: var(--accent); }
-.chipbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-.tabs { display: flex; gap: 0; padding: 10px 10px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
-.tab { border: 0; background: none; padding: 8px 10px; font-weight: 600; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-.tab .tcount { font-family: var(--f-data); font-size: 11px; color: var(--accent); margin-left: 4px; }
-.levers { overflow-y: auto; padding: 4px 14px 14px; }
-.group-intro { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
-.group-title { font-family: var(--f-data); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); padding-top: 18px; padding-bottom: 2px; border-bottom: 1px solid var(--line); }
-.lever { display: grid; gap: 4px; padding-block: 12px; border-bottom: 1px solid var(--line); }
+/* Plateau de jeu */
+main.board { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 20px; }
+.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 168px); max-height: calc(100vh - 184px); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 16px 0; }
+.presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); width: 100%; }
+.chipbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow); }
+.chipbtn:hover:not(:disabled) { background: var(--secondary); }
+.chipbtn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+.tabs { display: flex; gap: 2px; margin: 12px 16px 0; padding: 3px; background: var(--secondary); border-radius: 8px; }
+.tab { flex: 1; border: 0; background: none; border-radius: 6px; padding: 5px 10px; font-weight: 500; font-size: 13.5px; color: var(--muted); white-space: nowrap; }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.tab .tcount { font-family: var(--f-data); font-size: 11px; color: var(--accent); margin-left: 5px; }
+.levers { overflow-y: auto; padding: 0 16px 14px; }
+.group-intro { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
+.group-title { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 20px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.lever { display: grid; gap: 6px; padding-block: 12px; border-bottom: 1px solid var(--line); }
 .lever:last-child { border-bottom: 0; }
 .lever-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.lever-head label { font-weight: 600; font-size: 14px; }
-.lever-head output { font-family: var(--f-data); font-size: 13px; font-weight: 600; white-space: nowrap; }
-.lever.changed .lever-head output, .lever.changed .switch label { color: var(--accent); }
-.track { position: relative; }
-.track .refmark { position: absolute; top: -3px; width: 2px; height: 8px; background: var(--ref); left: var(--pos); transform: translateX(-1px); pointer-events: none; }
-input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
+.lever-head label { font-weight: 500; font-size: 13.5px; }
+.lever-head output { font-family: var(--f-data); font-size: 12.5px; font-weight: 500; white-space: nowrap; background: var(--secondary); border-radius: 5px; padding: 1px 6px; }
+.lever.changed .lever-head output { background: var(--accent-soft); color: var(--accent); }
+.lever.changed .switch label { color: var(--accent); }
+.track { position: relative; padding-block: 4px; }
+.track .refmark { position: absolute; top: 0; width: 2px; height: 22px; border-radius: 1px; background: var(--ref); left: calc(8px + (100% - 16px) * var(--pos) / 100); transform: translateX(-1px); pointer-events: none; opacity: .7; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; background: transparent; margin: 0; position: relative; display: block; --fill: 50%; }
+input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(to right, var(--primary) var(--fill), var(--secondary) var(--fill)); }
+input[type="range"]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--secondary); }
+input[type="range"]::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--primary); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -5px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--primary); box-shadow: var(--shadow); }
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--primary); }
+.lever.changed input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--accent) var(--fill), var(--secondary) var(--fill)); }
+.lever.changed input[type="range"]::-moz-range-progress { background: var(--accent); }
+.lever.changed input[type="range"]::-webkit-slider-thumb { border-color: var(--accent); }
+input[type="range"]:focus-visible { outline: none; }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring) 45%, transparent); }
 .lever-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 .chips { display: flex; gap: 4px; flex-wrap: wrap; }
-.delta { font-family: var(--f-data); font-size: 11px; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.delta { font-family: var(--f-data); font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 5px; white-space: nowrap; border: 1px solid transparent; }
 .delta.good { background: var(--good-soft); color: var(--good); }
 .delta.bad { background: var(--bad-soft); color: var(--bad); }
 .delta.warn { background: var(--warn-soft); color: var(--warn); }
-.delta.cost { background: var(--accent-soft); color: var(--accent); }
-.delta.neutral { color: var(--muted); }
+.delta.neutral { color: var(--muted); border-color: var(--line); }
 .lever-note { font-size: 12.5px; color: var(--muted); margin: 0; }
 .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.switch label { font-weight: 600; font-size: 14px; }
-.switch input { width: 40px; height: 22px; accent-color: var(--accent); flex: none; }
-.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.seg button { flex: 1; border: 0; background: none; padding: 6px; font-size: 13px; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.console-foot { padding: 10px 14px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.switch label { font-weight: 500; font-size: 13.5px; }
+input[type="checkbox"][role="switch"] { -webkit-appearance: none; appearance: none; flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--line); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+input[type="checkbox"][role="switch"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0 / .25); transition: transform .15s; }
+input[type="checkbox"][role="switch"]:checked { background: var(--primary); }
+.lever.changed input[type="checkbox"][role="switch"]:checked { background: var(--accent); }
+input[type="checkbox"][role="switch"]:checked::before { transform: translateX(16px); }
+.seg { display: flex; background: var(--secondary); border-radius: 8px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { flex: 1; border: 0; background: none; border-radius: 6px; padding: 5px 8px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.console-foot { padding: 12px 16px 14px; border-top: 1px solid var(--line); background: var(--surface); display: grid; gap: 10px; font-size: 12.5px; color: var(--muted); }
 .foot-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-.foot-cost { font-size: 13.5px; color: var(--ink); }
-.foot-cost b { font-family: var(--f-data); }
-.foot-cost.over b { color: var(--bad); }
-.textbtn { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 4px 0; }
-.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 14.5px; }
-.btn-primary { background: var(--accent); color: var(--surface); }
-.btn-force { background: var(--bad); color: var(--surface); }
-.btn-ghost { background: var(--paper); border: 1px solid var(--line); }
+.foot-cost { font-size: 13px; color: var(--ink); }
+.foot-cost b { font-weight: 600; }
+.foot-cost b.ok { color: var(--good); } .foot-cost b.ko { color: var(--bad); } .foot-cost b.warn { color: var(--warn); }
+.textbtn { border: 0; background: none; color: var(--ink); font-weight: 500; font-size: 13px; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border: 1px solid transparent; border-radius: 8px; padding: 0 16px; font-weight: 500; font-size: 13.5px; white-space: nowrap; box-shadow: var(--shadow); transition: background .15s, opacity .15s; }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: 6px; }
+.btn-primary { background: var(--primary); color: var(--primary-fg); }
+.btn-primary:hover:not(:disabled) { opacity: .9; }
+.btn-destructive { background: var(--bad); color: #FFFFFF; }
+.btn-destructive:hover:not(:disabled) { opacity: .9; }
+.btn-ghost { background: none; box-shadow: none; }
+.btn-ghost:hover { background: var(--secondary); }
+.btn-outline { background: var(--surface); border-color: var(--line); }
+.btn-outline:hover:not(:disabled) { background: var(--secondary); }
+.btn-outline[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.outline-btn { display: inline-flex; align-items: center; height: 36px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 0 14px; font-weight: 500; font-size: 13.5px; box-shadow: var(--shadow); }
+.outline-btn:hover { background: var(--secondary); }
 
-.results { display: grid; gap: 20px; min-width: 0; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
-.panel h2 { font-family: var(--f-display); font-weight: 700; font-size: 21px; margin: 0 0 4px; letter-spacing: -.01em; text-wrap: balance; }
-.panel .sub { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
-.panel.verdict-panel.lost { border: 2px solid var(--bad); }
-.panel.verdict-panel.ok { border: 2px solid var(--good); }
-.panel.verdict-panel.turn { border: 2px solid var(--accent); }
-.ending { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); line-height: 1.05; margin: 0 0 10px; letter-spacing: -.015em; text-wrap: balance; }
+/* Cartes de résultats */
+.results { display: grid; gap: 16px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; min-width: 0; }
+.panel h2 { font-family: var(--f-display); font-weight: 600; font-size: 17px; margin: 0 0 4px; letter-spacing: -.015em; text-wrap: balance; }
+.panel .sub { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+.panel.verdict-panel { position: relative; overflow: hidden; padding-left: 24px; }
+.panel.verdict-panel::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
+.panel.verdict-panel.lost::before { background: var(--bad); }
+.panel.verdict-panel.ok::before { background: var(--good); }
+.ending { font-family: var(--f-display); font-weight: 700; font-size: clamp(22px, 2.8vw, 30px); line-height: 1.1; margin: 0 0 10px; letter-spacing: -.03em; text-wrap: balance; }
 .lost .ending { color: var(--bad); }
 .ok .ending { color: var(--good); }
-.turn .ending { color: var(--accent); }
-.verdict { font-size: 16px; line-height: 1.6; margin: 0; max-width: 70ch; }
-.verdict b { font-weight: 600; }
+.verdict { font-size: 15px; line-height: 1.65; margin: 0; max-width: 72ch; color: var(--muted); }
+.verdict b { font-weight: 600; color: var(--ink); }
 .verdict-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.verdict-actions:empty { display: none; }
 
+.badge { display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 500; line-height: 1.5; padding: 1px 8px; border-radius: 6px; border: 1px solid transparent; white-space: nowrap; width: fit-content; }
+.badge.ok { background: var(--good-soft); color: var(--good); }
+.badge.ko { background: var(--bad-soft); color: var(--bad); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge.muted { background: var(--secondary); color: var(--muted); }
+.viewseg .badge:empty { display: none; }
+.viewseg .badge { background: var(--warn-soft); color: var(--warn); padding: 0 6px; font-family: var(--f-data); }
+
+/* Assemblée */
+.asm { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: center; }
+svg.hemi { width: 100%; max-width: 440px; height: auto; display: block; margin-inline: auto; }
+svg.hemi .seat { opacity: .9; }
+svg.hemi .seat.gov { opacity: 1; stroke: var(--surface); stroke-width: .8; }
+svg.hemi .hemi-big { font-family: var(--f-display); font-weight: 700; font-size: 30px; fill: var(--ink); letter-spacing: -.03em; }
+svg.hemi .hemi-small { font-family: var(--f-body); font-size: 11px; fill: var(--muted); }
+.asm-side { display: grid; gap: 10px; min-width: 0; }
+.asm-note { margin: 0; font-size: 12.5px; color: var(--muted); }
+.votebar { display: grid; gap: 8px; }
+.vb-track { position: relative; display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--secondary); }
+.votebar.compact .vb-track { height: 8px; }
+.vb-track span { height: 100%; }
+.vb-pour { background: var(--good); }
+.vb-abst { background: var(--ref); }
+.vb-contre { background: var(--warn); }
+.vb-censure { background: var(--bad); }
+.vb-maj { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); transform: translateX(-1px); }
+.vb-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vb-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+.d-pour { background: var(--good); } .d-abst { background: var(--ref); } .d-contre { background: var(--warn); } .d-censure { background: var(--bad); }
+.blocs { display: grid; margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.bloc { display: grid; grid-template-columns: 10px minmax(0, 1fr) 40px 44px 92px; gap: 4px 12px; align-items: center; padding: 10px 14px; }
+.bloc + .bloc { border-top: 1px solid var(--line); }
+.b-dot { width: 10px; height: 10px; border-radius: 3px; }
+.b-name { font-weight: 500; font-size: 13.5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.b-why { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.why.neg { color: var(--bad); } .why.pos { color: var(--good); }
+.b-seats, .b-score { font-size: 12.5px; text-align: right; color: var(--muted); }
+.b-score { color: var(--ink); }
+.bloc > .badge { justify-self: end; }
+.b-nego { grid-column: 2 / -1; display: flex; justify-content: flex-end; }
+
+/* Journal */
 .journal { list-style: none; margin: 0; padding: 0; display: grid; }
-.journal li { display: grid; grid-template-columns: 46px 14px minmax(0, 1fr); gap: 10px; padding-block: 8px; }
-.journal li + li { border-top: 1px dashed var(--line); }
-.journal .j-year { font-family: var(--f-data); font-size: 13px; font-weight: 600; color: var(--muted); padding-top: 1px; }
-.journal .j-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; background: var(--ref); }
+.journal li { display: grid; grid-template-columns: 44px 14px minmax(0, 1fr); gap: 10px; padding-block: 9px; }
+.journal li + li { border-top: 1px solid var(--line); }
+.journal .j-year { font-family: var(--f-data); font-size: 12.5px; font-weight: 500; color: var(--muted); padding-top: 1px; }
+.journal .j-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--ref); }
 .journal .bad .j-dot { background: var(--bad); }
 .journal .good .j-dot { background: var(--good); }
 .journal .warn .j-dot { background: var(--warn); }
 .journal .info .j-dot { background: var(--accent); }
 .journal .end .j-dot { background: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
-.journal .j-title { font-weight: 600; font-size: 14.5px; }
+.journal .j-title { font-weight: 500; font-size: 13.5px; }
 .journal .end .j-title { color: var(--bad); }
-.journal .j-detail { font-size: 13px; color: var(--muted); }
-.journal .empty { display: block; color: var(--muted); font-size: 14px; }
+.journal .j-detail { font-size: 12.5px; color: var(--muted); }
+.journal .empty { display: block; grid-column: 1 / -1; color: var(--muted); font-size: 13.5px; }
 
-.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
-.legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid var(--accent); vertical-align: middle; margin-right: 6px; }
+/* Graphiques */
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 16px; height: 0; border-top: 2.5px solid var(--accent); vertical-align: middle; margin-right: 6px; }
 .legend i.ref { border-top: 2px dashed var(--ref); }
 .legend i.limit { border-top: 2px dashed var(--warn); }
 .legend i.limit-bad { border-top: 2px dashed var(--bad); }
 svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
 svg.chart text { font-family: var(--f-data); font-size: 11px; fill: var(--muted); }
-svg.chart .grid { stroke: var(--line); stroke-width: 1; }
+svg.chart .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
 svg.chart .axis0 { stroke: var(--muted); stroke-width: 1; }
-svg.chart .l-player { fill: none; stroke: var(--accent); stroke-width: 2.75; stroke-linejoin: round; }
-svg.chart .a-player { fill: var(--accent-soft); opacity: .55; }
-svg.chart .l-ref { fill: none; stroke: var(--ref); stroke-width: 2; stroke-dasharray: 5 4; }
+svg.chart .l-player { fill: none; stroke: var(--accent); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+svg.chart .a-player { fill: var(--accent); opacity: .08; }
+svg.chart .l-ref { fill: none; stroke: var(--ref); stroke-width: 1.75; stroke-dasharray: 4 4; }
 svg.chart .t-player { fill: var(--accent); font-weight: 600; font-size: 12px; }
 svg.chart .t-limit { fill: var(--warn); }
 svg.chart .t-limit-bad { fill: var(--bad); }
-svg.chart .limit { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 4 4; }
-svg.chart .limit-bad { stroke: var(--bad); stroke-width: 1.5; stroke-dasharray: 4 4; }
-svg.chart .bar-good { fill: var(--good); }
-svg.chart .bar-bad { fill: var(--bad); }
-svg.chart .tick-ref { stroke: var(--ink); stroke-width: 2; opacity: .45; }
-svg.chart .after { fill: var(--bad-soft); opacity: .7; }
+svg.chart .limit { stroke: var(--warn); stroke-width: 1.25; stroke-dasharray: 4 4; }
+svg.chart .limit-bad { stroke: var(--bad); stroke-width: 1.25; stroke-dasharray: 4 4; }
+svg.chart .bar-good { fill: var(--good); opacity: .85; }
+svg.chart .bar-bad { fill: var(--bad); opacity: .85; }
+svg.chart .tick-ref { stroke: var(--ink); stroke-width: 2; opacity: .4; }
+svg.chart .after { fill: var(--bad-soft); opacity: .6; }
 svg.chart .t-after { fill: var(--bad); font-weight: 600; }
-svg.chart .future { fill: var(--paper); opacity: .8; }
+svg.chart .future { fill: var(--secondary); opacity: .7; }
 svg.chart .t-future { fill: var(--muted); }
-.charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 
-.groups { display: grid; gap: 8px; }
-.grow { display: grid; grid-template-columns: minmax(0, 1fr) 54px; gap: 2px 10px; font-size: 13px; align-items: center; }
-.grow .g-val { font-family: var(--f-data); font-size: 12.5px; text-align: right; }
-.grow .g-bar { grid-column: 1 / -1; height: 7px; background: var(--paper); border-radius: 4px; position: relative; overflow: hidden; }
-.grow .g-bar div { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 4px; }
+/* Groupes, objectifs, budget */
+.groups { display: grid; gap: 9px; }
+.grow { display: grid; grid-template-columns: minmax(0, 1fr) 54px; gap: 3px 10px; font-size: 13px; align-items: center; }
+.grow .g-val { font-family: var(--f-data); font-size: 12px; text-align: right; }
+.grow .g-bar { grid-column: 1 / -1; height: 6px; background: var(--secondary); border-radius: 999px; position: relative; overflow: hidden; }
+.grow .g-bar div { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 999px; }
 .grow.pos .g-bar div { background: var(--bad); }
 .grow.neg .g-bar div { background: var(--good); }
 .grow.biz .g-bar div { background: var(--warn); }
-.groups-note { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
-
-.objectives { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.objectives li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 8px; background: var(--paper); }
-.pill { font-family: var(--f-data); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em; white-space: nowrap; }
+.groups-note { font-size: 12.5px; color: var(--muted); margin: 14px 0 0; }
+.objectives { list-style: none; margin: 0; padding: 0; display: grid; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.objectives li { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; }
+.objectives li + li { border-top: 1px solid var(--line); }
+.pill { font-size: 11.5px; font-weight: 500; padding: 1px 8px; border-radius: 6px; white-space: nowrap; text-align: center; }
 .pill.ok { background: var(--good-soft); color: var(--good); }
 .pill.ko { background: var(--bad-soft); color: var(--bad); }
-.pill.wait { background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
-.objectives .o-title { font-weight: 600; font-size: 14px; }
-.objectives .o-why { font-size: 12.5px; color: var(--muted); }
-.objectives .o-val { font-family: var(--f-data); font-size: 12.5px; color: var(--muted); text-align: right; }
-.score { font-family: var(--f-display); font-weight: 800; font-size: 28px; float: right; line-height: 1; }
-
-.yearpick { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
-.split h3 { font-size: 13px; font-family: var(--f-data); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; font-weight: 600; display: flex; justify-content: space-between; }
-.split h3 span { color: var(--ink); }
-.rows { display: grid; gap: 7px; }
-.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font-size: 13px; }
+.pill.wait { background: var(--secondary); color: var(--muted); }
+.objectives .o-title { font-weight: 500; font-size: 13.5px; }
+.objectives .o-why { font-size: 12px; color: var(--muted); }
+.objectives .o-val { font-family: var(--f-data); font-size: 12px; color: var(--muted); text-align: right; }
+.score { font-family: var(--f-data); font-weight: 600; font-size: 13px; float: right; line-height: 1; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.yearpick { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.split h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; display: flex; justify-content: space-between; }
+.split h3 span { color: var(--ink); text-transform: none; letter-spacing: 0; }
+.rows { display: grid; gap: 8px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: 13px; }
 .row .r-label { min-width: 0; }
-.row .r-val { font-family: var(--f-data); font-size: 12.5px; text-align: right; white-space: nowrap; }
+.row .r-val { font-family: var(--f-data); font-size: 12px; text-align: right; white-space: nowrap; }
 .row .r-val small { color: var(--muted); font-size: 11px; margin-left: 4px; }
-.row .r-bar { grid-column: 1 / -1; height: 6px; background: var(--paper); border-radius: 3px; overflow: hidden; }
-.row .r-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
-.row.is-debt .r-bar div { background: var(--bad); }
-.row.is-rev .r-bar div { background: var(--good); }
+.row .r-bar { grid-column: 1 / -1; height: 6px; background: var(--secondary); border-radius: 999px; overflow: hidden; }
+.row .r-bar div { height: 100%; background: var(--primary); opacity: .8; border-radius: 999px; }
+.row.is-debt .r-bar div { background: var(--bad); opacity: 1; }
+.row.is-rev .r-bar div { background: var(--good); opacity: 1; }
 .up { color: var(--bad); } .down { color: var(--good); }
 .is-rev .up { color: var(--good); } .is-rev .down { color: var(--bad); }
 
-.engine { display: grid; gap: 20px; padding-top: 8px; }
+/* Moteur */
+.engine { display: grid; gap: 20px; padding-top: 20px; }
 .eng-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
 .eng-head p { margin: 0; max-width: 72ch; color: var(--muted); }
-.eng-head h2 { font-family: var(--f-display); font-weight: 800; font-size: clamp(26px, 3.4vw, 36px); margin: 0 0 6px; letter-spacing: -.015em; }
-.eng-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: start; }
-.eng-grid .panel { padding-block: 16px 6px; }
+.eng-head h2 { font-family: var(--f-display); font-weight: 700; font-size: clamp(24px, 3vw, 30px); margin: 0 0 6px; letter-spacing: -.03em; }
+.eng-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; align-items: start; }
+.eng-grid .panel { padding-block: 18px 6px; }
 .eng-grid .panel > .sub { margin-bottom: 0; }
-.outline-btn { border: 1px solid var(--accent); color: var(--accent); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 13.5px; }
 
-details.sources summary { cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 19px; }
-.tablewrap { overflow-x: auto; margin-top: 12px; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
-th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { font-family: var(--f-data); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+/* Sources */
+details.sources summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+.tablewrap { overflow-x: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 560px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 12px; color: var(--muted); font-weight: 500; background: var(--secondary); }
 td.v { font-family: var(--f-data); white-space: nowrap; }
-.tag { font-family: var(--f-data); font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+.tag { font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 6px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
 .tag.ok { background: var(--good-soft); color: var(--good); }
-td a { color: var(--accent); }
-.limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; display: grid; gap: 4px; max-width: 78ch; }
-footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 75ch; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+td a { color: var(--ink); text-decoration-color: var(--ref); text-underline-offset: 2px; }
+.limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; max-width: 78ch; }
+footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 75ch; }
 
 @media (max-width: 1060px) {
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .kpi.status { grid-column: 1 / -1; }
-  .console { top: calc(env(safe-area-inset-top, 0px) + 210px); max-height: calc(100vh - 226px); }
+  .console { top: calc(env(safe-area-inset-top, 0px) + 236px); max-height: calc(100vh - 252px); }
+  .asm { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 960px) {
   main.board { grid-template-columns: minmax(0, 1fr); }
@@ -263,23 +352,27 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   .charts { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
+  .dash { position: static; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .kpi { padding: 7px 10px; }
+  .kpi { padding: 8px 10px; }
   .kpi .k-sub { display: none; }
   .kpi.status .k-sub { display: block; white-space: normal; }
   .viewhint { display: none; }
   .split { grid-template-columns: minmax(0, 1fr); }
-  .objectives li { grid-template-columns: auto minmax(0, 1fr); }
+  .objectives li { grid-template-columns: 70px minmax(0, 1fr); }
   .objectives .o-val { grid-column: 2; text-align: left; }
+  .bloc { grid-template-columns: 10px minmax(0, 1fr) auto; }
+  .b-seats, .b-score { display: none; }
+  .panel { padding: 16px; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .row .r-bar div, .grow .g-bar div, .capbar div { transition: width .25s ease; }
+  .row .r-bar div, .grow .g-bar div, .capbar div, .vb-track span { transition: width .25s ease; }
 }
 </style>
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.6</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -321,6 +414,17 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
         <p class="ending" id="ending"></p>
         <p class="verdict" id="verdict"></p>
         <div class="verdict-actions" id="verdictActions"></div>
+      </div>
+
+      <div class="panel" id="assemblyPanel">
+        <h2>L'Assemblée nationale</h2>
+        <p class="sub" id="asmSub"></p>
+        <div class="asm">
+          <svg class="hemi" id="hemi" viewBox="0 0 420 222" role="img" aria-label="Hémicycle : répartition des 577 sièges par bloc"></svg>
+          <div class="asm-side" id="asmSide"></div>
+        </div>
+        <div class="blocs" id="blocs"></div>
+        <p class="groups-note">Composition simplifiée de l'Assemblée élue en 2024, en six blocs. Chaque groupe juge le budget sur la colère qu'il provoque chez ses électeurs à l'horizon 2030, et la droite comme le centre aussi sur le déficit évité. Les poids sont des choix de conception, réglables dans le moteur.</p>
       </div>
 
       <div class="panel">
@@ -390,7 +494,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       <div class="panel">
         <details class="sources">
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.5. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.6. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -403,6 +507,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
             <li>La colère suit avec inertie la somme des pertes infligées à chaque groupe, plus le chômage. Ses coefficients sont des choix de conception, réglables dans le moteur.</li>
             <li>En mandat, les chocs sont tirés au hasard en début de partie et révélés année après année. Le capital politique est une convention de jeu.</li>
             <li>Les seuils de fin de partie sont des conventions de jeu adossées à des précédents. Aucun seuil réel n'est mécanique.</li>
+            <li>L'Assemblée est réduite à six blocs qui votent d'un seul tenant. Chacun juge le budget sur la colère de ses électeurs à l'horizon 2030 et, pour certains, sur le déficit évité. Aucune défection individuelle, aucun amendement.</li>
             <li>Pas encore de ménages types : le modèle dit quel groupe perd, pas combien chaque foyer paie.</li>
           </ul>
         </details>
@@ -484,6 +589,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { id: "tva", sec: "rec-conso", label: "TVA, taux normal", min: 15, max: 25, step: 0.5, ref: 20, fmt: pct, note: "Deux tiers de la consommation. 1 point ≈ 8,9 Md€." },
     { id: "tvaInt", sec: "rec-conso", label: "TVA, taux intermédiaire", min: 5.5, max: 20, step: 0.5, ref: 10, fmt: pct, note: "Restauration, travaux, transports. 1 point ≈ 1,9 Md€." },
     { id: "tvaRed", sec: "rec-conso", label: "TVA, taux réduit", min: 2.5, max: 10, step: 0.5, ref: 5.5, fmt: pct, note: "Alimentation, énergie, livres. 1 point ≈ 2,4 Md€. Le taux de 2,1 % (médicaments, presse) ne bouge pas." },
+    { id: "accises", sec: "rec-conso", label: "Accises sur le tabac et l'alcool", min: -20, max: 50, step: 5, ref: 0, fmt: sPct, note: "≈ 18,5 Md€ (tabac ≈ 14, alcool ≈ 4,5, estimation). Une hausse pousse vers la contrebande et les achats frontaliers." },
     { id: "carbone", sec: "rec-conso", label: "Taxe carbone sur l'énergie", min: 0, max: 150, step: 5, ref: 45, fmt: v => `${f0(v)} € / tonne`, note: "Gelée à 44,6 €/t depuis 2018, après les gilets jaunes. 10 €/t ≈ 2 Md€ (estimation)." },
 
     { id: "csg", sec: "rec-revenus", label: "CSG, tous les taux", min: -3, max: 3, step: 0.25, ref: 0, fmt: sPt, note: "9,2 % sur les salaires, 8,3 % sur la plupart des pensions. 1 point ≈ 17,5 Md€." },
@@ -496,6 +602,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { id: "zucman", sec: "rec-capital", type: "toggle", label: "Impôt plancher de 2 % sur les patrimoines de plus de 100 M€", ref: false, note: "Populaire, mais les investisseurs le lisent comme un signal hostile. Rendement débattu : de 5 à 20 Md€." },
 
     { id: "is", sec: "rec-entreprises", label: "Impôt sur les sociétés", min: 15, max: 35, step: 0.5, ref: 25, fmt: pct, note: "1 point ≈ 2,4 Md€ avant réaction des entreprises." },
+    { id: "surtaxeIS", sec: "rec-entreprises", type: "toggle", label: "Surtaxe d'impôt sur les sociétés des grandes entreprises", ref: false, note: "Contribution exceptionnelle des entreprises de plus de 1 Md€ de chiffre d'affaires, votée pour 2025. ≈ 8 Md€ par an." },
+    { id: "prod", sec: "rec-entreprises", label: "Impôts de production (CVAE, C3S)", min: -100, max: 50, step: 10, ref: 0, fmt: sPct, note: "≈ 9,5 Md€ (estimation). Les entreprises demandent leur suppression depuis dix ans : la CVAE a déjà été divisée par deux en 2023." },
     { id: "alleg", sec: "rec-entreprises", label: "Allègements de cotisations patronales", min: 0, max: 120, step: 5, ref: 100, fmt: v => `${f0(v)} % conservés`, note: "≈ 78 Md€ par an, surtout sur les bas salaires. Les réduire rapporte, au prix d'emplois peu qualifiés." },
     { id: "cir", sec: "rec-entreprises", label: "Crédit d'impôt recherche", min: 0, max: 150, step: 10, ref: 100, fmt: v => `${f0(v)} % conservé`, note: "≈ 7,9 Md€, l'un des dispositifs les plus généreux de l'OCDE." },
     { id: "niches", sec: "rec-entreprises", label: "Autres niches fiscales supprimées", min: 0, max: 50, step: 5, ref: 0, fmt: v => `${f0(v)} %`, note: "≈ 75 Md€ hors crédit d'impôt recherche : emploi à domicile, dons, investissement outre-mer, carburants professionnels…" },
@@ -507,6 +615,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
     { id: "idxPrest", sec: "dep-social", label: "Revalorisation des prestations sociales", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Allocations familiales, RSA, AAH, aides au logement : ≈ 124 Md€." },
     { id: "chom", sec: "dep-social", label: "Assurance chômage", min: -30, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 37 Md€ d'indemnisation. Se règle par la durée et le montant des droits." },
+    { id: "apl", sec: "dep-social", label: "Aides personnelles au logement", min: -30, max: 20, step: 5, ref: 0, fmt: sPct, note: "APL, ALF, ALS : ≈ 15 Md€ pour 5,8 millions de foyers. En 2017, 5 € de moins par mois ont coûté cher au gouvernement." },
     { id: "ondam", sec: "dep-social", label: "Hausse annuelle des dépenses de santé", min: 1, max: 5, step: 0.1, ref: 3, fmt: v => `${smart(v)} % par an`, note: "L'objectif national (ONDAM) ≈ 256 Md€. Vieillissement et innovation poussent vers 3 à 4 %." },
 
     { id: "point", sec: "dep-services", label: "Point d'indice des fonctionnaires", min: -1, max: 2, step: 0.1, ref: 0, fmt: vsInfl, note: "1 % de point d'indice ≈ 2,1 Md€." },
@@ -515,6 +624,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { id: "secu", sec: "dep-services", label: "Sécurité et justice", min: -15, max: 20, step: 1, ref: 0, fmt: sPct, note: "Police, gendarmerie, justice, prisons : ≈ 52 Md€." },
     { id: "coll", sec: "dep-services", label: "Dépenses des collectivités locales", min: -1.5, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "≈ 330 Md€. L'État agit par les dotations et les règles d'encadrement." },
 
+    { id: "aidesEnt", sec: "dep-avenir", label: "Subventions directes aux entreprises", min: -50, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 30 Md€ ciblables (estimation) : aides à l'embauche, à l'apprentissage, à l'industrie. Le Sénat chiffre l'ensemble des aides publiques à 211 Md€ en 2025, niches et allègements compris." },
     { id: "invest", sec: "dep-avenir", label: "Investissement public supplémentaire", min: -20, max: 40, step: 1, ref: 0, fmt: v => v === 0 ? "inchangé" : `${signed(v)} Md€ par an`, note: "Transition écologique, réseaux, recherche. Il peut relever la croissance future : effet réglable dans le moteur." },
 
     { id: "def", sec: "dep-monde", label: "Effort de défense visé", min: 1.55, max: 3.55, step: 0.1, ref: 1.85, fmt: v => `${smart(v)} % du PIB`, note: "≈ 54 Md€, 1,85 % du PIB. L'OTAN demande au moins 2 %. L'effort bouge de 0,3 point par an au plus." },
@@ -524,7 +634,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     "rec-conso": "Consommation", "rec-revenus": "Revenus", "rec-capital": "Patrimoine et capital",
     "rec-entreprises": "Entreprises", "rec-controle": "Contrôle",
     "dep-retraites": "Retraites", "dep-social": "Protection sociale et santé", "dep-services": "Services publics",
-    "dep-avenir": "Avenir", "dep-monde": "La France dans le monde"
+    "dep-avenir": "Économie et avenir", "dep-monde": "La France dans le monde"
   };
 
   // ---------- Paramètres du moteur ----------
@@ -539,12 +649,24 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { sec: "seuils", id: "ecb", type: "toggle", label: "La BCE protège les pays qui respectent les règles", ref: true, note: "Instrument créé en 2022 : la BCE peut acheter la dette d'un pays attaqué, s'il respecte le cadre budgétaire européen." },
     { sec: "seuils", id: "ecbCap", label: "Écart maximal toléré par la BCE", min: 100, max: 400, step: 25, ref: 200, fmt: v => `${f0(v)} pb`, note: "Niveau auquel le bouclier contient l'écart quand il s'active. Choix de conception." },
 
-    { sec: "mandat", id: "capital0", label: "Capital politique de départ", min: 40, max: 150, step: 5, ref: 100, fmt: v => `${f0(v)} points`, note: "Ce que vaut une majorité fraîchement élue." },
-    { sec: "mandat", id: "capBase", label: "Coût fixe d'une mesure", min: 0, max: 10, step: 1, ref: 3, fmt: v => `${f0(v)} points`, note: "Chaque mesure demande des négociations, même une mesure populaire." },
-    { sec: "mandat", id: "capPerPain", label: "Coût par point de colère provoqué", min: 0, max: 4, step: 0.1, ref: 1.2, fmt: v => `${smart(v)} point`, note: "Plus une mesure fait mal, plus elle est difficile à faire voter." },
-    { sec: "mandat", id: "capRegen", label: "Capital regagné chaque année", min: 0, max: 40, step: 1, ref: 15, fmt: v => `${f0(v)} points`, note: "Moins 10 pendant un mouvement social, plus 5 si le déficit baisse, plus 30 après une élection gagnée." },
-    { sec: "mandat", id: "force493Anger", label: "Colère provoquée par un 49.3", min: 0, max: 20, step: 1, ref: 8, fmt: v => `${f0(v)} points`, note: "Passer en force vide le capital et irrite l'opinion." },
+    { sec: "mandat", id: "gov", type: "choice", label: "Qui gouverne", ref: "centre", options: [["centre", "Bloc central et LR"], ["gauche", "Gauche unie"], ["rn", "RN et LR"]], note: "S'applique à la partie suivante. Aucune de ces coalitions n'a la majorité absolue de 289 sièges." },
+    { sec: "mandat", id: "capital0", label: "Capital politique de départ", min: 0, max: 150, step: 5, ref: 60, fmt: v => `${f0(v)} points`, note: "La monnaie des négociations avec les groupes d'opposition." },
+    { sec: "mandat", id: "capRegen", label: "Capital regagné chaque année", min: 0, max: 40, step: 1, ref: 15, fmt: v => `${f0(v)} points`, note: "Moins 10 pendant un mouvement social, plus 5 si le déficit baisse, plus 30 après une élection gagnée. Plafond : 150." },
     { sec: "mandat", id: "shockFreq", label: "Fréquence des chocs", min: 0, max: 3, step: 0.25, ref: 1, fmt: v => `×${smart(v)}`, note: "S'applique à la partie suivante. À ×1 : environ une récession tous les onze ans, une crise de l'énergie tous les quatorze." },
+
+    { sec: "assemblee", id: "govLoyalty", label: "Soutien des groupes de la coalition", min: 0, max: 10, step: 0.5, ref: 4, fmt: v => `${signed(v)}`, note: "Score de départ des groupes qui gouvernent. Ils lâchent le gouvernement si le budget frappe trop leurs électeurs." },
+    { sec: "assemblee", id: "kPain", label: "Sensibilité des groupes à la colère de leurs électeurs", min: 0, max: 1, step: 0.05, ref: 0.35, fmt: v => smart(v), note: "Points de score perdus par point de colère d'un groupe social que le bloc représente pleinement. Choix de conception." },
+    { sec: "assemblee", id: "censureAt", label: "Seuil de censure", min: 1, max: 10, step: 0.5, ref: 4, fmt: v => `score ≤ −${smart(v)}`, note: "Un groupe vote la censure quand son score tombe sous ce seuil. Il faut 289 voix pour renverser le gouvernement." },
+    { sec: "assemblee", id: "negoCost", label: "Coût d'une négociation", min: 0, max: 60, step: 5, ref: 20, fmt: v => `${f0(v)} points`, note: "Capital dépensé pour un accord avec un groupe : un amendement, une concession, une promesse." },
+    { sec: "assemblee", id: "negoGain", label: "Effet d'une négociation", min: 0, max: 5, step: 0.5, ref: 2, fmt: v => `+${smart(v)} de score`, note: "Vaut pour le budget de l'année. L'an suivant, tout est à refaire." },
+    { sec: "assemblee", id: "force493Anger", label: "Colère provoquée par un 49.3", min: 0, max: 20, step: 1, ref: 6, fmt: v => `${f0(v)} points`, note: "Le budget passe sans vote, sauf si une motion de censure réunit 289 voix." },
+    { sec: "assemblee", id: "legSwing", label: "Sièges gagnés aux législatives par point de colère", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} siège`, note: "Après une présidentielle gagnée, le président dissout. Sa coalition gagne ce nombre de sièges par point de colère sous le seuil électoral." },
+    { sec: "assemblee", id: "b_lfi", label: "Opposition de principe : LFI et communistes", min: -10, max: 2, step: 0.5, ref: -6, fmt: v => signed(v), note: "Score de départ d'un groupe qui ne gouverne pas, avant l'effet du budget." },
+    { sec: "assemblee", id: "b_ps", label: "Opposition de principe : socialistes et écologistes", min: -10, max: 2, step: 0.5, ref: -2.5, fmt: v => signed(v), note: null },
+    { sec: "assemblee", id: "b_liot", label: "Opposition de principe : indépendants", min: -10, max: 2, step: 0.5, ref: -1, fmt: v => signed(v), note: null },
+    { sec: "assemblee", id: "b_centre", label: "Opposition de principe : bloc central", min: -10, max: 2, step: 0.5, ref: -1.5, fmt: v => signed(v), note: null },
+    { sec: "assemblee", id: "b_lr", label: "Opposition de principe : droite républicaine", min: -10, max: 2, step: 0.5, ref: -1.5, fmt: v => signed(v), note: null },
+    { sec: "assemblee", id: "b_rn", label: "Opposition de principe : RN et alliés", min: -10, max: 2, step: 0.5, ref: -3.5, fmt: v => signed(v), note: null },
 
     { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 6, step: 0.1, ref: 3.4, fmt: pct, note: "Le taux de référence en zone euro : 3,4 % en octobre 2026. La France emprunte à ce taux plus son écart." },
     { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 200, step: 5, ref: 70, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part. Calé pour retrouver un écart d'environ 105 pb en 2026 (97 pb en moyenne en septembre 2026, 151 pb le 20 octobre, 65 pb en moyenne en 2024) : il inclut la prime d'instabilité politique." },
@@ -599,6 +721,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { sec: "fuites", id: "l_energie", label: "Taxe carbone", min: 0, max: 0.8, step: 0.05, ref: 0.15, fmt: share, note: "Ici, la baisse de consommation est le but recherché." },
     { sec: "fuites", id: "l_csg", label: "CSG", min: 0, max: 0.8, step: 0.05, ref: 0.05, fmt: share, note: null },
     { sec: "fuites", id: "l_ir", label: "Impôt sur le revenu", min: 0, max: 0.8, step: 0.05, ref: 0.25, fmt: share, note: null },
+    { sec: "fuites", id: "l_accises", label: "Accises tabac et alcool", min: 0, max: 0.8, step: 0.05, ref: 0.40, fmt: share, note: "Un paquet sur trois fumé en France est déjà acheté ailleurs ou de contrebande." },
     { sec: "fuites", id: "l_capital", label: "Capital", min: 0, max: 0.8, step: 0.05, ref: 0.40, fmt: share, note: "Les revenus du capital se déplacent ou se reportent facilement." },
     { sec: "fuites", id: "l_succ", label: "Successions", min: 0, max: 0.8, step: 0.05, ref: 0.20, fmt: share, note: null },
     { sec: "fuites", id: "l_is", label: "Impôt sur les sociétés", min: 0, max: 0.8, step: 0.05, ref: 0.30, fmt: share, note: null },
@@ -611,7 +734,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   ];
   const ENG_SECS = [
     ["seuils", "Seuils de fin de partie", "Les bornes du jeu. Chacune est adossée à un précédent, aucune n'est automatique dans la réalité."],
-    ["mandat", "Le mandat", "Capital politique et hasard, en mode tour par tour."],
+    ["mandat", "Le mandat", "Coalition, capital politique et hasard, en mode tour par tour."],
+    ["assemblee", "L'Assemblée", "Six blocs, 577 sièges. Chaque groupe note le budget selon ce qu'il coûte à ses électeurs et, pour certains, selon le déficit évité. Score au-dessus de 1 : pour. Entre −1 et 1 : abstention. En dessous : contre, puis censure."],
     ["marches", "Les marchés", "Écart de taux avec l'Allemagne, en points de base (pb). Il réagit à l'année écoulée."],
     ["rue", "La rue", "Comment la colère naît, dure et retombe."],
     ["groupes", "Colère par milliard retiré, groupe par groupe", "Combien de points d'indice coûte 1 Md€ pris à chaque groupe. Ce sont les paramètres les plus politiques du jeu."],
@@ -665,13 +789,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     const effD = 363 * k * acc.eff / 100;
     const collD = 330 * k * (acc.coll - 1);
     const apdD = on ? 14 * k * Q.apd / 100 : 0;
+    const aplD = on ? 15 * k * Q.apl / 100 : 0;
+    const aidesD = on ? 30 * k * Q.aidesEnt / 100 : 0;
     const investD = on ? Q.invest * k : 0;
     return {
       cat: {
-        retraites, sante: acc.sante, prest: prestBase + prestIdx + chomBase + chomD, educ, defense,
-        securite: 52 * k + secuD, eco: 166 * k + investD, autres: 354.5 * k + remun + effD + collD + 14 * k + apdD
+        retraites, sante: acc.sante, prest: prestBase + prestIdx + chomBase + chomD + aplD, educ, defense,
+        securite: 52 * k + secuD, eco: 166 * k + investD + aidesD, autres: 354.5 * k + remun + effD + collD + 14 * k + apdD
       },
-      retIdx, prestIdx, chomD, secuD, remun, effD, collD, apdD, investD
+      retIdx, prestIdx, chomD, aplD, aidesD, secuD, remun, effD, collD, apdD, investD
     };
   }
   // Effet mécanique (avant fuite) et effet net de chaque levier fiscal, en Md€ de 2024
@@ -679,19 +805,19 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     const bf = BF[Q.behav];
     const mech = {
       tva: (Q.tva - 20) * 8.9, tvaInt: (Q.tvaInt - 10) * 1.9, tvaRed: (Q.tvaRed - 5.5) * 2.4,
-      carbone: (Q.carbone - 45) * 0.2, csg: Q.csg * 17.5, ir: Q.ir * 4.5,
+      carbone: (Q.carbone - 45) * 0.2, accises: Q.accises / 100 * 18.5, csg: Q.csg * 17.5, ir: Q.ir * 4.5,
       abatRet: Q.abatRet ? 4.8 : 0, th: Q.th ? 19 : 0, pfu: (Q.pfu - 31.4) * 1, succ: Q.succ / 100 * 20.8,
-      is: (Q.is - 25) * 2.4, alleg: (100 - Q.alleg) / 100 * 78, cir: (100 - Q.cir) / 100 * 7.9, niches: Q.niches / 100 * 75
+      is: (Q.is - 25) * 2.4, surtaxeIS: Q.surtaxeIS ? 8 : 0, prod: Q.prod / 100 * 9.5, alleg: (100 - Q.alleg) / 100 * 78, cir: (100 - Q.cir) / 100 * 7.9, niches: Q.niches / 100 * 75
     };
-    const leakOf = { tva: Q.l_tva, tvaInt: Q.l_tva, tvaRed: Q.l_tva, carbone: Q.l_energie, csg: Q.l_csg, ir: Q.l_ir, abatRet: 0, th: 0,
-      pfu: Q.l_capital, succ: Q.l_succ, is: Q.l_is, alleg: Q.l_alleg, cir: Q.l_niches, niches: Q.l_niches };
+    const leakOf = { tva: Q.l_tva, tvaInt: Q.l_tva, tvaRed: Q.l_tva, carbone: Q.l_energie, accises: Q.l_accises, csg: Q.l_csg, ir: Q.l_ir, abatRet: 0, th: 0,
+      pfu: Q.l_capital, succ: Q.l_succ, is: Q.l_is, surtaxeIS: Q.l_is, prod: Q.l_is, alleg: Q.l_alleg, cir: Q.l_niches, niches: Q.l_niches };
     const net = {};
     for (const key in mech) net[key] = mech[key] * (1 - Math.min(0.95, leakOf[key] * bf));
     net.zucman = Q.zucman ? Q.zucYield * { faible: 1.6, moyen: 1, fort: 0.4 }[Q.behav] : 0;
     net.fraude = Q.fraude * Q.fraudReal / 100;
     const cat = {
       tva: net.tva + net.tvaInt + net.tvaRed, energie: net.carbone, csg: net.csg, ir: net.ir + net.abatRet + net.pfu,
-      local: net.th, is: net.is, cotis: net.alleg, autres: net.succ + net.cir + net.niches + net.zucman + net.fraude
+      local: net.th, is: net.is + net.surtaxeIS, cotis: net.alleg, autres: net.accises + net.prod + net.succ + net.cir + net.niches + net.zucman + net.fraude
     };
     return { mech, cat };
   }
@@ -699,7 +825,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   // Les montants fiscaux sont déjà en euros de 2024 ; les dépenses sont ramenées en euros de 2024 par k.
   const PAIN_MAP = [
     ["idxRet", "retraites", (s) => -s.retIdx, true], ["abatRet", "retraites", (s, r, tx) => tx.mech.abatRet],
-    ["idxPrest", "modestes", (s) => -s.prestIdx, true], ["chom", "chomeurs", (s) => -s.chomD, true],
+    ["idxPrest", "modestes", (s) => -s.prestIdx, true], ["chom", "chomeurs", (s) => -s.chomD, true], ["apl", "modestes", (s) => -s.aplD, true],
+    ["aidesEnt", "entreprises", (s) => -s.aidesD, true], ["surtaxeIS", "entreprises", (s, r, tx) => tx.mech.surtaxeIS], ["prod", "entreprises", (s, r, tx) => tx.mech.prod],
+    ["accises", "menages", (s, r, tx) => 0.5 * tx.mech.accises],
     ["ondam", "sante", (s, r) => r.cat.sante - s.cat.sante, true], ["educ", "ecole", (s, r) => r.cat.educ - s.cat.educ, true],
     ["point", "agents", (s) => -s.remun, true], ["eff", "agents", (s) => -s.effD, true],
     ["secu", "usagers", (s) => -s.secuD, true], ["coll", "usagers", (s) => -s.collD, true], ["invest", "usagers", (s) => -s.investD, true],
@@ -735,6 +863,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
   // opt.path : politique votée année par année (mandat). Sans path, la politique de P vaut pour toutes les années.
   // opt.shocks : chocs tirés au hasard ; opt.force : années votées par 49.3 ; opt.upto : dernière année simulée.
+  // opt.censure : { year, votes } si l'Assemblée a renversé le gouvernement sur un budget.
   function simulate(P, opt = {}) {
     const upto = opt.upto ?? LAST;
     const R = { ...P, ...REF_POLICY };
@@ -765,7 +894,6 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       const imp = ((sum(s.cat) - sum(sRef.cat)) - P.taxMult * dRev) / Ypot;
       if (on && !o.defeat) shocks.forEach(x => ev(t, x.kind, x.title, x.detail));
       const forced = !!(opt.force && opt.force[t]);
-      if (forced && !o.defeat) ev(t, "warn", "Budget adopté par le 49.3", `Faute de majorité, le gouvernement engage sa responsabilité. Le budget passe, la colère monte de ${f0(P.force493Anger)} points.`);
 
       // 1. Les marchés réagissent à l'année écoulée
       let spread = SPREAD0, attack = false, prot = false;
@@ -856,12 +984,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       if (!debtFell && on && d < o.d[n - 1] - 0.05) {
         debtFell = true; ev(t, "good", "La dette baisse en % du PIB", `Elle passe de ${f1(o.d[n - 1])} % à ${f1(d)} %. Une première depuis des années.`);
       }
-      if (mRate * 100 > P.ruleFMI) {
+      if (opt.censure && opt.censure.year === t) {
+        o.defeat = { year: t, type: "censure" };
+        ev(t, "end", "L'Assemblée renverse le gouvernement", `Le gouvernement engage le 49.3 sur le budget ${t}. La motion de censure recueille ${f0(opt.censure.votes)} voix, au-delà des ${MAJ} nécessaires. Une loi spéciale reconduit le budget de l'an passé.`);
+      } else if (mRate * 100 > P.ruleFMI) {
         o.defeat = { year: t, type: "fmi" };
         ev(t, "end", "Le FMI et l'Europe prennent la main", `L'État emprunte à ${f1(mRate * 100)} % à dix ans, au-delà du seuil de ${smart(P.ruleFMI)} % : il ne peut plus se financer seul. Comme la Grèce en 2010, la France reçoit un prêt contre un programme d'austérité qu'elle ne choisit plus.`);
       } else if (anger > P.ruleChute) {
         o.defeat = { year: t, type: "chute" };
-        ev(t, "end", "Le gouvernement est renversé", `Colère à ${f0(anger)}/100, au-delà du seuil de ${f0(P.ruleChute)}. ${topGroups(pn.groups)} Une motion de censure emporte la majorité.`);
+        ev(t, "end", "Le gouvernement est renversé", `Colère à ${f0(anger)}/100, au-delà du seuil de ${f0(P.ruleChute)}. ${topGroups(pn.groups)} Le gouvernement démissionne sous la pression de la rue.`);
       } else if (ELECTIONS.includes(t)) {
         if (anger > P.ruleElection) {
           o.defeat = { year: t, type: "battu" };
@@ -879,6 +1010,51 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     return top.length ? `En tête du cortège : ${top.join(" et ")}.` : "";
   }
   const idx = (y) => y - 2024;
+
+  // ---------- L'Assemblée nationale, simplifiée ----------
+  // Composition approchée de l'Assemblée élue en 2024. w : poids de la colère de chaque groupe social dans le jugement du bloc
+  // (négatif : le bloc approuve qu'on fasse payer ce groupe). hawk : points de score par point de PIB de déficit évité en 2030.
+  const BLOCS = [
+    { id: "lfi", label: "LFI et communistes", seats: 88, hawk: 0,
+      w: { modestes: .8, chomeurs: .8, agents: .7, actifs: .7, sante: .6, ecole: .6, usagers: .6, menages: .6, retraites: .4, automob: .2, solidarite: .4, opinion: .5, aises: -.6, heritiers: -.5, entreprises: -.4 } },
+    { id: "ps", label: "Socialistes et écologistes", seats: 104, hawk: .3,
+      w: { modestes: .6, chomeurs: .5, agents: .6, actifs: .6, sante: .5, ecole: .7, usagers: .5, menages: .4, retraites: .4, automob: .1, solidarite: .5, opinion: .5, aises: -.3, heritiers: -.3, entreprises: -.15 } },
+    { id: "liot", label: "Indépendants et non-inscrits", seats: 38, hawk: .5,
+      w: { menages: .4, automob: .4, retraites: .4, usagers: .5, sante: .4, modestes: .3, actifs: .3, ecole: .3, agents: .2, chomeurs: .2, entreprises: .2, heritiers: .2, aises: .1, solidarite: .1, opinion: .3 } },
+    { id: "centre", label: "Bloc central", seats: 161, hawk: 1,
+      w: { entreprises: .5, aises: .3, retraites: .3, menages: .3, heritiers: .2, actifs: .2, automob: .2, sante: .2, ecole: .2, agents: .1, usagers: .1, modestes: .1, chomeurs: .05, solidarite: .1, opinion: .1 } },
+    { id: "lr", label: "Droite républicaine", seats: 47, hawk: 1.2,
+      w: { entreprises: .6, heritiers: .6, aises: .5, retraites: .5, menages: .4, automob: .4, actifs: .2, sante: .2, usagers: .2, ecole: .1, chomeurs: -.1, solidarite: -.2 } },
+    { id: "rn", label: "RN et alliés", seats: 139, hawk: .2,
+      w: { actifs: .8, automob: .8, retraites: .7, menages: .7, modestes: .5, heritiers: .4, sante: .4, usagers: .4, agents: .3, ecole: .3, entreprises: .2, opinion: .2, aises: .1, chomeurs: .1, solidarite: -.4 } }
+  ];
+  const SEATS0 = Object.fromEntries(BLOCS.map(b => [b.id, b.seats]));
+  const SEATS = 577, MAJ = 289;
+  const GOVS = { centre: ["centre", "lr"], gauche: ["lfi", "ps"], rn: ["rn", "lr"] };
+  const POS_LABEL = { pour: "Pour", abst: "Abstention", contre: "Contre", censure: "Censure" };
+  // Le jugement porte sur la politique tenue jusqu'en 2030, sans hasard : les groupes votent sur l'effet à terme.
+  function assembly(Q, gov, seats, nego) {
+    const S = simulate(Q), R = simulate({ ...Q, ...REF_POLICY }), i = idx(2030);
+    const groups = S.groups[i] || {}, saved = R.defR[i] - S.defR[i];
+    const out = { blocs: [], pour: 0, abst: 0, contre: 0, censure: 0 };
+    BLOCS.forEach(b => {
+      const inGov = gov.includes(b.id);
+      const base = inGov ? Q.govLoyalty : Q["b_" + b.id];
+      let score = base + b.hawk * saved + (nego && nego[b.id] ? Q.negoGain : 0);
+      const parts = [];
+      for (const g in groups) { const c = -(b.w[g] || 0) * groups[g] * Q.kPain; score += c; if (Math.abs(c) >= 0.3) parts.push([g, c]); }
+      if (Math.abs(b.hawk * saved) >= 0.3) parts.push(["deficit", b.hawk * saved]);
+      parts.sort((a, c) => a[1] - c[1]);
+      const pos = score <= -Q.censureAt ? "censure" : score < -1 ? "contre" : score <= 1 ? "abst" : "pour";
+      const n = seats[b.id] || 0;
+      if (pos === "pour") out.pour += n; else if (pos === "abst") out.abst += n; else out.contre += n;
+      if (pos === "censure") out.censure += n;
+      out.blocs.push({ ...b, n, inGov, base, score, pos, parts });
+    });
+    out.passes = out.pour > out.contre;
+    out.falls = out.censure >= MAJ;
+    return out;
+  }
 
   // ---------- Partie en mode mandat ----------
   function rng(seed) {
@@ -900,15 +1076,20 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
   function newGame() {
     const seed = Math.floor(Math.random() * 1e9);
-    game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null };
+    game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null,
+      gov: GOVS[state.gov] || GOVS.centre, govKey: state.gov, seats: { ...SEATS0 }, nego: {}, extra: [] };
     draftPolicy = null;
     if (lastPlay === "mandat") Object.assign(state, REF_POLICY);
   }
   const inForce = () => game.year === FIRST ? REF_POLICY : game.path[game.year - 1];
   const played = () => game.over && game.over.type !== "fin" ? game.over.year : game.year - 1;
-  const gameOpt = () => ({ path: game.path, shocks: game.shocks, force: game.force, upto: played() });
+  const gameOpt = () => ({ path: game.path, shocks: game.shocks, force: game.force, upto: played(), censure: game.over && game.over.type === "censure" ? game.over : null });
+  const negoSpent = () => Object.keys(game.nego).length * state.negoCost;
+  const lc = (t) => /^[A-Z]{2}/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
+  const blocLabel = (id) => lc(BLOCS.find(b => b.id === id).label);
+  const note = (year, kind, title, detail, late) => game.extra.push({ year, kind, title, detail, late: !!late });
 
-  // Douleur à terme d'un levier seul (rue + moitié de l'entreprise), pour chiffrer son coût politique
+  // Douleur à terme d'un levier seul (rue + moitié de l'entreprise), pour les pastilles
   function painProxy(id, v, base, cache) {
     if (v === REF[id]) return 0;
     const key = id + "|" + v;
@@ -919,38 +1100,50 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     }
     return cache[key];
   }
-  function budgetCost(base, cache) {
-    const prev = inForce();
-    let cost = 0;
-    const per = {};
-    POLICY_IDS.forEach(id => {
-      if (state[id] === prev[id]) return;
-      const pN = painProxy(id, state[id], base, cache), pO = painProxy(id, prev[id], base, cache);
-      const hurt = (pN ? pN.street + 0.5 * pN.biz : 0) - (pO ? pO.street + 0.5 * pO.biz : 0);
-      per[id] = Math.round(state.capBase + state.capPerPain * Math.max(0, hurt));
-      cost += per[id];
-    });
-    return { cost, per };
-  }
   function vote(force) {
     if (!game || game.over) return;
-    const base = { ...state, ...REF_POLICY };
-    const { cost } = budgetCost(base, {});
-    if (!force && cost > game.capital) return;
+    const A = assembly(state, game.gov, game.seats, game.nego);
+    if (!force && !A.passes) return;
     const y = game.year;
+    game.capital -= negoSpent();
+    Object.keys(game.nego).forEach(id => note(y, "info", `Accord avec : ${blocLabel(id)}`, `Contre ${f0(state.negoCost)} points de capital, le groupe obtient des concessions sur le budget ${y}.`));
+    game.nego = {};
+    pickYear = y;
+    if (force && A.falls) {
+      game.path[y] = { ...inForce() };
+      game.over = { type: "censure", year: y, votes: A.censure };
+      save(); syncInputs(); update(); return;
+    }
     game.path[y] = policyOf(state);
-    if (force) { game.force[y] = true; game.capital = 0; } else game.capital -= cost;
+    if (force) {
+      game.force[y] = true;
+      const who = A.blocs.filter(b => b.pos === "censure").map(b => lc(b.label));
+      note(y, "warn", `Budget ${y} adopté par le 49.3`, `Faute de majorité, le gouvernement engage sa responsabilité. La motion de censure ne réunit que ${f0(A.censure)} voix sur ${MAJ}${who.length ? ` (${who.join(", ")})` : ""}. La colère monte de ${f0(state.force493Anger)} points.`);
+    }
+    else note(y, "good", `Budget ${y} voté par l'Assemblée`, `${f0(A.pour)} pour, ${f0(A.contre)} contre, ${f0(A.abst)} abstentions.`);
     const res = simulate(state, { path: game.path, shocks: game.shocks, force: game.force, upto: y });
     if (res.defeat) { game.over = res.defeat; }
     else {
       const i = idx(y);
-      let regen = state.capRegen + (res.anger[i] > state.ruleMouv ? -10 : 0) + (res.defR[i] < res.defR[i - 1] ? 5 : 0) + (res.won[y] ? 30 : 0);
+      const regen = state.capRegen + (res.anger[i] > state.ruleMouv ? -10 : 0) + (res.defR[i] < res.defR[i - 1] ? 5 : 0) + (res.won[y] ? 30 : 0);
       game.capital = clamp(game.capital + regen, 0, 150);
+      if (res.won[y]) legislatives(y, res.anger[i]);
       game.year = y + 1;
       if (game.year > LAST) game.over = { type: "fin", year: LAST };
     }
-    pickYear = y;
     save(); syncInputs(); update();
+  }
+  // Après une présidentielle gagnée, le président dissout : sa coalition gagne des sièges si la colère est basse.
+  function legislatives(y, anger) {
+    const opp = BLOCS.filter(b => !game.gov.includes(b.id)), mine = BLOCS.filter(b => game.gov.includes(b.id));
+    const oppSeats = opp.reduce((a, b) => a + game.seats[b.id], 0), mySeats = SEATS - oppSeats;
+    const swing = clamp(Math.round(state.legSwing * (state.ruleElection - anger)), 0, oppSeats);
+    let left = swing;
+    opp.forEach((b, j) => { const take = j === opp.length - 1 ? left : Math.round(swing * game.seats[b.id] / oppSeats); game.seats[b.id] -= take; left -= take; });
+    left = swing;
+    mine.forEach((b, j) => { const add = j === mine.length - 1 ? left : Math.round(swing * game.seats[b.id] / mySeats); game.seats[b.id] += add; left -= add; });
+    const total = mySeats + swing;
+    note(y, "good", `Législatives ${y} : votre coalition gagne ${f0(swing)} sièges`, `Le président élu dissout l'Assemblée. La coalition compte ${f0(total)} députés sur ${SEATS}, ${total >= MAJ ? "une majorité absolue." : `toujours ${f0(MAJ - total)} de moins que la majorité absolue.`}`, true);
   }
 
   // ---------- Construction de l'interface ----------
@@ -959,7 +1152,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   const isPlay = () => view === "mandat" || view === "sandbox";
 
   function paramHTML(p) {
-    const chips = isLever(p) ? `<span class="chips"><span class="delta neutral" data-delta></span><span class="delta neutral" data-pain></span><span class="delta cost" data-cost hidden></span></span>` : "";
+    const chips = isLever(p) ? `<span class="chips"><span class="delta neutral" data-delta></span><span class="delta neutral" data-pain></span></span>` : "";
     const today = isLever(p) ? "Aujourd'hui" : "Par défaut";
     if (p.type === "toggle") {
       return `<div class="lever" data-param="${p.id}"><div class="switch"><label for="in-${p.id}">${p.label}</label><input type="checkbox" role="switch" id="in-${p.id}"></div>
@@ -974,7 +1167,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     const pos = (p.ref - p.min) / (p.max - p.min) * 100;
     return `<div class="lever" data-param="${p.id}">
       <div class="lever-head"><label for="in-${p.id}">${p.label}</label><output id="out-${p.id}" for="in-${p.id}"></output></div>
-      <div class="track"><span class="refmark" style="--pos:${pos}%"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>
+      <div class="track"><span class="refmark" style="--pos:${pos}"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>
       <div class="lever-meta"><span data-today>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
       ${p.note || p.id === "ir" ? `<p class="lever-note" ${p.id === "ir" ? 'id="irNote"' : ""}>${p.note || ""}</p>` : ""}
     </div>`;
@@ -1037,6 +1230,12 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     else if (act === "undo") { Object.assign(state, inForce()); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "reset") { Object.assign(state, REF_POLICY); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "new") startNew();
+  });
+  $("blocs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-nego]"); if (!b || b.disabled || !game || game.over) return;
+    const id = b.dataset.nego;
+    if (game.nego[id]) delete game.nego[id]; else if (game.capital - negoSpent() >= state.negoCost) game.nego[id] = true;
+    update(); save();
   });
   $("verdictActions").addEventListener("click", (e) => { if (e.target.closest('[data-act="new"]')) startNew(); });
   function startNew() { newGame(); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
@@ -1164,6 +1363,70 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     placeLabels(svg, [{ x: W - PR + 6, y: yAt(rule), text: `${smart(rule)} %`, cls: "t-limit" }, { x: last === YEARS.length - 1 ? W - PR + 6 : xAt(last) + bw / 2 + 4, y: yAt(P[last]), text: `${f1(P[last])} %`, cls: "t-player" }]);
   }
 
+  // ---------- Hémicycle ----------
+  // Sièges rangés en rangées concentriques, puis triés par angle : chaque bloc occupe un secteur, de la gauche vers la droite.
+  const HEMI = (() => {
+    const rows = 11, r0 = 70, r1 = 196, cx = 210, cy = 206, radii = [];
+    for (let i = 0; i < rows; i++) radii.push(r0 + (r1 - r0) * i / (rows - 1));
+    const tot = radii.reduce((a, b) => a + b, 0);
+    const counts = radii.map(r => Math.floor(SEATS * r / tot));
+    let rest = SEATS - counts.reduce((a, b) => a + b, 0);
+    for (let i = rows - 1; rest > 0; i--, rest--) counts[i]++;
+    const pts = [];
+    radii.forEach((r, i) => { for (let j = 0; j < counts[i]; j++) { const a = Math.PI * (1 - j / (counts[i] - 1)); pts.push({ x: cx + r * Math.cos(a), y: cy - r * Math.sin(a), a }); } });
+    return pts.sort((p, q) => q.a - p.a);
+  })();
+  function drawHemi(svg, seats, gov) {
+    svg.replaceChildren();
+    let k = 0;
+    BLOCS.forEach(b => {
+      for (let j = 0; j < (seats[b.id] || 0) && k < HEMI.length; j++, k++) {
+        const p = HEMI[k];
+        svg.appendChild(el("circle", { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.6, fill: `var(--b-${b.id})`, class: gov.includes(b.id) ? "seat gov" : "seat" }));
+      }
+    });
+    const mine = gov.reduce((a, id) => a + (seats[id] || 0), 0);
+    svg.appendChild(el("text", { x: 210, y: 186, "text-anchor": "middle", class: "hemi-big" }, f0(mine)));
+    svg.appendChild(el("text", { x: 210, y: 204, "text-anchor": "middle", class: "hemi-small" }, `sièges pour la coalition · majorité ${MAJ}`));
+  }
+  function voteBar(A, compact) {
+    const w = (n) => `${(n / SEATS * 100).toFixed(2)}%`;
+    return `<div class="votebar${compact ? " compact" : ""}" role="img" aria-label="${f0(A.pour)} pour, ${f0(A.abst)} abstentions, ${f0(A.contre)} contre dont ${f0(A.censure)} prêts à censurer">
+      <div class="vb-track"><span class="vb-pour" style="width:${w(A.pour)}"></span><span class="vb-abst" style="width:${w(A.abst)}"></span><span class="vb-contre" style="width:${w(A.contre - A.censure)}"></span><span class="vb-censure" style="width:${w(A.censure)}"></span><i class="vb-maj" style="left:50%"></i></div>
+      <div class="vb-legend"><span><i class="d-pour"></i>Pour ${f0(A.pour)}</span><span><i class="d-abst"></i>Abstention ${f0(A.abst)}</span><span><i class="d-contre"></i>Contre ${f0(A.contre - A.censure)}</span><span><i class="d-censure"></i>Censure ${f0(A.censure)}</span></div>
+    </div>`;
+  }
+  const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : GROUPS[g].toLowerCase();
+  const POS_BADGE = { pour: "ok", abst: "muted", contre: "warn", censure: "ko" };
+  function renderAssembly(A, mandat) {
+    const gov = mandat ? game.gov : (GOVS[state.gov] || GOVS.centre);
+    const seats = mandat ? game.seats : SEATS0;
+    drawHemi($("hemi"), seats, gov);
+    const year = mandat ? (game.over ? played() : game.year) : 2026;
+    $("asmSub").textContent = mandat && !game.over
+      ? `Ce que ferait chaque groupe si le budget ${year} était mis aux voix tel quel. Le 49.3 évite le vote, mais pas la censure.`
+      : mandat ? "Composition de l'Assemblée en fin de partie." : "Ce que ferait chaque groupe si cette politique était présentée en 2026. En bac à sable, le vote ne met pas fin à la partie.";
+    const result = A.passes ? ["ok", "Budget adopté"] : A.falls ? ["ko", "Censure : le gouvernement tomberait"] : ["warn", "Rejeté, adoptable par 49.3"];
+    $("asmSide").innerHTML = `<span class="badge ${result[0]}">${result[1]}</span>${voteBar(A, false)}
+      <p class="asm-note">Il faut plus de voix pour que contre pour adopter le budget. Il faut ${MAJ} voix pour censurer le gouvernement.</p>`;
+    const canNego = mandat && !game.over;
+    const avail = mandat ? game.capital - negoSpent() : 0;
+    $("blocs").innerHTML = A.blocs.map(b => {
+      const pros = b.parts.filter(x => x[1] > 0).slice(-2).reverse(), cons = b.parts.filter(x => x[1] < 0).slice(0, 2);
+      const why = cons.map(([g, c]) => `<span class="why neg">${PART_LABEL(g)} ${signed(c, f1)}</span>`).concat(pros.map(([g, c]) => `<span class="why pos">${PART_LABEL(g)} ${signed(c, f1)}</span>`)).join("");
+      const done = canNego && game.nego[b.id];
+      const nego = canNego && !b.inGov ? `<button type="button" class="btn btn-outline btn-sm" data-nego="${b.id}" aria-pressed="${done ? "true" : "false"}" ${!done && avail < state.negoCost ? "disabled" : ""}>${done ? "Accord conclu · annuler" : `Négocier · ${f0(state.negoCost)}`}</button>` : "";
+      return `<div class="bloc">
+        <span class="b-dot" style="background:var(--b-${b.id})"></span>
+        <div class="b-main"><div class="b-name">${b.label}${b.inGov ? ` <span class="badge muted">gouvernement</span>` : ""}</div><div class="b-why">${why || `<span class="why">${b.inGov ? "soutien de la coalition" : "opposition de principe"}</span>`}</div></div>
+        <span class="b-seats num">${f0(b.n)}</span>
+        <span class="b-score num">${signed(Math.round(b.score * 10) / 10, f1)}</span>
+        <span class="badge ${POS_BADGE[b.pos]}">${POS_LABEL[b.pos]}</span>
+        ${nego ? `<div class="b-nego">${nego}</div>` : ""}
+      </div>`;
+    }).join("");
+  }
+
   // ---------- Rendu ----------
   function moneyChip(node, dMd) {
     if (Math.abs(dMd) < 0.05) { node.className = "delta neutral"; node.textContent = "0 Md€"; return; }
@@ -1184,8 +1447,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   function kpi(label, val, sub, cls, extra = "") {
     return `<div class="kpi ${cls || ""}"><span class="k-label">${label}</span><span class="k-val">${val}</span><span class="k-sub">${sub}</span>${extra}</div>`;
   }
-  const DEFEAT_LABEL = { fmi: "Tutelle", chute: "Renversé", battu: "Battu" };
-  const DEFEAT_SUB = { fmi: "Le FMI et l'Europe prennent la main", chute: "Motion de censure adoptée", battu: "Présidentielle perdue" };
+  const DEFEAT_LABEL = { fmi: "Tutelle", chute: "Renversé", battu: "Battu", censure: "Censuré" };
+  const DEFEAT_SUB = { fmi: "Le FMI et l'Europe prennent la main", chute: "La rue emporte le gouvernement", battu: "Présidentielle perdue", censure: "Motion de censure adoptée" };
 
   function update() {
     const mandat = lastPlay === "mandat";
@@ -1199,7 +1462,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     const over = mandat ? game.over : { type: P.defeat ? P.defeat.type : "fin", year: P.defeat ? P.defeat.year : LAST };
     const finished = !mandat || !!game.over;
     const cache = {};
-    const cost = mandat && !game.over ? budgetCost(refState, cache) : { cost: 0, per: {} };
+    const A = mandat ? assembly(state, game.gov, game.seats, game.over ? {} : game.nego) : assembly(state, GOVS[state.gov] || GOVS.centre, SEATS0, {});
     const prev = mandat ? (game.over ? inForceOrLast() : inForce()) : REF_POLICY;
 
     // Leviers : état, valeurs, pastilles
@@ -1214,24 +1477,22 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
         const pr = painProxy(p.id, state[p.id], refState, cache);
         moneyChip(node.querySelector("[data-delta]"), pr ? refDef30(refState, cache) - pr.def : 0);
         painChip(node.querySelector("[data-pain]"), pr || null);
-        const cc = node.querySelector("[data-cost]");
-        cc.hidden = !(mandat && cost.per[p.id] != null);
-        if (!cc.hidden) cc.textContent = `capital −${cost.per[p.id]}`;
         const label = mandat ? (game.year === FIRST && !game.over ? "Aujourd'hui" : "En vigueur") : "Aujourd'hui";
         const pv = prev[p.id];
         node.querySelector("[data-today]").textContent = `${label} : ${p.type === "toggle" ? (pv ? "oui" : "non") : p.fmt(pv)}`;
         const rm = node.querySelector(".refmark");
-        if (rm) rm.style.setProperty("--pos", `${(pv - p.min) / (p.max - p.min) * 100}%`);
+        if (rm) rm.style.setProperty("--pos", `${(pv - p.min) / (p.max - p.min) * 100}`);
       } else {
         const ch = state[p.id] !== p.ref;
         node.classList.toggle("changed", ch);
         if (ch) changedE++;
       }
       const out = $("out-" + p.id); if (out) out.textContent = p.fmt(state[p.id]);
+      const rg = p.type ? null : $("in-" + p.id); if (rg) rg.style.setProperty("--fill", `${(state[p.id] - p.min) / (p.max - p.min) * 100}%`);
     });
     tabsEl.querySelectorAll("[data-tab]").forEach(b => { b.querySelector(".tcount").textContent = perTab[b.dataset.tab] || ""; });
     $("engBadge").textContent = changedE ? ` ${changedE}` : "";
-    leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = mandat ? "Pastilles : effet sur le déficit 2030 si la mesure durait, colère à terme, et coût en capital politique pour la faire voter cette année." : "Pastilles : effet sur le déficit 2030 et colère provoquée, à terme."; });
+    leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = mandat ? "Pastilles : effet sur le déficit 2030 si la mesure durait, et colère provoquée à terme. Le vote de l'Assemblée se lit dans le panneau de droite." : "Pastilles : effet sur le déficit 2030 et colère provoquée, à terme."; });
     const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
     $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
     presetsEl.querySelectorAll("[data-preset]").forEach(b => { b.disabled = mandat && !!game.over; });
@@ -1243,12 +1504,12 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     } else if (game.over) {
       foot.innerHTML = `<div class="foot-row"><span>Partie terminée.</span><button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div>`;
     } else {
-      const tooMuch = cost.cost > game.capital;
-      foot.innerHTML = `<div class="foot-cost ${tooMuch ? "over" : ""}">Budget ${game.year} : ${changedL ? `${changedL} mesure${changedL > 1 ? "s" : ""}, coût <b>${cost.cost}</b> points` : "aucune mesure nouvelle"}. Capital disponible : <b>${f0(game.capital)}</b>.</div>
+      const verdictTxt = A.passes ? `<b class="ok">adopté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre)` : A.falls ? `<b class="ko">rejeté</b>, et une censure réunirait ${f0(A.censure)} voix sur ${MAJ}` : `<b class="warn">rejeté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre). Censure : ${f0(A.censure)} voix sur ${MAJ}`;
+      foot.innerHTML = `<div class="foot-cost">Budget ${game.year}${changedL ? ` · ${changedL} mesure${changedL > 1 ? "s" : ""} nouvelle${changedL > 1 ? "s" : ""}` : ""}. Au vote : ${verdictTxt}.</div>
+        ${voteBar(A, true)}
         <div class="foot-row">
-          <button class="btn btn-primary" data-act="vote" type="button" ${tooMuch ? "disabled" : ""}>Voter le budget ${game.year}</button>
-          ${tooMuch ? `<button class="btn btn-force" data-act="force" type="button">Passer en force (49.3)</button>` : ""}
-          ${changedL ? `<button class="textbtn" data-act="undo" type="button">Annuler mes changements</button>` : ""}
+          ${A.passes ? `<button class="btn btn-primary" data-act="vote" type="button">Soumettre au vote</button>` : `<button class="btn ${A.falls ? "btn-destructive" : "btn-primary"}" data-act="force" type="button">Engager le 49.3${A.falls ? " (censure assurée)" : ""}</button>`}
+          ${changedL ? `<button class="btn btn-ghost" data-act="undo" type="button">Annuler mes changements</button>` : ""}
         </div>`;
     }
 
@@ -1260,9 +1521,10 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     else if (finished) status = kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[lastI]]}`, "status ok");
     else status = kpi("Statut", `Budget ${game.year}`, `Année ${game.year - FIRST + 1} sur 10 · note ${RATINGS[P.notch[lastI]]}`, "status turn");
     if (mandat) {
-      const capPct = clamp(game.capital / 150 * 100, 0, 100);
+      const avail = game.capital - (game.over ? 0 : negoSpent());
+      const capPct = clamp(avail / 150 * 100, 0, 100);
       $("kpis").innerHTML = status +
-        kpi("Capital politique", f0(game.capital), game.over ? "fin du mandat" : `ce budget coûte ${cost.cost}`, cost.cost > game.capital && !game.over ? "is-bad" : "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
+        kpi("Capital politique", f0(avail), game.over ? "fin du mandat" : negoSpent() ? `dont ${f0(negoSpent())} engagés en accords` : `un accord coûte ${f0(state.negoCost)}`, "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
         kpi(`Déficit ${lastY}`, `${f1(P.defR[lastI])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[lastI] <= state.ruleUE ? "is-good" : "is-bad") +
         kpi(`Dette ${lastY}`, `${f0(P.d[lastI])} %`, `du PIB · taux ${f1(P.rate[lastI])} %`, P.rate[lastI] > state.ruleFMI - 1.5 ? "is-warn" : "") +
         kpi(`Colère ${lastY}`, `${f0(P.anger[lastI])}/100`, `chute à ${f0(state.ruleChute)}`, P.anger[lastI] > state.ruleChute ? "is-bad" : P.anger[lastI] > state.ruleMouv ? "is-warn" : "");
@@ -1284,12 +1546,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     } else if (P.defeat && P.defeat.type === "chute") {
       head = `Partie perdue en ${P.defeat.year}. Révolte : le gouvernement tombe.`;
       v = `La colère atteint ${f0(P.anger[end])}/100. Vos réformes s'arrêtent là, et le déficit reste à ${f1(P.defR[end])} % du PIB.`;
+    } else if (P.defeat && P.defeat.type === "censure") {
+      head = `Partie perdue en ${P.defeat.year}. L'Assemblée renverse le gouvernement.`;
+      v = `La motion de censure réunit <b>${f0(game.over.votes)} voix</b>, au-delà des ${MAJ} nécessaires. Le budget ${P.defeat.year} n'est pas adopté et le déficit reste à ${f1(P.defR[end])} % du PIB. Pour durer, il fallait qu'un des grands groupes d'opposition se contente de voter contre sans censurer.`;
     } else if (P.defeat) {
       head = `Partie perdue en ${P.defeat.year}. Les électeurs vous congédient.`;
       v = `La colère atteint ${f0(P.anger[end])}/100 le jour du vote. Le déficit est à ${f1(P.defR[end])} % du PIB, la dette à ${f0(P.d[end])} %.`;
     } else if (!finished && game.year === FIRST) {
       head = "Septembre 2026. Votre premier budget.";
-      v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Chaque automne, vous votez un budget. Chaque mesure coûte du capital politique, d'autant plus qu'elle fait mal. Récessions, crises et élections tombent sans prévenir. Vous avez <b>${f0(game.capital)} points</b> de capital : réglez vos leviers, puis votez.`;
+      v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Votre coalition (${game.gov.map(blocLabel).join(" et ")}) compte <b>${f0(game.gov.reduce((a, id) => a + game.seats[id], 0))} députés</b> sur 577 : sans majorité absolue, chaque budget dépend des oppositions. Vous avez <b>${f0(game.capital)} points</b> de capital pour négocier avec elles. Récessions, crises et élections tombent sans prévenir. Réglez vos leviers, regardez l'hémicycle, puis votez.`;
     } else if (!finished) {
       const yearEv = P.events.filter(e => e.year === lastY).map(e => e.title.toLowerCase());
       head = `Septembre ${game.year}. Préparez le budget ${game.year}.`;
@@ -1311,8 +1576,10 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     $("verdict").innerHTML = v;
     $("verdictActions").innerHTML = mandat && game.over ? `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>` : "";
 
+    renderAssembly(A, mandat);
+
     // Journal
-    const evs = P.events;
+    const evs = mandat ? game.extra.filter(e => e.year <= lastY).concat(P.events).map((e, j) => [e, j]).sort((a, b) => a[0].year - b[0].year || (a[0].kind === "end") - (b[0].kind === "end") || !!a[0].late - !!b[0].late || a[1] - b[1]).map(x => x[0]) : P.events;
     $("journal").innerHTML = evs.length
       ? evs.map(e => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`).join("")
       : `<li><span class="empty">${mandat && lastI < idx(FIRST) ? "Le journal s'écrira à mesure que vous votez vos budgets." : "Rien à signaler : ni les marchés, ni la rue, ni Bruxelles ne réagissent."}</span></li>`;
@@ -1350,6 +1617,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       [wait(2029) ? null : reached(2029) && P.defR[i29] <= state.ruleUE, `Déficit sous ${smart(state.ruleUE)} % en 2029`, "Le seuil de Bruxelles, réglable dans le moteur.", reached(2029) ? `${f1(P.defR[i29])} %` : "—"],
       [wait(2035) ? null : reached(2035) && P.d[i35] <= state.ruleDebt, `Dette sous ${f0(state.ruleDebt)} % du PIB en 2035`, "Votre cible, réglable dans le moteur.", reached(2035) ? `${f0(P.d[i35])} %` : "—"],
       [wait(2035) ? null : reached(2035) && P.notch[i35] <= 1, "Garder une note A ou mieux", "La confiance des prêteurs. On part de A+.", RATINGS[P.notch[lastI]]],
+      [mandat ? (Object.keys(game.force).length || (game.over && game.over.type === "censure") ? false : finished ? true : null) : A.passes, mandat ? "Aucun 49.3" : "Un budget votable sans 49.3", mandat ? "Chaque budget passe par un vote de l'Assemblée." : "Le budget réunit plus de voix pour que contre dès 2026.", mandat ? `${Object.keys(game.force).length} 49.3` : `${f0(A.pour)} pour, ${f0(A.contre)} contre`],
       [maxAnger > state.ruleMouv ? false : finished ? true : null, "Pas de mouvement social", "La colère ne franchit jamais le seuil des grèves.", `pic ${f0(maxAnger)}/100`]
     ];
     $("objectives").innerHTML = OBJ.map(([ok, t, why, val]) =>
@@ -1420,12 +1688,18 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     ["Loi d'Okun", "0,4", "Ball, Leigh et Loungani, NBER", "https://www.nber.org/papers/w18668", "ok"],
     ["Fuite de l'impôt sur le revenu", "25 % (élasticité de 0,02 à 0,31 selon les revenus)", "Cabannes, Houdré et Landais, Économie et Statistique", "https://www.insee.fr/fr/statistiques/fichier/1377954/ES467G.pdf", "est"],
     ["Emplois liés aux allègements", "≈ 2 points de chômage s'ils étaient supprimés", "Rapport Bozio-Wasmer", "https://vie-publique.fr/files/rapport/pdf/295596.pdf", "est"],
-    ["Colère par groupe, capital politique, seuils", "voir le moteur", "Choix de conception, adossés à des précédents", null, "est"]
+    ["Accises sur le tabac et l'alcool", "≈ 18,5 Md€", "Estimation d'après les comptes des APU ; rendement d'une hausse non sourcé", null, "est"],
+    ["Surtaxe d'IS des grandes entreprises", "≈ 8 Md€ par an", "Contribution exceptionnelle votée en loi de finances 2025", "https://www.vie-publique.fr/loi/296329-loi-de-finances-2025-budget-lf-du-14-fevrier-2025", "est"],
+    ["Impôts de production (CVAE, C3S)", "≈ 9,5 Md€", "Estimation, après la baisse de la CVAE de 2023", null, "est"],
+    ["Aides personnelles au logement", "≈ 15 Md€, 5,8 millions de foyers", "Comptes du logement, DREES", "https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse/panoramas-de-la-drees/minima-sociaux-et-prestations-sociales", "est"],
+    ["Aides publiques aux entreprises", "211 Md€ au total ; ≈ 30 Md€ de subventions ciblables", "Sénat, commission d'enquête de 2025 (total) ; part ciblable estimée", "https://www.senat.fr/rap/r24-808-1/r24-808-1.html", "est"],
+    ["Composition de l'Assemblée", "577 sièges en six blocs : 88, 104, 38, 161, 47, 139", "Assemblée nationale, groupes politiques (arrondi, simplifié)", "https://www2.assemblee-nationale.fr/instances/liste/groupes_politiques/effectif", "est"],
+    ["Comportement des groupes, colère, capital, seuils", "voir le moteur", "Choix de conception, adossés à des précédents", null, "est"]
   ];
   $("srcRows").innerHTML = SRC.map(([a, b, c, url, st]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">${c}</a>` : c}</td><td><span class="tag ${st}">${st === "ok" ? "sourcé" : "estimation"}</span></td></tr>`).join("");
 
   // ---------- Sauvegarde et démarrage ----------
-  const KEY = "faillite-ou-revolution:v5";
+  const KEY = "faillite-ou-revolution:v6";
   function snapshot() { return { state, game, view, lastPlay, activeTab, sandboxPolicy, draftPolicy }; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { /* stockage indisponible : la partie vit le temps de la page */ } }
   function restore(data) {
