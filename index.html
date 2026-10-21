@@ -83,6 +83,10 @@ h1 span { color: var(--muted); }
 /* Bandeau collant */
 .dash { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding-block: 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-inline: max(16px, env(safe-area-inset-left, 0px)); }
 .dash > * { max-width: 1280px; width: 100%; margin-inline: auto; }
+.dash.turn { top: calc(env(safe-area-inset-top, 0px) - var(--vb-h, 40px) - 10px); }
+.dash.turn .kpi { padding: 8px 12px; }
+.dash.turn .k-val { font-size: 20px; }
+.dash.turn .capbar { margin-top: 4px; }
 .viewbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .viewseg { display: inline-flex; background: var(--secondary); border-radius: 8px; padding: 3px; gap: 2px; flex-wrap: wrap; }
 .viewseg button { border: 0; background: none; border-radius: 6px; padding: 5px 12px; font-weight: 500; font-size: 13.5px; color: var(--muted); }
@@ -109,9 +113,10 @@ h1 span { color: var(--muted); }
 
 /* Plateau de jeu */
 main.board { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 20px; }
-.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 168px); max-height: calc(100vh - 196px - var(--ab-h, 88px)); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 16px 0; }
-.presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); width: 100%; }
+.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--dash-h, 150px) + 12px); max-height: calc(100vh - env(safe-area-inset-top, 0px) - var(--dash-h, 150px) - var(--ab-h, 88px) - 24px); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.presets { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); display: flex; gap: 6px; padding: 12px 16px 2px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.chipbtn { white-space: nowrap; flex: none; }
 .chipbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow); }
 .chipbtn:hover:not(:disabled) { background: var(--secondary); }
 .chipbtn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
@@ -119,7 +124,7 @@ main.board { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1f
 .tab { flex: 1; border: 0; background: none; border-radius: 6px; padding: 5px 10px; font-weight: 500; font-size: 13.5px; color: var(--muted); white-space: nowrap; }
 .tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .tab .tcount { font-family: var(--f-data); font-size: 11px; color: var(--accent); margin-left: 5px; }
-.levers { overflow-y: auto; padding: 0 16px 14px; }
+.levers { overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 14px; }
 .group-intro { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; }
 .group-title { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 20px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 .lever { display: grid; gap: 6px; padding-block: 12px; border-bottom: 1px solid var(--line); }
@@ -438,7 +443,6 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 @media (max-width: 1060px) {
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .kpi.status { grid-column: 1 / -1; }
-  .console { top: calc(env(safe-area-inset-top, 0px) + 236px); max-height: calc(100vh - 264px - var(--ab-h, 88px)); }
   .asm { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 960px) {
@@ -534,7 +538,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   <main class="board" id="playView">
     <section class="console" aria-label="Leviers">
       <div class="presets" id="presets">
-        <span>Partir d'une stratégie type</span>
+        <span>Partir de</span>
       </div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="levers" id="levers"></div>
@@ -1387,6 +1391,14 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     }
     save(); syncInputs(); update();
   }
+  // Hauteurs réelles du bandeau collé en haut : le pupitre se cale juste dessous et prend tout le reste de l'écran
+  function layoutVars() {
+    const dash = document.querySelector(".dash"), vb = $("viewbar").offsetHeight || 40, root = document.documentElement.style;
+    const hidden = dash.classList.contains("turn") ? vb + (parseFloat(getComputedStyle(dash).rowGap) || 10) : 0;
+    root.setProperty("--vb-h", `${vb}px`);
+    root.setProperty("--dash-h", `${Math.max(0, dash.offsetHeight - hidden)}px`);
+  }
+  window.addEventListener("resize", () => layoutVars());
   // Ce que donnerait le budget en préparation. Les chocs de l'année restent cachés : c'est la part de hasard du vote.
   function forecast(A) {
     const y = game.year, sh = { ...game.shocks }; delete sh[y];
@@ -1943,7 +1955,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       mb.textContent = showAll[tab] ? "Ne garder que les leviers principaux" : `Voir les ${hid} autres leviers`;
     });
     $("engBadge").textContent = changedE ? ` ${changedE}` : "";
-    leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = `Pastilles : effet sur le déficit 2030${mandat ? " si la mesure durait" : ""}, colère provoquée à terme, et le groupe dont elle fait le plus bouger le vote. Un groupe vote pour au-dessus de 1 et contre sous −1.`; });
+    leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = "Pastilles : effet sur le déficit 2030, colère à terme, et le groupe dont la mesure fait le plus bouger le vote."; });
     const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
     $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
     presetsEl.querySelectorAll("[data-preset]").forEach(b => { b.disabled = mandat && !!game.over; });
@@ -1982,7 +1994,6 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("playView").dataset.mview = mview;
     document.documentElement.style.setProperty("--ab-h", `${bar.offsetHeight || 88}px`);
     document.querySelector(".dash").classList.toggle("turn", mandat && !game.over);
-    document.documentElement.style.setProperty("--vb-h", `${$("viewbar").offsetHeight || 40}px`);
     document.querySelector("header.hero").classList.toggle("compact", !(mandat && game.year === FIRST && !game.over));
 
     // Bandeau
@@ -2129,6 +2140,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("spTotal").textContent = `${f0(P.spTot[iy])} Md€`;
     $("revTotal").textContent = `${f0(P.revTot[iy])} Md€`;
     renderRtabs();
+    layoutVars();
   }
   // Déficit 2030 de la politique inchangée, sans hasard : base des pastilles Md€
   function refDef30(base, cache) {
