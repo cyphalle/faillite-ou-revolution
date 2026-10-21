@@ -109,7 +109,7 @@ h1 span { color: var(--muted); }
 
 /* Plateau de jeu */
 main.board { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 20px; }
-.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 168px); max-height: calc(100vh - 184px); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 168px); max-height: calc(100vh - 196px - var(--ab-h, 88px)); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 16px 0; }
 .presets span { font-size: 12.5px; font-weight: 500; color: var(--muted); width: 100%; }
 .chipbtn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow); }
@@ -160,12 +160,6 @@ input[type="checkbox"][role="switch"]:checked::before { transform: translateX(16
 .seg { display: flex; background: var(--secondary); border-radius: 8px; padding: 3px; gap: 2px; flex-wrap: wrap; }
 .seg button { flex: 1; border: 0; background: none; border-radius: 6px; padding: 5px 8px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
-.console-foot { padding: 12px 16px 14px; border-top: 1px solid var(--line); background: var(--surface); display: grid; gap: 10px; font-size: 12.5px; color: var(--muted); }
-.foot-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-.foot-cost { font-size: 13px; color: var(--ink); }
-.foot-cost b { font-weight: 600; }
-.foot-cost b.ok { color: var(--good); } .foot-cost b.ko { color: var(--bad); } .foot-cost b.warn { color: var(--warn); }
-.textbtn { border: 0; background: none; color: var(--ink); font-weight: 500; font-size: 13px; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border: 1px solid transparent; border-radius: 8px; padding: 0 16px; font-weight: 500; font-size: 13.5px; white-space: nowrap; box-shadow: var(--shadow); transition: background .15s, opacity .15s; }
 .btn-sm { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: 6px; }
 .btn-primary { background: var(--primary); color: var(--primary-fg); }
@@ -341,17 +335,65 @@ td a { color: var(--ink); text-decoration-color: var(--ref); text-underline-offs
 .limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; max-width: 78ch; }
 footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 75ch; }
 
+/* Onglets de résultats */
+.rtabs { display: flex; gap: 2px; padding: 3px; background: var(--secondary); border-radius: 10px; overflow-x: auto; scrollbar-width: none; }
+.rtabs button { flex: 1 0 auto; border: 0; background: none; border-radius: 7px; padding: 7px 12px; font-weight: 500; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.rtabs button:hover { color: var(--ink); }
+.rtabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.rtabs .rt-n { margin-left: 6px; font-family: var(--f-data); font-size: 11px; color: var(--muted); }
+
+/* Barre d'action : l'étape de l'année et le geste suivant, toujours visibles */
+body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
+.actionbar { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgb(9 9 11 / .07); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.actionbar:empty { display: none; }
+.ab-in { max-width: 1280px; margin: 0 auto; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 24px; align-items: center; }
+.ab-lead { display: grid; gap: 6px; min-width: 0; }
+.ab-title { font-size: 13px; color: var(--muted); }
+.ab-title b { color: var(--ink); font-weight: 600; font-size: 14px; margin-right: 6px; }
+.steps { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+.steps li { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 3px 10px 3px 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+.steps li button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 0; font: inherit; color: inherit; }
+.steps .n { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-family: var(--f-data); font-size: 11px; background: var(--secondary); color: var(--muted); }
+.steps li.done { color: var(--good); }
+.steps li.done .n { background: var(--good-soft); color: var(--good); }
+.steps li.now { color: var(--ink); border-color: var(--ink); font-weight: 500; }
+.steps li.now .n { background: var(--primary); color: var(--primary-fg); }
+.ab-mid { display: grid; gap: 6px; min-width: 0; font-size: 13px; color: var(--muted); }
+.ab-mid b { font-weight: 600; color: var(--ink); }
+.ab-mid b.ok { color: var(--good); } .ab-mid b.ko { color: var(--bad); } .ab-mid b.warn { color: var(--warn); }
+.ab-acts { display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.ab-acts .btn { height: 42px; padding: 0 20px; font-size: 14px; }
+.ab-acts .btn-ghost { padding: 0 12px; }
+.ab-acts .btn-sub { font-weight: 400; opacity: .75; font-size: 12.5px; }
+
+/* Fenêtres : dossier de l'année, bilan de l'année */
+.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgb(9 9 11 / .5); padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.modal-card { width: min(680px, 100%); max-height: 100%; overflow: auto; display: grid; gap: 12px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 24px 60px rgb(9 9 11 / .3); padding: 22px 24px; }
+.modal-card h2 { margin: 0; font-family: var(--f-display); font-size: clamp(20px, 2.4vw, 24px); font-weight: 700; letter-spacing: -.025em; text-wrap: balance; }
+.modal-card .sub { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.modal-card.dossier { border-top: 4px solid var(--warn); }
+.modal-card.lost { border-top: 4px solid var(--bad); }
+.modal-card.good { border-top: 4px solid var(--good); }
+.modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-top: 4px; font-size: 12.5px; color: var(--muted); }
+.modal-foot .btn-primary { height: 42px; padding: 0 20px; font-size: 14px; margin-left: auto; }
+.recap-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.rk { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+.rk span { font-size: 12px; color: var(--muted); }
+.rk b { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.rk .delta { width: fit-content; }
+#rcEvents:empty { display: none; }
+
 /* Dossier de l'année */
-.panel.dossier { border-color: var(--warn); }
 .d-kicker { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); }
 .d-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-.d-opt { display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; transition: border-color .15s, background .15s; }
+.d-opt { min-width: 0; display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; transition: border-color .15s, background .15s; }
 .d-opt:hover:not(:disabled) { border-color: var(--ink); }
 .d-opt:disabled { cursor: default; opacity: .5; }
 .d-opt[aria-pressed="true"] { opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
 .d-opt-title { font-weight: 600; font-size: 14px; }
 .d-opt-text { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 .d-fx { display: flex; flex-wrap: wrap; gap: 4px; }
+.d-fx .delta { white-space: normal; }
 
 /* Dissolution */
 .asm-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-top: 14px; font-size: 12.5px; color: var(--muted); }
@@ -359,9 +401,14 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 .asm-foot p b { color: var(--ink); font-weight: 600; }
 .asm-foot .acts { display: flex; gap: 6px; flex-wrap: wrap; }
 
+/* En-tête replié une fois la partie lancée */
+header.hero.compact { padding-block: 18px 10px; }
+header.hero.compact .lede, header.hero.compact .ledger { display: none; }
+header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
+
 /* Tutoriel */
 .tourbtn { margin-left: auto; }
-.tour { position: fixed; z-index: 50; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); display: grid; gap: 10px; padding: 18px 20px 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgb(9 9 11 / .22); }
+.tour { position: fixed; z-index: 50; left: 50%; bottom: calc(var(--ab-h, 88px) + 12px); transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); display: grid; gap: 10px; padding: 18px 20px 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgb(9 9 11 / .22); }
 .tour-step { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); }
 .tour h3 { margin: 0; font-family: var(--f-display); font-size: 17px; font-weight: 600; letter-spacing: -.015em; }
 .tour p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
@@ -376,13 +423,22 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 @media (max-width: 1060px) {
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .kpi.status { grid-column: 1 / -1; }
-  .console { top: calc(env(safe-area-inset-top, 0px) + 236px); max-height: calc(100vh - 252px); }
+  .console { top: calc(env(safe-area-inset-top, 0px) + 236px); max-height: calc(100vh - 264px - var(--ab-h, 88px)); }
   .asm { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 960px) {
   main.board { grid-template-columns: minmax(0, 1fr); }
   .console { position: static; max-height: none; }
   .charts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .ab-in { grid-template-columns: minmax(0, 1fr); gap: 8px; padding-block: 10px; }
+  .ab-mid .votebar { display: none; }
+  .ab-acts { justify-content: stretch; }
+  .ab-acts .btn-primary, .ab-acts .btn-destructive { flex: 1; }
+  .recap-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal { place-items: end center; }
+  .modal-card { padding: 18px 16px; }
 }
 @media (max-width: 640px) {
   .dash { position: static; }
@@ -405,7 +461,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.7</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.8</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -440,7 +496,6 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       </div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="levers" id="levers"></div>
-      <div class="console-foot" id="consoleFoot"></div>
     </section>
 
     <section class="results">
@@ -450,14 +505,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         <div class="verdict-actions" id="verdictActions"></div>
       </div>
 
-      <div class="panel dossier" id="dossierPanel" hidden>
-        <p class="d-kicker" id="dKicker"></p>
-        <h2 id="dTitle"></h2>
-        <p class="sub" id="dText"></p>
-        <div class="d-opts" id="dOpts"></div>
-      </div>
+      <div class="rtabs" role="tablist" aria-label="Résultats" id="rtabs"></div>
 
-      <div class="panel" id="assemblyPanel">
+      <div class="panel" id="assemblyPanel" data-pane="asm">
         <h2>L'Assemblée nationale</h2>
         <p class="sub" id="asmSub"></p>
         <div class="asm">
@@ -469,13 +519,13 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         <p class="groups-note">Composition simplifiée de l'Assemblée élue en 2024, en six blocs. Chaque groupe juge le budget sur la colère qu'il provoque chez ses électeurs à l'horizon 2030, et la droite comme le centre aussi sur le déficit évité. Les poids sont des choix de conception, réglables dans le moteur.</p>
       </div>
 
-      <div class="panel" id="journalPanel">
+      <div class="panel" id="journalPanel" data-pane="journal">
         <h2>Journal du mandat</h2>
         <p class="sub">Ce que vos choix et le hasard déclenchent, année après année. Les seuils se règlent dans le moteur.</p>
         <ol class="journal" id="journal"></ol>
       </div>
 
-      <div class="charts">
+      <div class="charts" data-pane="traj">
         <div class="panel">
           <h2>Dette publique</h2>
           <p class="sub">En % du PIB, fin d'année</p>
@@ -502,7 +552,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-pane="groups">
         <h2>Qui paie, qui proteste</h2>
         <p class="sub" id="groupsSub"></p>
         <div class="yearpick" id="groupYears"></div>
@@ -510,14 +560,14 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         <p class="groups-note">Une perte compte plus qu'un gain du même montant : on proteste plus fort contre ce qu'on vous retire qu'on ne remercie pour ce qu'on vous donne. Les entreprises ne descendent pas dans la rue. Leur mécontentement passe par l'investissement et pèse sur les taux.</p>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-pane="obj">
         <span class="score num" id="score"></span>
         <h2>Vos objectifs</h2>
         <p class="sub">Les seuils viennent du moteur. Ils sont souvent incompatibles entre eux, et c'est tout le sujet.</p>
         <ul class="objectives" id="objectives"></ul>
       </div>
 
-      <div class="panel">
+      <div class="panel" data-pane="budget">
         <h2>Le budget, année par année</h2>
         <p class="sub">En milliards d'euros courants. L'écart avec la politique inchangée est en couleur.</p>
         <div class="yearpick" id="yearpick"></div>
@@ -533,10 +583,10 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         </div>
       </div>
 
-      <div class="panel">
-        <details class="sources">
+      <div class="panel" data-pane="src">
+        <details class="sources" open>
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.6. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.8. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -571,6 +621,29 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   </section>
 
   <footer>Projet pédagogique indépendant, sans lien avec aucune administration ni aucune agence de notation. Le modèle est volontairement simple : il montre des ordres de grandeur et des mécanismes. Il ne prévoit rien.<br>Conçu par Glamdring Labs.</footer>
+
+  <div class="actionbar" id="actionBar"></div>
+
+  <div class="modal" id="dossierModal" hidden>
+    <div class="modal-card dossier" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+      <p class="d-kicker" id="dKicker"></p>
+      <h2 id="dTitle"></h2>
+      <p class="sub" id="dText"></p>
+      <div class="d-opts" id="dOpts"></div>
+      <div class="modal-foot"><span>Vous pouvez d'abord regarder vos leviers et l'Assemblée.</span><button type="button" class="btn btn-ghost btn-sm" data-later>Décider plus tard</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="recapModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="rcTitle">
+      <p class="d-kicker" id="rcKicker"></p>
+      <h2 id="rcTitle"></h2>
+      <p class="sub" id="rcText"></p>
+      <div class="recap-kpis" id="rcKpis"></div>
+      <ol class="journal" id="rcEvents"></ol>
+      <div class="modal-foot"><span id="rcHint"></span><button type="button" class="btn btn-primary" id="rcNext"></button></div>
+    </div>
+  </div>
 
   <div class="tour" id="tour" role="dialog" aria-labelledby="tourTitle" hidden>
     <span class="tour-step" id="tourStep"></span>
@@ -1239,6 +1312,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     const A = assembly(state, game.gov, game.seats, game.nego, voteBonus());
     if (!force && !A.passes) return;
     const y = game.year;
+    recap = { year: y, cap0: game.capital, force, pour: A.pour, contre: A.contre, abst: A.abst, censure: A.censure };
     game.capital -= negoSpent();
     Object.keys(game.nego).forEach(id => note(y, "info", `Accord avec : ${blocLabel(id)}`, `Contre ${f0(state.negoCost)} points de capital, le groupe obtient des concessions sur le budget ${y}.`));
     game.nego = {};
@@ -1311,6 +1385,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     if (o.capital) game.capital = clamp(game.capital + o.capital, 0, 150);
     note(y, "info", d.title, `Vous choisissez : ${lc(o.label)}. ${o.text}`);
   }
+  const SHORT = { lfi: "LFI", ps: "PS et écologistes", liot: "Indépendants", centre: "Bloc central", lr: "LR", rn: "RN" };
   // Effets lisibles d'une option, pour les pastilles
   function fxChips(o) {
     const out = [];
@@ -1319,7 +1394,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     if (o.anger) out.push([o.anger > 0 ? "bad" : "good", `colère ${signed(o.anger)}`]);
     if (o.gdp) out.push(["bad", `activité ${signed(o.gdp * 100, f1)} %`]);
     if (o.capital) out.push([o.capital > 0 ? "good" : "bad", `capital ${signed(o.capital)}`]);
-    Object.entries(o.vote || {}).forEach(([id, v]) => out.push([v > 0 ? "good" : "warn", `${BLOCS.find(b => b.id === id).label} ${signed(v, f1)}`]));
+    Object.entries(o.vote || {}).forEach(([id, v]) => out.push([v > 0 ? "good" : "warn", `${SHORT[id]} ${signed(v, f1)}`]));
     return out.map(([c, t]) => `<span class="delta ${c}">${t}</span>`).join("");
   }
 
@@ -1399,7 +1474,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   }
   [leversEl, $("engGrid")].forEach(c => { c.addEventListener("input", onInput); c.addEventListener("click", onChoice); });
   $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); syncInputs(); update(); save(); });
-  $("consoleFoot").addEventListener("click", (e) => {
+  $("actionBar").addEventListener("click", (e) => {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const act = b.dataset.act;
     if (act === "vote") vote(false);
@@ -1407,7 +1482,16 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     else if (act === "undo") { Object.assign(state, inForce()); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "reset") { Object.assign(state, REF_POLICY); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "new") startNew();
-    else if (act === "dossier") $("dossierPanel").scrollIntoView?.({ block: "center", behavior: smooth() });
+    else if (act === "dossier") { dossierLater = false; update(); }
+  });
+  $("dossierModal").addEventListener("click", (e) => {
+    if (e.target.closest("[data-later]") || e.target === $("dossierModal")) { dossierLater = true; update(); }
+  });
+  $("rcNext").addEventListener("click", closeRecap);
+  function closeRecap() { recap = null; dossierLater = false; update(); window.scrollTo({ top: 0 }); }
+  $("rtabs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-rtab]"); if (!b) return;
+    rtab = b.dataset.rtab; renderRtabs(); save();
   });
   $("dOpts").addEventListener("click", (e) => {
     const b = e.target.closest("[data-pick]"); if (!b || b.disabled) return;
@@ -1428,7 +1512,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     update(); save();
   });
   $("verdictActions").addEventListener("click", (e) => { if (e.target.closest('[data-act="new"]')) startNew(); });
-  function startNew() { newGame(); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
+  function startNew() { recap = null; dossierLater = false; newGame(); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
 
   function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
   function syncInputs() {
@@ -1627,16 +1711,51 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       foot.innerHTML = `<p>${why}</p><div class="acts"><button type="button" class="btn btn-outline btn-sm" data-diss="arm" ${canDissolve() ? "" : "disabled"}>Dissoudre l'Assemblée</button></div>`;
     }
   }
+  // Fenêtres : le bilan de l'année votée passe d'abord, puis le dossier de l'année suivante
+  let recap = null, dossierLater = false;
+  const tourOn = () => typeof tourAt !== "undefined" && tourAt >= 0;
   function renderDossier(mandat) {
-    const d = mandat ? dossierNow() : null, panel = $("dossierPanel");
-    panel.hidden = !d;
+    const d = mandat ? dossierNow() : null;
+    $("dossierModal").hidden = !(d && pending() && !dossierLater && !recap && !tourOn());
     if (!d) return;
-    const pick = game.picks[game.year];
-    $("dKicker").textContent = pick == null ? `Dossier de l'année ${game.year} · à trancher avant le budget` : `Dossier de l'année ${game.year} · tranché`;
+    $("dKicker").textContent = `Dossier de l'année ${game.year} · à trancher avant le budget`;
     $("dTitle").textContent = d.title;
     $("dText").textContent = d.text;
-    $("dOpts").innerHTML = d.opts.map((o, j) => `<button type="button" class="d-opt" data-pick="${j}" aria-pressed="${pick === j}" ${pick != null ? "disabled" : ""}>
+    $("dOpts").innerHTML = d.opts.map((o, j) => `<button type="button" class="d-opt" data-pick="${j}">
       <span class="d-opt-title">${o.label}</span><span class="d-opt-text">${o.text}</span><span class="d-fx">${fxChips(o) || `<span class="delta neutral">sans effet chiffré</span>`}</span></button>`).join("");
+  }
+  const sortEvents = (list) => list.map((e, j) => [e, j]).sort((a, b) => a[0].year - b[0].year || (a[0].kind === "end") - (b[0].kind === "end") || !!a[0].late - !!b[0].late || a[1] - b[1]).map(x => x[0]);
+  const evHTML = (e) => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`;
+  function renderRecap(mandat, P) {
+    const show = mandat && !!recap && !tourOn();
+    $("recapModal").hidden = !show;
+    if (!show) return;
+    const y = recap.year, i = idx(y), card = $("recapModal").querySelector(".modal-card");
+    const lost = P.defeat && P.defeat.year === y;
+    card.classList.toggle("lost", !!lost); card.classList.toggle("good", !lost && !recap.force);
+    $("rcKicker").textContent = `Bilan de l'année ${y}`;
+    $("rcTitle").textContent = lost ? DEFEAT_SUB[P.defeat.type] : recap.force ? `Budget ${y} adopté par le 49.3` : `Budget ${y} voté par l'Assemblée`;
+    $("rcText").innerHTML = lost && P.defeat.type === "censure" ? `La censure réunit <b>${f0(recap.censure)} voix</b> sur ${MAJ}.`
+      : recap.force ? `Sans majorité, vous engagez la responsabilité du gouvernement. La censure ne réunit que ${f0(recap.censure)} voix sur ${MAJ}.`
+      : `${f0(recap.pour)} pour, ${f0(recap.contre)} contre, ${f0(recap.abst)} abstentions.`;
+    const rk = (label, now, before, fmt, upIsBad) => {
+      const dlt = now - before, cls = Math.abs(dlt) < 0.05 ? "neutral" : (dlt > 0) === upIsBad ? "bad" : "good";
+      return `<div class="rk"><span>${label}</span><b>${fmt(now)}</b><span class="delta ${cls}">${signed(Math.round(dlt * 10) / 10, f1)}</span></div>`;
+    };
+    $("rcKpis").innerHTML = rk("Déficit", P.defR[i], P.defR[i - 1], v => `${f1(v)} %`, true) + rk("Dette", P.d[i], P.d[i - 1], v => `${f0(v)} %`, true)
+      + rk("Taux à 10 ans", P.rate[i], P.rate[i - 1], v => `${f1(v)} %`, true) + rk("Colère", P.anger[i], P.anger[i - 1], v => `${f0(v)}/100`, true)
+      + rk("Capital", game.capital, recap.cap0, v => f0(v), false);
+    const evs = sortEvents(game.extra.filter(e => e.year === y && !e.title.startsWith(`Budget ${y}`)).concat(P.events.filter(e => e.year === y)));
+    $("rcEvents").innerHTML = evs.map(evHTML).join("");
+    $("rcHint").textContent = game.over ? "" : evs.length ? "Tout reste consultable dans l'onglet Journal." : "Une année sans surprise.";
+    $("rcNext").textContent = game.over ? "Voir le bilan" : `Préparer le budget ${game.year}`;
+  }
+  const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["src", "Sources"]];
+  let rtab = "asm";
+  function renderRtabs() {
+    const n = { journal: [...$("journal").children].filter(li => !li.querySelector(".empty")).length, obj: $("score").textContent };
+    $("rtabs").innerHTML = RTABS.map(([k, l]) => `<button type="button" role="tab" data-rtab="${k}" aria-selected="${k === rtab}">${l}${n[k] ? `<span class="rt-n">${n[k]}</span>` : ""}</button>`).join("");
+    document.querySelectorAll("[data-pane]").forEach(p => { p.hidden = p.dataset.pane !== rtab; });
   }
 
   // ---------- Rendu ----------
@@ -1709,24 +1828,36 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
     presetsEl.querySelectorAll("[data-preset]").forEach(b => { b.disabled = mandat && !!game.over; });
 
-    // Pied du pupitre
-    const foot = $("consoleFoot");
+    // Barre d'action : où en est l'année, et le geste suivant
+    const bar = $("actionBar");
+    const plural = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
     if (!mandat) {
-      foot.innerHTML = `<div class="foot-row"><span>${changedL ? `${changedL} levier${changedL > 1 ? "s" : ""} modifié${changedL > 1 ? "s" : ""}` : "Aucun levier modifié"}</span><button class="textbtn" data-act="reset" type="button">Remettre les leviers à zéro</button></div>`;
+      const fc = A.passes ? `<b class="ok">adopté</b>` : A.falls ? `<b class="ko">censuré</b>` : `<b class="warn">adopté par 49.3</b>`;
+      bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Bac à sable</b>${changedL ? `${plural(changedL, "levier")} modifié${changedL > 1 ? "s" : ""}` : "aucun levier modifié"}</span></div>
+        <div class="ab-mid"><span>Présenté en 2026, ce budget serait ${fc} (${f0(A.pour)} pour, ${f0(A.contre)} contre, censure ${f0(A.censure)}).</span>${voteBar(A, true)}</div>
+        <div class="ab-acts">${changedL ? `<button class="btn btn-outline" data-act="reset" type="button">Remettre à zéro</button>` : ""}</div></div>`;
     } else if (game.over) {
-      foot.innerHTML = `<div class="foot-row"><span>Partie terminée.</span><button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div>`;
-    } else if (pending()) {
-      foot.innerHTML = `<div class="foot-cost">Budget ${game.year}. Avant le vote, tranchez le dossier de l'année : <b class="warn">«&nbsp;${dossierNow().title}&nbsp;»</b>.</div>
-        <div class="foot-row"><button class="btn btn-outline" data-act="dossier" type="button">Voir le dossier</button></div>`;
+      bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Partie terminée</b>${game.over.type === "fin" ? "mandat tenu jusqu'en 2035" : DEFEAT_SUB[game.over.type].toLowerCase()}</span></div>
+        <div class="ab-mid"><span>Le bilan est dans les onglets : journal, trajectoires, objectifs.</span></div>
+        <div class="ab-acts"><button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div></div>`;
     } else {
-      const verdictTxt = A.passes ? `<b class="ok">adopté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre)` : A.falls ? `<b class="ko">rejeté</b>, et une censure réunirait ${f0(A.censure)} voix sur ${MAJ}` : `<b class="warn">rejeté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre). Censure : ${f0(A.censure)} voix sur ${MAJ}`;
-      foot.innerHTML = `<div class="foot-cost">Budget ${game.year}${changedL ? ` · ${changedL} mesure${changedL > 1 ? "s" : ""} nouvelle${changedL > 1 ? "s" : ""}` : ""}. Au vote : ${verdictTxt}.</div>
-        ${voteBar(A, true)}
-        <div class="foot-row">
-          ${A.passes ? `<button class="btn btn-primary" data-act="vote" type="button">Soumettre au vote</button>` : `<button class="btn ${A.falls ? "btn-destructive" : "btn-primary"}" data-act="force" type="button">Engager le 49.3${A.falls ? " (censure assurée)" : ""}</button>`}
-          ${changedL ? `<button class="btn btn-ghost" data-act="undo" type="button">Annuler mes changements</button>` : ""}
-        </div>`;
+      const d = dossierNow(), pend = pending();
+      let k = 0;
+      const steps = (d ? [`<li class="${pend ? "now" : "done"}"><button type="button" data-act="dossier"><span class="n">${pend ? ++k : (++k, "✓")}</span>Dossier</button></li>`] : [])
+        .concat(`<li class="${pend ? "" : "now"}"><span class="n">${++k}</span>Leviers${changedL ? ` · ${plural(changedL, "mesure")}` : ""}</li>`,
+          `<li><span class="n">${++k}</span>Vote</li>`).join("");
+      const verdictTxt = A.passes ? `<b class="ok">adopté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre)` : A.falls ? `<b class="ko">rejeté</b>, et la censure passerait (${f0(A.censure)} voix sur ${MAJ})` : `<b class="warn">rejeté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre), censure à ${f0(A.censure)} voix sur ${MAJ}`;
+      const mid = pend ? `<span>L'actualité impose un arbitrage avant le budget : <b>«&nbsp;${d.title}&nbsp;»</b>.</span>`
+        : `<span>Si vous votez maintenant, le budget est ${verdictTxt}.</span>${voteBar(A, true)}`;
+      const cta = pend ? `<button class="btn btn-primary" data-act="dossier" type="button">Trancher le dossier</button>`
+        : A.passes ? `<button class="btn btn-primary" data-act="vote" type="button">Voter le budget ${game.year}</button>`
+        : `<button class="btn ${A.falls ? "btn-destructive" : "btn-primary"}" data-act="force" type="button">Passer le budget par le 49.3${A.falls ? `<span class="btn-sub">censure assurée</span>` : ""}</button>`;
+      bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Budget ${game.year}</b>année ${game.year - FIRST + 1} sur 10</span><ol class="steps">${steps}</ol></div>
+        <div class="ab-mid">${mid}</div>
+        <div class="ab-acts">${changedL && !pend ? `<button class="btn btn-ghost" data-act="undo" type="button">Annuler</button>` : ""}${cta}</div></div>`;
     }
+    document.documentElement.style.setProperty("--ab-h", `${bar.offsetHeight || 88}px`);
+    document.querySelector("header.hero").classList.toggle("compact", !(mandat && game.year === FIRST && !game.over));
 
     // Bandeau
     const maxRate = Math.max(...P.rate.slice(0, end + 1)), maxAnger = Math.max(...P.anger.slice(0, end + 1));
@@ -1769,7 +1900,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       v = `La colère atteint ${f0(P.anger[end])}/100 le jour du vote. Le déficit est à ${f1(P.defR[end])} % du PIB, la dette à ${f0(P.d[end])} %.`;
     } else if (!finished && game.year === FIRST) {
       head = "Septembre 2026. Votre premier budget.";
-      v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Votre coalition (${game.gov.map(blocLabel).join(" et ")}) compte <b>${f0(game.gov.reduce((a, id) => a + game.seats[id], 0))} députés</b> sur 577 : sans majorité absolue, chaque budget dépend des oppositions. Vous avez <b>${f0(game.capital)} points</b> de capital pour négocier avec elles. Récessions, crises et élections tombent sans prévenir. Réglez vos leviers, regardez l'hémicycle, puis votez.`;
+      v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Votre coalition (${game.gov.map(blocLabel).join(" et ")}) compte <b>${f0(game.gov.reduce((a, id) => a + game.seats[id], 0))} députés</b> sur 577 : sans majorité absolue, chaque budget dépend des oppositions. Vous avez <b>${f0(game.capital)} points</b> de capital pour négocier avec elles. Récessions, crises et élections tombent sans prévenir. Réglez vos leviers, regardez l'hémicycle, puis votez avec le bouton en bas à droite.`;
     } else if (!finished) {
       const yearEv = P.events.filter(e => e.year === lastY).map(e => e.title.toLowerCase());
       head = `Septembre ${game.year}. Préparez le budget ${game.year}.`;
@@ -1793,11 +1924,12 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 
     renderAssembly(A, mandat);
     renderDossier(mandat);
+    renderRecap(mandat, P);
 
     // Journal
-    const evs = mandat ? game.extra.filter(e => e.year <= lastY).concat(P.events).map((e, j) => [e, j]).sort((a, b) => a[0].year - b[0].year || (a[0].kind === "end") - (b[0].kind === "end") || !!a[0].late - !!b[0].late || a[1] - b[1]).map(x => x[0]) : P.events;
+    const evs = mandat ? sortEvents(game.extra.filter(e => e.year <= lastY).concat(P.events)) : P.events;
     $("journal").innerHTML = evs.length
-      ? evs.map(e => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`).join("")
+      ? evs.map(evHTML).join("")
       : `<li><span class="empty">${mandat && lastI < idx(FIRST) ? "Le journal s'écrira à mesure que vous votez vos budgets." : "Rien à signaler : ni les marchés, ni la rue, ni Bruxelles ne réagissent."}</span></li>`;
 
     // Courbes
@@ -1840,6 +1972,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       `<li><span class="pill ${ok === null ? "wait" : ok ? "ok" : "ko"}">${ok === null ? "EN COURS" : ok ? "TENU" : "RATÉ"}</span><div><div class="o-title">${t}</div><div class="o-why">${why}</div></div><span class="o-val">${val}</span></li>`).join("");
     $("score").textContent = `${OBJ.filter(o => o[0] === true).length}/${OBJ.length}`;
 
+
     // Budget par année
     const rowsHTML = (obj, ref, labels, cls) => {
       const entries = Object.keys(obj).map(key => [key, obj[key], ref[key]]).sort((a, b) => b[1] - a[1]);
@@ -1854,6 +1987,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     $("revRows").innerHTML = rowsHTML(P.rev[iy], R.rev[iy], REV_LABELS, "is-rev");
     $("spTotal").textContent = `${f0(P.spTot[iy])} Md€`;
     $("revTotal").textContent = `${f0(P.revTot[iy])} Md€`;
+    renderRtabs();
   }
   // Déficit 2030 de la politique inchangée, sans hasard : base des pastilles Md€
   function refDef30(base, cache) {
@@ -1921,10 +2055,10 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer ».` },
     { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, déficit, dette et colère, pour la dernière année votée. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
     { target: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Le trait gris marque la valeur en vigueur. Sous chaque levier, deux pastilles : ce que la mesure change au déficit de 2030, et la colère qu'elle provoque. Les politiques types, en haut, servent de point de départ.` },
-    { target: "dossierPanel", title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose parfois un arbitrage : une grève, une crue, une usine qui ferme. Il faut le trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
-    { target: "assemblyPanel", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
-    { target: "consoleFoot", title: "Le vote", text: () => `Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
-    { target: "journalPanel", title: "Les trois juges", text: () => `Après chaque vote, le journal raconte l'année. Les marchés relèvent vos taux si la dette dérape, la rue se soulève si vous frappez trop fort, Bruxelles sanctionne un déficit au-dessus de ${smart(state.ruleUE)} %. Vous perdez sous tutelle du FMI, renversé par la rue ou par la censure, ou battu à la présidentielle.` },
+    { target: null, title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose souvent un arbitrage : une grève, une crue, une usine qui ferme. Une fenêtre s'ouvre en début d'année, et il faut trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
+    { target: "assemblyPanel", tab: "asm", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
+    { target: "actionBar", title: "Le vote", text: () => `La barre du bas suit votre année : dossier, leviers, vote. Son bouton fait toujours le geste suivant. Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
+    { target: "journalPanel", tab: "journal", title: "Les trois juges", text: () => `Après chaque vote, un bilan de l'année s'affiche, et le journal en garde la trace. Les onglets donnent aussi les trajectoires, le budget détaillé et vos objectifs. Les marchés relèvent vos taux si la dette dérape, la rue se soulève si vous frappez trop fort, Bruxelles sanctionne un déficit au-dessus de ${smart(state.ruleUE)} %. Vous perdez sous tutelle du FMI, renversé par la rue ou par la censure, ou battu à la présidentielle.` },
     { target: "viewbar", title: "Bac à sable et moteur", text: () => `Le bac à sable applique une politique fixe sur dix ans, sans hasard, pour comparer des stratégies. Le moteur montre les ${ENGINE.length} hypothèses du modèle, toutes réglables. À vous de jouer.` }
   ];
   const TOUR_KEY = "faillite-ou-revolution:tour";
@@ -1934,9 +2068,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     if (i < 0 || i >= TOUR.length) {
       tourAt = -1; $("tour").hidden = true;
       try { localStorage.setItem(TOUR_KEY, "1"); } catch (e) { /* stockage indisponible : le tour se relancera */ }
+      update();
       return;
     }
     tourAt = i;
+    if (TOUR[i].tab) { rtab = TOUR[i].tab; renderRtabs(); }
     const step = TOUR[i], node = step.target && $(step.target);
     $("tourStep").textContent = `${i + 1} / ${TOUR.length}`;
     $("tourTitle").textContent = step.title;
@@ -1950,7 +2086,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   }
   function tourStart() {
     if (view === "engine") { setView(lastPlay); update(); }
-    tourShow(0);
+    tourShow(0); update();
   }
   $("tourBtn").addEventListener("click", tourStart);
   $("tour").addEventListener("click", (e) => {
@@ -1959,6 +2095,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     tourShow(a === "close" ? -1 : a === "prev" ? tourAt - 1 : tourAt + 1);
   });
   document.addEventListener("keydown", (e) => {
+    if (tourAt < 0 && e.key === "Escape") {
+      if (!$("recapModal").hidden) closeRecap();
+      else if (!$("dossierModal").hidden) { dossierLater = true; update(); }
+      return;
+    }
     if (tourAt < 0 || e.target.closest("input, select, textarea")) return;
     if (e.key === "Escape") tourShow(-1);
     else if (e.key === "ArrowRight") tourShow(tourAt + 1);
@@ -1967,7 +2108,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 
   // ---------- Sauvegarde et démarrage ----------
   const KEY = "faillite-ou-revolution:v6";
-  function snapshot() { return { state, game, view, lastPlay, activeTab, sandboxPolicy, draftPolicy }; }
+  function snapshot() { return { state, game, view, lastPlay, activeTab, rtab, sandboxPolicy, draftPolicy }; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { /* stockage indisponible : la partie vit le temps de la page */ } }
   function restore(data) {
     if (!data || !data.state) return false;
@@ -1976,6 +2117,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     if (game && !game.dossiers) Object.assign(game, { dossiers: {}, picks: {}, lastDiss: 2024 });
     activeTab = data.activeTab || "rec";
     sandboxPolicy = data.sandboxPolicy || null; draftPolicy = data.draftPolicy || null;
+    rtab = RTABS.some(t => t[0] === data.rtab) ? data.rtab : "asm";
     view = data.view || "mandat"; lastPlay = data.lastPlay || "mandat";
     return !!game;
   }
