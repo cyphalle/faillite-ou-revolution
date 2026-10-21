@@ -400,6 +400,29 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .modal-card.good { border-top: 4px solid var(--good); }
 .modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-top: 4px; font-size: 12.5px; color: var(--muted); }
 .modal-foot .btn-primary { height: 42px; padding: 0 20px; font-size: 14px; margin-left: auto; }
+.modal-card.end { width: min(760px, 100%); }
+.end-years { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+.end-years li { display: grid; justify-items: center; gap: 2px; padding: 6px 0; border-radius: 6px; border: 1px solid var(--line); font-family: var(--f-data); }
+.end-years li span { font-size: 10.5px; color: var(--muted); }
+.end-years li b { font-size: 12px; font-weight: 600; min-height: 1.2em; }
+.end-years li.ok { background: var(--good-soft); color: var(--good); border-color: transparent; }
+.end-years li.force { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.end-years li.lost { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.end-years li.none { opacity: .45; border-style: dashed; }
+.end-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ek { display: grid; gap: 2px; align-content: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+.ek span { font-size: 12px; color: var(--muted); }
+.ek b { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.ek em { font-size: 12px; font-style: italic; color: var(--muted); line-height: 1.4; }
+.ek.bad b { color: var(--bad); } .ek.good b { color: var(--good); } .ek.warn b { color: var(--warn); }
+.end-h { margin: 4px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.end-press ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; border-left: 3px solid var(--ink); padding-left: 12px; }
+.end-press li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 8px; }
+.end-press li span { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); padding-top: 2px; }
+.end-press li i { font-family: Georgia, "Times New Roman", serif; font-size: 14.5px; color: var(--ink); line-height: 1.35; }
+.end-press li small { grid-column: 2; font-size: 11px; color: var(--muted); }
+.end-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.end-acts .btn { height: 42px; padding: 0 18px; font-size: 14px; }
 .recap-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .rk { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
 .rk span { font-size: 12px; color: var(--muted); }
@@ -471,6 +494,10 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .btn-mini { display: block; font-weight: 400; font-size: 11.5px; opacity: .75; }
   .lever-note { display: none; }
   .press blockquote { font-size: 16px; }
+  .end-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .end-years { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .end-acts { width: 100%; }
+  .end-acts .btn { flex: 1; }
   .stepbtn { width: 44px; height: 40px; font-size: 20px; }
   .track input[type="range"] { pointer-events: none; }
   .kpi.fc .k-sub { display: flex; }
@@ -701,6 +728,18 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     </div>
   </div>
 
+  <div class="modal" id="endModal" hidden>
+    <div class="modal-card end" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+      <p class="d-kicker" id="endKicker"></p>
+      <h2 id="endTitle"></h2>
+      <p class="sub" id="endText"></p>
+      <ol class="end-years" id="endYears" aria-label="Les budgets du mandat"></ol>
+      <div class="end-kpis" id="endKpis"></div>
+      <div class="end-press" id="endPress"></div>
+      <div class="modal-foot"><button type="button" class="btn btn-ghost" data-end="close">Voir le détail</button><span class="end-acts" id="endActs"></span></div>
+    </div>
+  </div>
+
   <div class="tour" id="tour" role="dialog" aria-labelledby="tourTitle" hidden>
     <span class="tour-step" id="tourStep"></span>
     <h3 id="tourTitle"></h3>
@@ -769,8 +808,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     pandemic: ["Pandémie : le déficit passe en télétravail, il ne revient pas", "Confinement. Bercy imprime des chèques, la rue fait du pain"],
     force: ["49.3 : le gouvernement passe en force, l'opposition passe à la buvette", "Encore un 49.3. Les députés connaissent la procédure par cœur", "Le budget passe sans vote. La démocratie prend un ticket", "49.3, saison 2 : les spectateurs connaissent la fin", "Le gouvernement engage sa responsabilité. Personne n'en veut"],
     angry: ["La colère monte. Les ventes de gilets jaunes aussi", "Grogne sociale : les syndicats ressortent les banderoles de l'an dernier"],
-    better: ["Le déficit recule. À Bruxelles, on vérifie deux fois le tableur", "Bonne nouvelle pour les comptes : Bercy ouvre un mousseux, pas du champagne", "Le déficit baisse. Les agences de notation lèvent un sourcil, favorablement", "Les comptes s'améliorent : un fonctionnaire de Bercy aperçu en train de sourire", "Moins de déficit : la Cour des comptes cherche quand même quelque chose à redire"],
-    worse: ["Le déficit se creuse. « Conjoncturel », assure Bercy, comme chaque année", "La dette grimpe. Elle a désormais son propre étage au ministère", "Nouveau record de dette. L'horloge de la dette manque de chiffres", "Le déficit file. Le gouvernement promet de faire mieux l'an prochain, comme l'an dernier"],
+    better: ["Le déficit recule. À Bruxelles, on vérifie deux fois le tableur", "Bonne nouvelle pour les comptes : Bercy ouvre un mousseux, pas du champagne", "Le déficit baisse. Les agences de notation lèvent un sourcil, favorablement", "Les comptes s'améliorent : un fonctionnaire de Bercy aperçu en train de sourire", "Moins de déficit : la Cour des comptes cherche quand même quelque chose à redire", "Les comptes se redressent. Les économistes, perplexes, refont leurs calculs", "Le déficit fond. Bruxelles envisage de retirer votre photo du tableau d'affichage"],
+    worse: ["Le déficit se creuse. « Conjoncturel », assure Bercy, comme chaque année", "La dette grimpe. Elle a désormais son propre étage au ministère", "Nouveau record de dette. L'horloge de la dette manque de chiffres", "Le déficit file. Le gouvernement promet de faire mieux l'an prochain, comme l'an dernier", "Dérapage des comptes : Bercy accuse la météo, la conjoncture et le calendrier", "La dette prend un an de plus. Elle, au moins, a de l'avenir", "Les comptes publics dans le rouge : la couleur préférée de la rentrée", "Le déficit s'installe. Il a demandé un bureau avec vue"],
     calm: ["Année calme. Les chaînes d'info reprennent le débat sur la météo", "Rien à signaler. Les éditorialistes s'ennuient, et le disent", "Une année sans crise. Les chaînes d'info en cherchent une quand même"]
   };
   // Répliques quand un levier touche le bout de sa plage
@@ -1644,7 +1683,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (e.target.closest("[data-later]") || e.target === $("dossierModal")) { dossierLater = true; update(); }
   });
   $("rcNext").addEventListener("click", closeRecap);
-  function closeRecap() { recap = null; dossierLater = false; setMview(game && game.over ? "results" : "levers"); update(); window.scrollTo({ top: 0 }); }
+  function closeRecap() { endOpen = !!(game && game.over); recap = null; dossierLater = false; setMview(game && game.over ? "results" : "levers"); update(); window.scrollTo({ top: 0 }); }
+  $("endModal").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-end]");
+    if (b) { if (b.dataset.end === "close") { endOpen = false; update(); } else startNew(b.dataset.end === "replay"); return; }
+    if (e.target === $("endModal")) { endOpen = false; update(); }
+  });
   $("rtabs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-rtab]"); if (!b) return;
     rtab = b.dataset.rtab; renderRtabs(); save();
@@ -1667,9 +1711,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (game.nego[id]) delete game.nego[id]; else if (game.capital - negoSpent() >= state.negoCost) game.nego[id] = true;
     update(); save();
   });
-  $("verdictActions").addEventListener("click", (e) => { const b = e.target.closest("[data-act]"); if (b) startNew(b.dataset.act === "replay"); });
+  $("verdictActions").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    if (b.dataset.act === "end") { endOpen = true; update(); } else startNew(b.dataset.act === "replay");
+  });
   // Rejouer garde la graine : mêmes crises, mêmes dossiers, aux mêmes dates
-  function startNew(replay) { recap = null; dossierLater = false; setMview("levers"); newGame(replay && game ? game.seed : undefined); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
+  function startNew(replay) { recap = null; dossierLater = false; endOpen = false; setMview("levers"); newGame(replay && game ? game.seed : undefined); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
 
   function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
   function syncInputs() {
@@ -1869,7 +1916,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     }
   }
   // Fenêtres : le bilan de l'année votée passe d'abord, puis le dossier de l'année suivante
-  let recap = null, dossierLater = false;
+  let recap = null, dossierLater = false, endOpen = false;
   const tourOn = () => typeof tourAt !== "undefined" && tourAt >= 0;
   function renderDossier(mandat) {
     const d = mandat ? dossierNow() : null;
@@ -1904,10 +1951,14 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     // Un 49.3 de plus ne fait plus la une : la presse passe aux comptes
     const key = lost ? P.defeat.type : shock || (recap.force && !game.force[y - 1] ? "force" : P.anger[i] - P.anger[i - 1] > 4 ? "angry"
       : P.defR[i] < P.defR[i - 1] - 0.15 ? "better" : P.defR[i] > P.defR[i - 1] + 0.15 ? "worse" : recap.force ? "force" : "calm");
-    game.heads = game.heads || [];
-    const fresh = HEADLINES[key].filter(h => !game.heads.includes(h)), head = pick(fresh.length ? fresh : HEADLINES[key]);
-    game.heads.push(head);
-    $("rcPaper").textContent = `${pick(PAPERS)} · ${y + 1 > LAST ? "édition spéciale" : `1ᵉʳ janvier ${y + 1}`}`;
+    game.press = game.press || [];
+    // Quand une rubrique est épuisée, la presse change d'angle plutôt que de se répéter
+    const used = game.press.map(x => x.h);
+    const pool = [key, "worse", "better", "calm", "angry"].map(k => HEADLINES[k].filter(h => !used.includes(h))).find(a => a.length) || HEADLINES[key];
+    const head = pick(pool);
+    const paper = pick(PAPERS);
+    game.press.push({ y, paper, h: head });
+    $("rcPaper").textContent = `${paper} · ${y + 1 > LAST ? "édition spéciale" : `1ᵉʳ janvier ${y + 1}`}`;
     $("rcHead").textContent = head;
     let k = 0;
     // Le prévu sort de la prévision affichée avant le vote : l'écart, c'est le hasard de l'année
@@ -1925,6 +1976,49 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     [...$("rcEvents").children].forEach((li, j) => li.style.setProperty("--i", k + j));
     $("rcHint").textContent = game.over ? "" : evs.length ? "Tout reste consultable dans l'onglet Journal." : "Une année sans surprise. Profitez-en.";
     $("rcNext").textContent = game.over ? "Voir le bilan" : `Préparer le budget ${game.year}`;
+  }
+  // ---------- Bilan du mandat ----------
+  // Ordres de grandeur pour les équivalences : un porte-avions de nouvelle génération ≈ 10 Md€, une baguette ≈ 1,10 €.
+  const ANGER_WORD = (a) => a < 45 ? "calme plat" : a < 55 ? "grogne de comptoir" : a < 65 ? "cortèges du jeudi" : a < 75 ? "ronds-points occupés" : "barricades";
+  function renderEnd(mandat, P, R) {
+    const show = mandat && !!game && !!game.over && endOpen && !recap && !tourOn();
+    $("endModal").hidden = !show;
+    if (!show) return;
+    const o = game.over, last = played(), i = idx(last), i0 = idx(FIRST) - 1, won = o.type === "fin";
+    const n = last - FIRST + 1, card = $("endModal").querySelector(".modal-card");
+    card.classList.toggle("lost", !won); card.classList.toggle("good", won);
+    $("endKicker").textContent = `Bilan du mandat · ${FIRST} → ${last}`;
+    $("endTitle").textContent = endingTitle(o.type, P, R, i);
+    const forced = Object.keys(game.force).length, deals = game.extra.filter(e => e.title.startsWith("Accord avec")).length;
+    // Un budget censuré n'est pas adopté : il ne compte pas
+    const passed = o.type === "censure" ? n - 1 : n;
+    $("endText").innerHTML = (won ? `Vous tenez les <b>dix budgets</b> du mandat.`
+      : `${DEFEAT_SUB[o.type]} en ${o.year}, ${passed ? `après <b>${passed} budget${passed > 1 ? "s" : ""} adopté${passed > 1 ? "s" : ""}</b> sur 10` : "avant même votre premier budget"}.`) + ` ${nearMiss(P)}`;
+    // Une case par année : voté, 49.3, l'année fatale, ou jamais vu
+    $("endYears").innerHTML = YEARS.filter(y => y >= FIRST).map(y => {
+      const k = y > last ? "none" : !won && y === o.year ? "lost" : game.force[y] ? "force" : "ok";
+      const t = { none: "", lost: "✕", force: "49.3", ok: "✓" }[k];
+      return `<li class="${k}" title="${y}"><span>${String(y).slice(2)}</span><b>${t}</b></li>`;
+    }).join("");
+    const addMd = P.D[i] - P.D[i0], perHab = addMd * 1e9 / (POP * 1e6);
+    const interest = P.int.slice(idx(FIRST), i + 1).reduce((a, b) => a + b, 0);
+    const peak = Math.max(...P.anger.slice(idx(FIRST), i + 1));
+    const g = Object.entries(P.groups[i] || {}).filter(([k]) => k !== "entreprises" && k !== "opinion").sort((a, b) => b[1] - a[1])[0];
+    const r0 = RATINGS[P.notch[i0]], r1 = RATINGS[P.notch[i]];
+    const ek = (label, val, sub, cls = "") => `<div class="ek ${cls}"><span>${label}</span><b>${val}</b><em>${sub}</em></div>`;
+    $("endKpis").innerHTML =
+      ek("Dette publique", `${f0(P.d[i0])} → ${f0(P.d[i])} %`, `${addMd >= 0 ? "+" : "−"}${f0(Math.abs(addMd))} Md€, soit ${f0(Math.abs(perHab) / 1.1)} baguettes par Français`, P.d[i] > P.d[i0] ? "bad" : "good") +
+      ek("Déficit", `${f1(P.defR[i0])} → ${f1(P.defR[i])} %`, P.defR[i] <= state.ruleUE ? "sous les 3 % : Bruxelles vous envoie des fleurs" : "Bruxelles garde votre dossier sur le dessus de la pile", P.defR[i] <= state.ruleUE ? "good" : "bad") +
+      ek("Intérêts payés", `${f0(interest)} Md€`, `de quoi s'offrir ${f0(interest / 10)} porte-avions`) +
+      ek("Pic de colère", `${f0(peak)}/100`, ANGER_WORD(peak), peak > state.ruleChute ? "bad" : "") +
+      ek("49.3 dégainés", f0(forced), forced ? (forced >= n ? "à chaque budget : l'Assemblée a appris à s'en passer" : `sur ${n} budget${n > 1 ? "s" : ""}`) : "pas un seul : un exploit sous la Vᵉ République", forced >= 3 ? "warn" : "") +
+      ek("Note de la France", r0 === r1 ? r1 : `${r0} → ${r1}`, r0 === r1 ? "les agences n'ont rien vu passer" : P.notch[i] > P.notch[i0] ? "les agences ont perdu patience" : "les agences reprennent confiance", P.notch[i] > P.notch[i0] ? "bad" : "") +
+      ek("Les plus remontés", g && g[1] > 0.1 ? lc(GROUPS[g[0]]) : "personne", g && g[1] > 0.1 ? "ils s'en souviendront aux prochaines élections" : "un mandat sans ennemi, ou sans réforme") +
+      ek("Longévité", `${n} an${n > 1 ? "s" : ""}`, n >= 3 ? "plus que la moyenne des Premiers ministres de la Vᵉ (≈ 2 ans et demi)" : "moins que la moyenne des Premiers ministres de la Vᵉ (≈ 2 ans et demi)") +
+      ek("Arbitrages", `${Object.keys(game.picks).length} dossier${Object.keys(game.picks).length > 1 ? "s" : ""}`, deals ? `et ${deals} accord${deals > 1 ? "s" : ""} négocié${deals > 1 ? "s" : ""} en coulisses` : "aucun accord négocié : la ligne, rien que la ligne");
+    const press = (game.press || []).filter(x => x.y <= last);
+    $("endPress").innerHTML = press.length ? `<p class="end-h">La revue de presse</p><ul>${press.map(x => `<li><span>${x.y}</span><i>${x.h}</i><small>${x.paper}</small></li>`).join("")}</ul>` : "";
+    $("endActs").innerHTML = `${won ? "" : `<button type="button" class="btn btn-outline" data-end="replay">Rejouer la même partie</button>`}<button type="button" class="btn btn-primary" data-end="new">Nouvelle partie</button>`;
   }
   const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["src", "Sources"]];
   let rtab = "asm";
@@ -2156,11 +2250,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const endT = mandat && game.over ? endingTitle(game.over.type, P, R, lastI) : "";
     $("ending").innerHTML = `${endT ? `<span class="ending-title">Fin de partie · ${endT}</span>` : ""}${head}`;
     $("verdict").innerHTML = v;
-    $("verdictActions").innerHTML = mandat && game.over ? `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button>` : "";
+    $("verdictActions").innerHTML = mandat && game.over ? `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button><button class="btn btn-ghost" data-act="end" type="button">Revoir le bilan</button>` : "";
 
     renderAssembly(A, mandat);
     renderDossier(mandat);
     renderRecap(mandat, P);
+    renderEnd(mandat, P, R);
 
     // Journal
     const evs = mandat ? sortEvents(game.extra.filter(e => e.year <= lastY).concat(P.events)) : P.events;
@@ -2349,6 +2444,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   document.addEventListener("keydown", (e) => {
     if (tourAt < 0 && e.key === "Escape") {
       if (!$("recapModal").hidden) closeRecap();
+      else if (!$("endModal").hidden) { endOpen = false; update(); }
       else if (!$("dossierModal").hidden) { dossierLater = true; update(); }
       return;
     }
