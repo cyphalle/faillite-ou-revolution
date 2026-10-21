@@ -197,6 +197,11 @@ input[type="checkbox"][role="switch"]:checked::before { transform: translateX(16
 .panel.verdict-panel::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--accent); }
 .panel.verdict-panel.lost::before { background: var(--bad); }
 .panel.verdict-panel.ok::before { background: var(--good); }
+.ending-title { display: block; font-family: var(--f-body); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.press { margin: 2px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--ink); border-radius: 0 var(--radius) var(--radius) 0; background: var(--secondary); }
+.press figcaption { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.press blockquote { margin: 4px 0 0; font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 17px; line-height: 1.35; color: var(--ink); text-wrap: balance; }
+.lever-quip { margin: 0; font-size: 12.5px; font-style: italic; color: var(--accent); }
 .ending { font-family: var(--f-display); font-weight: 700; font-size: clamp(22px, 2.8vw, 30px); line-height: 1.1; margin: 0 0 10px; letter-spacing: -.03em; text-wrap: balance; }
 .lost .ending { color: var(--bad); }
 .ok .ending { color: var(--good); }
@@ -465,6 +470,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .ab-acts .btn > span { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .btn-mini { display: block; font-weight: 400; font-size: 11.5px; opacity: .75; }
   .lever-note { display: none; }
+  .press blockquote { font-size: 16px; }
   .stepbtn { width: 44px; height: 40px; font-size: 20px; }
   .track input[type="range"] { pointer-events: none; }
   .kpi.fc .k-sub { display: flex; }
@@ -688,6 +694,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <p class="d-kicker" id="rcKicker"></p>
       <h2 id="rcTitle"></h2>
       <p class="sub" id="rcText"></p>
+      <figure class="press" id="rcPress"><figcaption id="rcPaper"></figcaption><blockquote id="rcHead"></blockquote></figure>
       <div class="recap-kpis" id="rcKpis"></div>
       <ol class="journal" id="rcEvents"></ol>
       <div class="modal-foot"><span id="rcHint"></span><button type="button" class="btn btn-primary" id="rcNext"></button></div>
@@ -747,6 +754,55 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     { id: "pandemic", p: 0.025, kind: "bad", title: "Pandémie", detail: "Confinements et soutien à l'économie : −4 % de PIB et 1,5 % du PIB de dépenses exceptionnelles.", gdp: -0.04, spend: 1.5 }
   ];
   const SHOCK_BY_ID = Object.fromEntries(SHOCKS.map(s => [s.id, s]));
+  // ---------- Le ton : la presse du lendemain, les répliques des leviers, le titre de la fin ----------
+  // Journaux imaginaires. L'humour vise les institutions et les travers de tous les camps, jamais une personne.
+  const PAPERS = ["L'Écho de Bercy", "Le Petit Contribuable", "La Gazette de l'Hémicycle", "Le Moniteur des Marchés", "La Dépêche du Rond-Point"];
+  const HEADLINES = {
+    fmi: ["La France sous tutelle : le FMI demande où sont rangées les clés de Bercy", "Les créanciers débarquent. Ils ont apporté leur tableur, et des sandwichs", "« Comme la Grèce, mais avec du fromage » : le FMI s'installe à Paris"],
+    chute: ["Le gouvernement tombe. La rue réclame déjà le suivant", "Démission générale. Les déménageurs de Matignon font des heures sup'", "La rue a gagné. Elle ne sait pas encore quoi"],
+    battu: ["Défaite à la présidentielle : vos réformes partent au recyclage", "Battu. Vous pouvez enfin écrire vos mémoires, en trois tomes"],
+    censure: ["Censuré ! Le gouvernement découvre que 289, c'est beaucoup", "Motion adoptée : l'hémicycle applaudit, les marchés retiennent leur souffle"],
+    rec: ["Récession : Bercy découvre que sa croissance n'était qu'une hypothèse", "Le PIB recule. Les économistes avaient tout prévu, après coup"],
+    boom: ["La croissance repart. Le gouvernement s'en attribue tout le mérite", "Embellie surprise : à Bercy, on recompte trois fois"],
+    rate: ["Les taux s'envolent. À Francfort, on sort les mouchoirs", "Les marchés toussent, la dette s'enrhume"],
+    energy: ["Le plein à prix d'or : les ronds-points se remplissent", "Crise de l'énergie : les pulls à col roulé deviennent politique d'État"],
+    pandemic: ["Pandémie : le déficit passe en télétravail, il ne revient pas", "Confinement. Bercy imprime des chèques, la rue fait du pain"],
+    force: ["49.3 : le gouvernement passe en force, l'opposition passe à la buvette", "Encore un 49.3. Les députés connaissent la procédure par cœur", "Le budget passe sans vote. La démocratie prend un ticket", "49.3, saison 2 : les spectateurs connaissent la fin", "Le gouvernement engage sa responsabilité. Personne n'en veut"],
+    angry: ["La colère monte. Les ventes de gilets jaunes aussi", "Grogne sociale : les syndicats ressortent les banderoles de l'an dernier"],
+    better: ["Le déficit recule. À Bruxelles, on vérifie deux fois le tableur", "Bonne nouvelle pour les comptes : Bercy ouvre un mousseux, pas du champagne", "Le déficit baisse. Les agences de notation lèvent un sourcil, favorablement", "Les comptes s'améliorent : un fonctionnaire de Bercy aperçu en train de sourire", "Moins de déficit : la Cour des comptes cherche quand même quelque chose à redire"],
+    worse: ["Le déficit se creuse. « Conjoncturel », assure Bercy, comme chaque année", "La dette grimpe. Elle a désormais son propre étage au ministère", "Nouveau record de dette. L'horloge de la dette manque de chiffres", "Le déficit file. Le gouvernement promet de faire mieux l'an prochain, comme l'an dernier"],
+    calm: ["Année calme. Les chaînes d'info reprennent le débat sur la météo", "Rien à signaler. Les éditorialistes s'ennuient, et le disent", "Une année sans crise. Les chaînes d'info en cherchent une quand même"]
+  };
+  // Répliques quand un levier touche le bout de sa plage
+  const QUIPS = {
+    tva: { max: "25 % : même les Danois trouvent ça un peu cher.", min: "TVA à 15 % : les caddies débordent, les comptes aussi." },
+    csg: { max: "La CSG, l'impôt que personne ne sait expliquer et que tout le monde paie.", min: "Moins de CSG : la Sécu regarde ses comptes et soupire." },
+    ir: { max: "Les déménageurs pour Bruxelles affichent complet.", min: "Baisse générale : vos électeurs adorent, votre déficit aussi." },
+    is: { max: "35 % : les directeurs fiscaux découvrent les charmes de Dublin.", min: "15 % : même l'Irlande vous trouve un peu agressif." },
+    niches: { max: "La moitié des niches rasées : chaque lobby se découvre une cause d'intérêt général." },
+    zucman: { on: "Les foyers concernés ont déjà un avocat fiscaliste. Certains en ont trois." },
+    age: { max: "67 ans : les kinés et les fabricants de genouillères applaudissent.", min: "Retour aux 60 ans : la pétition est signée, la facture aussi." },
+    idxRet: { min: "Les retraités votent. Beaucoup. Et à chaque élection.", max: "Les retraités vous adorent. Vos petits-enfants paieront l'addition." },
+    ondam: { min: "1 % de hausse : les urgences rouvriront « quand la situation le permettra ».", max: "5 % par an : les hôpitaux respirent, Bercy beaucoup moins." },
+    point: { min: "Point d'indice en berne : les syndicats réservent les cars.", max: "Les fonctionnaires sablent le champagne. Le tarif fonctionnaire, donc du crémant." },
+    eff: { min: "Moins de fonctionnaires : le guichet ferme désormais à 11 h 30.", max: "Recrutements massifs : le formulaire Cerfa pour candidater fait 14 pages." },
+    carbone: { max: "150 € la tonne : le rond-point redevient un haut lieu de sociabilité.", min: "Taxe carbone supprimée : la planète prend note, et prend chaud." },
+    def: { max: "3,55 % du PIB : l'industrie de défense vous envoie ses vœux en recommandé." },
+    fraude: { max: "15 Md€ de fraude retrouvés. Promis, juré. Comme chaque année." },
+    accises: { max: "Le paquet hors de prix : la frontière belge n'a jamais été aussi fréquentée." },
+    apd: { min: "Aide au développement divisée par deux : petite économie, grand silence au G20." },
+    invest: { max: "40 Md€ d'investissement : rupture de stock sur les rubans d'inauguration." }
+  };
+  // Le titre de la fin, qu'on a envie de raconter
+  function endingTitle(type, P, R, i) {
+    if (type === "fmi") return "Le syndrome d'Athènes";
+    if (type === "chute") return "Le Grand Soir";
+    if (type === "battu") return "Retour à la vie civile";
+    if (type === "censure") return "Renversé en plein hémicycle";
+    if (P.d[i] <= state.ruleDebt && P.defR[i] <= state.ruleUE) return "Le Pinay du XXIᵉ siècle";
+    if (P.d[i] > R.d[i] + 0.5) return "Après moi, le déluge";
+    return "La patate chaude";
+  }
   // Dossiers de l'année : un arbitrage imposé par l'actualité, à trancher avant le budget. Montants : ordres de grandeur.
   // md : Md€ l'année du choix (négatif : économie) ; mdFrom : Md€ par an, durablement ; cat : poste de dépense ;
   // anger : points de colère l'année du choix ; gdp : écart d'activité ; capital : points ; vote : score de chaque bloc au budget de l'année.
@@ -1490,7 +1546,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (p.type === "toggle") {
       return `<div class="lever" data-param="${p.id}"><div class="switch"><label for="in-${p.id}">${p.label}</label><input type="checkbox" role="switch" id="in-${p.id}"></div>
         <div class="lever-meta"><span data-today>${today} : ${p.ref ? "oui" : "non"}</span>${chips}</div>
-        ${p.note ? `<p class="lever-note">${p.note}</p>` : ""}</div>`;
+        ${p.note ? `<p class="lever-note">${p.note}</p>` : ""}${QUIPS[p.id] ? `<p class="lever-quip" data-quip hidden></p>` : ""}</div>`;
     }
     if (p.type === "choice") {
       return `<div class="lever" data-param="${p.id}"><div class="lever-head"><label id="lb-${p.id}">${p.label}</label></div>
@@ -1503,6 +1559,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="track-row">${isLever(p) ? `<button type="button" class="stepbtn" data-step="-1" aria-label="${p.label} : baisser">−</button>` : ""}<div class="track"><span class="refmark" style="--pos:${pos}"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>${isLever(p) ? `<button type="button" class="stepbtn" data-step="1" aria-label="${p.label} : monter">+</button>` : ""}</div>
       <div class="lever-meta"><span data-today>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
       ${p.note || p.id === "ir" ? `<p class="lever-note" ${p.id === "ir" ? 'id="irNote"' : ""}>${p.note || ""}</p>` : ""}
+      ${QUIPS[p.id] ? `<p class="lever-quip" data-quip hidden></p>` : ""}
     </div>`;
   }
 
@@ -1836,11 +1893,22 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const lost = P.defeat && P.defeat.year === y;
     card.classList.toggle("lost", !!lost); card.classList.toggle("good", !lost && !recap.force);
     $("rcKicker").textContent = `Bilan de l'année ${y}`;
-    $("rcTitle").textContent = lost ? DEFEAT_SUB[P.defeat.type] : recap.force ? `Budget ${y} adopté par le 49.3` : `Budget ${y} voté par l'Assemblée`;
+    $("rcTitle").textContent = lost ? `${DEFEAT_SUB[P.defeat.type]}` : recap.force ? `Budget ${y} adopté par le 49.3` : `Budget ${y} voté par l'Assemblée`;
     $("rcText").innerHTML = lost && P.defeat.type === "censure" ? `La censure réunit <b>${f0(recap.censure)} voix</b> sur ${MAJ}.`
       : recap.force ? `Sans majorité, vous engagez la responsabilité du gouvernement. La censure ne réunit que ${f0(recap.censure)} voix sur ${MAJ}.`
       : `${f0(recap.pour)} pour, ${f0(recap.contre)} contre, ${f0(recap.abst)} abstentions.`;
     if (lost) $("rcText").innerHTML += ` ${nearMiss(P)}`;
+    // Tiré de la graine : la même partie rejouée donne les mêmes unes
+    const pr = rng(game.seed ^ (y * 2654435761)), pick = (a) => a[Math.floor(pr() * a.length)];
+    const shock = (game.shocks[y] || []).find(id => HEADLINES[id]);
+    // Un 49.3 de plus ne fait plus la une : la presse passe aux comptes
+    const key = lost ? P.defeat.type : shock || (recap.force && !game.force[y - 1] ? "force" : P.anger[i] - P.anger[i - 1] > 4 ? "angry"
+      : P.defR[i] < P.defR[i - 1] - 0.15 ? "better" : P.defR[i] > P.defR[i - 1] + 0.15 ? "worse" : recap.force ? "force" : "calm");
+    game.heads = game.heads || [];
+    const fresh = HEADLINES[key].filter(h => !game.heads.includes(h)), head = pick(fresh.length ? fresh : HEADLINES[key]);
+    game.heads.push(head);
+    $("rcPaper").textContent = `${pick(PAPERS)} · ${y + 1 > LAST ? "édition spéciale" : `1ᵉʳ janvier ${y + 1}`}`;
+    $("rcHead").textContent = head;
     let k = 0;
     // Le prévu sort de la prévision affichée avant le vote : l'écart, c'est le hasard de l'année
     const rk = (label, now, before, fmt, upIsBad, fc) => {
@@ -1855,7 +1923,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const evs = sortEvents(game.extra.filter(e => e.year === y && !e.title.startsWith(`Budget ${y}`)).concat(P.events.filter(e => e.year === y)));
     $("rcEvents").innerHTML = evs.map(evHTML).join("");
     [...$("rcEvents").children].forEach((li, j) => li.style.setProperty("--i", k + j));
-    $("rcHint").textContent = game.over ? "" : evs.length ? "Tout reste consultable dans l'onglet Journal." : "Une année sans surprise.";
+    $("rcHint").textContent = game.over ? "" : evs.length ? "Tout reste consultable dans l'onglet Journal." : "Une année sans surprise. Profitez-en.";
     $("rcNext").textContent = game.over ? "Voir le bilan" : `Préparer le budget ${game.year}`;
   }
   const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["src", "Sources"]];
@@ -1934,6 +2002,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         const meta = node.querySelector(".lever-meta");
         meta.hidden = !ch && [...meta.querySelectorAll(".delta")].every(c => c.hidden);
         meta.querySelector("[data-today]").hidden = !ch;
+        const qn = node.querySelector("[data-quip]");
+        if (qn) {
+          const q = QUIPS[p.id], v = state[p.id];
+          const t = p.type === "toggle" ? (v ? q.on : null) : v >= p.max ? q.max : v <= p.min ? q.min : null;
+          qn.hidden = !t; if (t) qn.textContent = t;
+        }
         const label = mandat ? (game.year === FIRST && !game.over ? "Aujourd'hui" : "En vigueur") : "Aujourd'hui";
         const pv = prev[p.id];
         node.querySelector("[data-today]").textContent = `${label} : ${p.type === "toggle" ? (pv ? "oui" : "non") : p.fmt(pv)}`;
@@ -2079,7 +2153,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       if (Math.abs(effort) >= 1) v += ` En 2030, vous ${effort > 0 ? "demandez" : "rendez"} <b>${f0(Math.abs(effort))} Md€</b>, environ ${f0(Math.abs(perHab))} € par habitant.`;
     }
     if (mandat && P.defeat) v += ` <b>${nearMiss(P)}</b>`;
-    $("ending").textContent = head;
+    const endT = mandat && game.over ? endingTitle(game.over.type, P, R, lastI) : "";
+    $("ending").innerHTML = `${endT ? `<span class="ending-title">Fin de partie · ${endT}</span>` : ""}${head}`;
     $("verdict").innerHTML = v;
     $("verdictActions").innerHTML = mandat && game.over ? `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button>` : "";
 
