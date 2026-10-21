@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout : bandeau de bord collant (vue + statut + 4 jauges). Vue « Jouer » : pupitre de leviers à gauche, conséquences à droite. Vue « Moteur » : grille de réglages du modèle, le bandeau reste visible pour voir l'effet. */
+/* Layout : bandeau de bord collant (vue + statut + 4 jauges). Vues « Mandat » (tour par tour) et « Bac à sable » : pupitre de leviers à gauche, conséquences à droite. Vue « Moteur » : grille de réglages du modèle. */
 :root {
   --paper: #F1F3F7;
   --surface: #FFFFFF;
@@ -61,11 +61,10 @@ h1 span { color: var(--accent); }
 
 .dash { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); padding-block: 10px; display: grid; gap: 8px; }
 .viewbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.viewseg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; }
+.viewseg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; flex-wrap: wrap; }
 .viewseg button { border: 0; background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
 .viewseg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
 .viewseg .badge { font-family: var(--f-data); font-size: 11px; margin-left: 6px; color: var(--warn); }
-.viewseg button[aria-pressed="true"] .badge { color: var(--warn-soft); }
 .viewhint { font-size: 12.5px; color: var(--muted); }
 .kpis { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 8px; }
 .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; display: grid; gap: 1px; min-width: 0; align-content: start; }
@@ -81,14 +80,19 @@ h1 span { color: var(--accent); }
 .kpi.status.ok .k-val { color: var(--good); }
 .kpi.status.lost { border-color: var(--bad); background: var(--bad-soft); }
 .kpi.status.lost .k-val { color: var(--bad); }
+.kpi.status.turn { border-color: var(--accent); background: var(--accent-soft); }
+.kpi.status.turn .k-val { color: var(--accent); }
+.capbar { height: 5px; background: var(--paper); border-radius: 3px; overflow: hidden; margin-top: 3px; }
+.capbar div { height: 100%; background: var(--accent); border-radius: 3px; }
 
 main.board { display: grid; grid-template-columns: minmax(0, 430px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 8px; }
 .console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 150px); max-height: calc(100vh - 166px); display: flex; flex-direction: column; min-width: 0; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 0; }
 .presets span { font-size: 12px; color: var(--muted); width: 100%; }
 button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
 .chipbtn { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 11px; font-size: 13px; }
-.chipbtn:hover { border-color: var(--accent); }
+.chipbtn:hover:not(:disabled) { border-color: var(--accent); }
 .chipbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 .tabs { display: flex; gap: 0; padding: 10px 10px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tab { border: 0; background: none; padding: 8px 10px; font-weight: 600; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
@@ -112,6 +116,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
 .delta.good { background: var(--good-soft); color: var(--good); }
 .delta.bad { background: var(--bad-soft); color: var(--bad); }
 .delta.warn { background: var(--warn-soft); color: var(--warn); }
+.delta.cost { background: var(--accent-soft); color: var(--accent); }
 .delta.neutral { color: var(--muted); }
 .lever-note { font-size: 12.5px; color: var(--muted); margin: 0; }
 .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -121,8 +126,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
 .seg button { flex: 1; border: 0; background: none; padding: 6px; font-size: 13px; }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.console-foot { padding: 10px 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.console-foot { padding: 10px 14px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.foot-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.foot-cost { font-size: 13.5px; color: var(--ink); }
+.foot-cost b { font-family: var(--f-data); }
+.foot-cost.over b { color: var(--bad); }
 .textbtn { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 4px 0; }
+.btn { border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 14.5px; }
+.btn-primary { background: var(--accent); color: var(--surface); }
+.btn-force { background: var(--bad); color: var(--surface); }
+.btn-ghost { background: var(--paper); border: 1px solid var(--line); }
 
 .results { display: grid; gap: 20px; min-width: 0; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
@@ -130,11 +143,14 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
 .panel .sub { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
 .panel.verdict-panel.lost { border: 2px solid var(--bad); }
 .panel.verdict-panel.ok { border: 2px solid var(--good); }
+.panel.verdict-panel.turn { border: 2px solid var(--accent); }
 .ending { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); line-height: 1.05; margin: 0 0 10px; letter-spacing: -.015em; text-wrap: balance; }
 .lost .ending { color: var(--bad); }
 .ok .ending { color: var(--good); }
+.turn .ending { color: var(--accent); }
 .verdict { font-size: 16px; line-height: 1.6; margin: 0; max-width: 70ch; }
 .verdict b { font-weight: 600; }
+.verdict-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 
 .journal { list-style: none; margin: 0; padding: 0; display: grid; }
 .journal li { display: grid; grid-template-columns: 46px 14px minmax(0, 1fr); gap: 10px; padding-block: 8px; }
@@ -144,6 +160,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
 .journal .bad .j-dot { background: var(--bad); }
 .journal .good .j-dot { background: var(--good); }
 .journal .warn .j-dot { background: var(--warn); }
+.journal .info .j-dot { background: var(--accent); }
 .journal .end .j-dot { background: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
 .journal .j-title { font-weight: 600; font-size: 14.5px; }
 .journal .end .j-title { color: var(--bad); }
@@ -172,6 +189,8 @@ svg.chart .bar-bad { fill: var(--bad); }
 svg.chart .tick-ref { stroke: var(--ink); stroke-width: 2; opacity: .45; }
 svg.chart .after { fill: var(--bad-soft); opacity: .7; }
 svg.chart .t-after { fill: var(--bad); font-weight: 600; }
+svg.chart .future { fill: var(--paper); opacity: .8; }
+svg.chart .t-future { fill: var(--muted); }
 .charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
 
 .groups { display: grid; gap: 8px; }
@@ -186,9 +205,10 @@ svg.chart .t-after { fill: var(--bad); font-weight: 600; }
 
 .objectives { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .objectives li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 8px; background: var(--paper); }
-.pill { font-family: var(--f-data); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em; }
+.pill { font-family: var(--f-data); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em; white-space: nowrap; }
 .pill.ok { background: var(--good-soft); color: var(--good); }
 .pill.ko { background: var(--bad-soft); color: var(--bad); }
+.pill.wait { background: var(--surface); color: var(--muted); border: 1px solid var(--line); }
 .objectives .o-title { font-weight: 600; font-size: 14px; }
 .objectives .o-why { font-size: 12.5px; color: var(--muted); }
 .objectives .o-val { font-family: var(--f-data); font-size: 12.5px; color: var(--muted); text-align: right; }
@@ -251,15 +271,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   .objectives .o-val { grid-column: 2; text-align: left; }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .row .r-bar div, .grow .g-bar div { transition: width .25s ease; }
+  .row .r-bar div, .grow .g-bar div, .capbar div { transition: width .25s ease; }
 }
 </style>
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · simulation 2024 → 2035</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035</div>
     <h1>Faillite ou <span>Révolution</span></h1>
-    <p class="lede">La France dépense <strong>1 670 milliards d'euros</strong> par an et en prélève <strong>1 500</strong>. Vous tenez les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette réveille les premiers. La réduire trop vite réveille la deuxième. Tenez jusqu'en 2035.</p>
+    <p class="lede">La France dépense <strong>1 670 milliards d'euros</strong> par an et en prélève <strong>1 500</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
       <span>Départ 2024</span>
       <span>PIB <b>2 920 Md€</b></span>
@@ -275,8 +295,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   <div class="dash">
     <div class="viewbar">
       <div class="viewseg" role="group" aria-label="Vue">
-        <button type="button" data-view="play" aria-pressed="true">Jouer</button>
-        <button type="button" data-view="engine" aria-pressed="false">Régler le moteur<span class="badge" id="engBadge"></span></button>
+        <button type="button" data-view="mandat" aria-pressed="true">Mandat</button>
+        <button type="button" data-view="sandbox" aria-pressed="false">Bac à sable</button>
+        <button type="button" data-view="engine" aria-pressed="false">Moteur<span class="badge" id="engBadge"></span></button>
       </div>
       <span class="viewhint" id="viewHint"></span>
     </div>
@@ -290,21 +311,19 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       </div>
       <div class="tabs" role="tablist" id="tabs"></div>
       <div class="levers" id="levers"></div>
-      <div class="console-foot">
-        <span id="changedCount">Aucun levier modifié</span>
-        <button class="textbtn" id="reset" type="button">Remettre les leviers à zéro</button>
-      </div>
+      <div class="console-foot" id="consoleFoot"></div>
     </section>
 
     <section class="results">
       <div class="panel verdict-panel" id="verdictPanel">
         <p class="ending" id="ending"></p>
         <p class="verdict" id="verdict"></p>
+        <div class="verdict-actions" id="verdictActions"></div>
       </div>
 
       <div class="panel">
         <h2>Journal du mandat</h2>
-        <p class="sub">Ce que vos choix déclenchent, année après année. Les seuils se règlent dans le moteur.</p>
+        <p class="sub">Ce que vos choix et le hasard déclenchent, année après année. Les seuils se règlent dans le moteur.</p>
         <ol class="journal" id="journal"></ol>
       </div>
 
@@ -369,7 +388,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       <div class="panel">
         <details class="sources">
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.3. Tous les chiffres ci-dessous sont des ordres de grandeur 2024 tirés de mémoire. Ils seront remplacés un par un par les données publiées (INSEE, PLF, COR, Agence France Trésor, barèmes IPP).</p>
+          <p class="sub" style="margin-top:10px">Version 0.4. Tous les chiffres ci-dessous sont des ordres de grandeur 2024 tirés de mémoire. Ils seront remplacés un par un par les données publiées (INSEE, PLF, COR, Agence France Trésor, barèmes IPP).</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -380,8 +399,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
             <li>Les recettes suivent le PIB effectif, les dépenses suivent le PIB potentiel. L'écart joue le rôle de stabilisateur automatique.</li>
             <li>La dette se refinance par tranches, au taux allemand plus l'écart de taux. L'écart réagit avec un an de retard.</li>
             <li>La colère suit avec inertie la somme des pertes infligées à chaque groupe, plus le chômage. Ses coefficients sont des choix de conception, réglables dans le moteur.</li>
+            <li>En mandat, les chocs sont tirés au hasard en début de partie et révélés année après année. Le capital politique est une convention de jeu.</li>
             <li>Les seuils de fin de partie sont des conventions de jeu adossées à des précédents. Aucun seuil réel n'est mécanique.</li>
-            <li>Pas encore de ménages types : le modèle dit quel groupe perd, pas combien chaque foyer paie. Les dépenses des collectivités et les effectifs publics recoupent d'autres postes : leurs effets s'ajoutent sans détail par fonction.</li>
+            <li>Pas encore de ménages types : le modèle dit quel groupe perd, pas combien chaque foyer paie.</li>
           </ul>
         </details>
       </div>
@@ -408,6 +428,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   const Y0 = 2920, D0 = 3300, I0 = 60, POP = 68.4, SPREAD0 = 80;
   const RATINGS = ["A+", "A", "A−", "BBB+", "BBB", "BBB−", "BB+", "BB", "B"];
   const JUNK = 6;
+  const FIRST = 2026, LAST = 2035, ELECTIONS = [2027, 2032];
   const REV0 = { cotis: 420, tva: 210, csg: 155, ir: 95, is: 60, local: 55, energie: 35, autres: 222, nonfisc: 250 };
   const REV_LABELS = {
     cotis: "Cotisations sociales", tva: "TVA", csg: "CSG et CRDS", ir: "Impôt sur le revenu et prélèvements sur le capital",
@@ -428,7 +449,16 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     ecole: "Familles et enseignants", usagers: "Usagers des services publics", solidarite: "Solidarité internationale",
     opinion: "Sentiment de justice fiscale", entreprises: "Entreprises et investisseurs"
   };
-  const YEARS = []; for (let y = 2024; y <= 2035; y++) YEARS.push(y);
+  // Chocs tirés au hasard en mode mandat (probabilité annuelle, avant multiplicateur de fréquence)
+  const SHOCKS = [
+    { id: "rec", p: 0.09, kind: "bad", title: "Récession mondiale", detail: "La demande s'effondre chez nos partenaires : le PIB recule de 2 % sous sa tendance.", gdp: -0.02 },
+    { id: "boom", p: 0.09, kind: "good", title: "Reprise plus forte que prévu", detail: "Le PIB dépasse sa tendance de 1 %. Les recettes suivent.", gdp: 0.01 },
+    { id: "rate", p: 0.08, kind: "bad", title: "Tension sur les taux mondiaux", detail: "Les taux américains et allemands montent : +1 point sur les emprunts de l'année.", rate: 0.01 },
+    { id: "energy", p: 0.07, kind: "bad", title: "Crise de l'énergie", detail: "Le gaz et le pétrole flambent : +2 points d'inflation cette année, et la colère monte de 5 points.", infl: 2, anger: 5 },
+    { id: "pandemic", p: 0.025, kind: "bad", title: "Pandémie", detail: "Confinements et soutien à l'économie : −4 % de PIB et 1,5 % du PIB de dépenses exceptionnelles.", gdp: -0.04, spend: 1.5 }
+  ];
+  const SHOCK_BY_ID = Object.fromEntries(SHOCKS.map(s => [s.id, s]));
+  const YEARS = []; for (let y = 2024; y <= LAST; y++) YEARS.push(y);
 
   // ---------- Formatage ----------
   const nf = (d) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -443,9 +473,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   const md = (v) => `${smart(v)} Md€`;
   const coef = (v) => `${smart(v)} pt / Md€`;
   const share = (v) => `${f0(v * 100)} %`;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-  // ---------- Leviers de politique (vue « Jouer ») ----------
-  // sec : onglet-section. Les montants sont des ordres de grandeur 2024.
+  // ---------- Leviers de politique ----------
   const LEVERS = [
     { id: "tva", sec: "rec-conso", label: "TVA, taux normal", min: 15, max: 25, step: 0.5, ref: 20, fmt: pct, note: "Deux tiers de la consommation. 1 point ≈ 10,5 Md€." },
     { id: "tvaInt", sec: "rec-conso", label: "TVA, taux intermédiaire", min: 5.5, max: 20, step: 0.5, ref: 10, fmt: pct, note: "Restauration, travaux, transports. 1 point ≈ 1,8 Md€." },
@@ -483,7 +513,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
     { id: "invest", sec: "dep-avenir", label: "Investissement public supplémentaire", min: -20, max: 40, step: 1, ref: 0, fmt: v => v === 0 ? "inchangé" : `${signed(v)} Md€ par an`, note: "Transition écologique, réseaux, recherche. Il peut relever la croissance future : effet réglable dans le moteur." },
 
-    { id: "def", sec: "dep-monde", label: "Effort de défense visé en 2030", min: 1.5, max: 3.5, step: 0.1, ref: 1.9, fmt: v => `${smart(v)} % du PIB`, note: "≈ 55 Md€ aujourd'hui. L'OTAN demande au moins 2 %." },
+    { id: "def", sec: "dep-monde", label: "Effort de défense visé", min: 1.5, max: 3.5, step: 0.1, ref: 1.9, fmt: v => `${smart(v)} % du PIB`, note: "≈ 55 Md€ aujourd'hui. L'OTAN demande au moins 2 %. L'effort bouge de 0,3 point par an au plus." },
     { id: "apd", sec: "dep-monde", label: "Aide publique au développement", min: -50, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 14 Md€, environ 0,5 % du revenu national. Peu visible, donc souvent coupée en premier." }
   ];
   const SEC_TITLES = {
@@ -493,16 +523,24 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     "dep-avenir": "Avenir", "dep-monde": "La France dans le monde"
   };
 
-  // ---------- Paramètres du moteur (vue « Moteur ») ----------
+  // ---------- Paramètres du moteur ----------
   const ENGINE = [
     { sec: "seuils", id: "ruleUE", label: "Déficit toléré par Bruxelles", min: 2, max: 6, step: 0.5, ref: 3, fmt: v => `${smart(v)} % du PIB`, note: "Traité de Maastricht, 1992. La France est en procédure pour déficit excessif depuis juillet 2024. Au-delà, la BCE ne vous protège plus." },
     { sec: "seuils", id: "ruleAttack", label: "Écart de taux qui déclenche une attaque", min: 150, max: 600, step: 25, ref: 300, fmt: v => `${f0(v)} pb`, note: "Italie, novembre 2011 : l'écart avec l'Allemagne touche 575 pb, Silvio Berlusconi démissionne." },
     { sec: "seuils", id: "ruleFMI", label: "Taux à 10 ans qui met la France sous tutelle", min: 5, max: 10, step: 0.5, ref: 7, fmt: pct, note: "Grèce et Irlande en 2010, Portugal en 2011 : l'appel à l'aide internationale est venu quand leur taux a franchi environ 7 %." },
     { sec: "seuils", id: "ruleMouv", label: "Colère qui déclenche un mouvement social", min: 40, max: 80, step: 5, ref: 55, fmt: v => `${f0(v)} / 100`, note: "Repères : gilets jaunes en 2018, réforme des retraites en 2023." },
     { sec: "seuils", id: "ruleChute", label: "Colère qui fait tomber le gouvernement", min: 50, max: 95, step: 5, ref: 70, fmt: v => `${f0(v)} / 100`, note: "Décembre 2024 : le gouvernement Barnier est censuré sur le budget de la Sécurité sociale." },
+    { sec: "seuils", id: "ruleElection", label: "Colère qui fait perdre la présidentielle", min: 40, max: 90, step: 5, ref: 60, fmt: v => `${f0(v)} / 100`, note: "Élections en 2027 et en 2032. Les budgets d'avant scrutin sont souvent plus généreux, et c'est pour ça." },
     { sec: "seuils", id: "ruleDebt", label: "Dette visée en 2035", min: 60, max: 160, step: 5, ref: 120, fmt: v => `${f0(v)} % du PIB`, note: "Le traité de Maastricht fixe 60 %. La France l'a dépassé au début des années 2000." },
     { sec: "seuils", id: "ecb", type: "toggle", label: "La BCE protège les pays qui respectent les règles", ref: true, note: "Instrument créé en 2022 : la BCE peut acheter la dette d'un pays attaqué, s'il respecte le cadre budgétaire européen." },
     { sec: "seuils", id: "ecbCap", label: "Écart maximal toléré par la BCE", min: 100, max: 400, step: 25, ref: 200, fmt: v => `${f0(v)} pb`, note: "Niveau auquel le bouclier contient l'écart quand il s'active. Choix de conception." },
+
+    { sec: "mandat", id: "capital0", label: "Capital politique de départ", min: 40, max: 150, step: 5, ref: 100, fmt: v => `${f0(v)} points`, note: "Ce que vaut une majorité fraîchement élue." },
+    { sec: "mandat", id: "capBase", label: "Coût fixe d'une mesure", min: 0, max: 10, step: 1, ref: 3, fmt: v => `${f0(v)} points`, note: "Chaque mesure demande des négociations, même une mesure populaire." },
+    { sec: "mandat", id: "capPerPain", label: "Coût par point de colère provoqué", min: 0, max: 4, step: 0.1, ref: 1.2, fmt: v => `${smart(v)} point`, note: "Plus une mesure fait mal, plus elle est difficile à faire voter." },
+    { sec: "mandat", id: "capRegen", label: "Capital regagné chaque année", min: 0, max: 40, step: 1, ref: 15, fmt: v => `${f0(v)} points`, note: "Moins 10 pendant un mouvement social, plus 5 si le déficit baisse, plus 30 après une élection gagnée." },
+    { sec: "mandat", id: "force493Anger", label: "Colère provoquée par un 49.3", min: 0, max: 20, step: 1, ref: 8, fmt: v => `${f0(v)} points`, note: "Passer en force vide le capital et irrite l'opinion." },
+    { sec: "mandat", id: "shockFreq", label: "Fréquence des chocs", min: 0, max: 3, step: 0.25, ref: 1, fmt: v => `×${smart(v)}`, note: "S'applique à la partie suivante. À ×1 : environ une récession tous les onze ans, une crise de l'énergie tous les quatorze." },
 
     { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 5, step: 0.1, ref: 2.6, fmt: pct, note: "Le taux de référence en zone euro. La France emprunte à ce taux plus son écart." },
     { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 150, step: 5, ref: 50, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part." },
@@ -550,7 +588,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { sec: "eco", id: "allegJobs", label: "Chômage par milliard d'allègements supprimés", min: 0, max: 0.06, step: 0.005, ref: 0.025, fmt: v => `${smart(v)} pt`, note: "Tout supprimer coûterait alors près de 2 points. Les évaluations divergent fortement." },
     { sec: "eco", id: "investReturn", label: "Croissance gagnée par point de PIB investi", min: 0, max: 0.4, step: 0.05, ref: 0.1, fmt: v => `${smart(v)} pt par an`, note: "Atteint en 3 ans. Dépend de la qualité des projets." },
     { sec: "eco", id: "fraudReal", label: "Part réellement récupérée sur la fraude visée", min: 0, max: 100, step: 5, ref: 50, fmt: v => `${f0(v)} %`, note: null },
-    { sec: "eco", id: "behav", type: "choice", label: "Réaction générale des contribuables", ref: "moyen", options: [["faible", "Faible"], ["moyen", "Moyenne"], ["fort", "Forte"]], note: "Multiplie toutes les fuites ci-contre : ×0,5, ×1 ou ×1,6." },
+    { sec: "eco", id: "behav", type: "choice", label: "Réaction générale des contribuables", ref: "moyen", options: [["faible", "Faible"], ["moyen", "Moyenne"], ["fort", "Forte"]], note: "Multiplie toutes les fuites : ×0,5, ×1 ou ×1,6." },
 
     { sec: "fuites", id: "l_tva", label: "TVA", min: 0, max: 0.8, step: 0.05, ref: 0.10, fmt: share, note: "Part du rendement théorique qui disparaît : moins de consommation, fraude, évasion." },
     { sec: "fuites", id: "l_energie", label: "Taxe carbone", min: 0, max: 0.8, step: 0.05, ref: 0.15, fmt: share, note: "Ici, la baisse de consommation est le but recherché." },
@@ -563,20 +601,24 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { sec: "fuites", id: "l_niches", label: "Niches fiscales et CIR", min: 0, max: 0.8, step: 0.05, ref: 0.30, fmt: share, note: null },
     { sec: "fuites", id: "zucYield", label: "Rendement de l'impôt plancher (réaction moyenne)", min: 0, max: 25, step: 1, ref: 12, fmt: md, note: "×1,6 si la réaction est faible, ×0,4 si elle est forte." },
 
-    { sec: "evt", id: "evRec", type: "toggle", label: "Récession en 2028", ref: false, note: "Le PIB décroche de 2 %, puis rattrape." },
+    { sec: "evt", id: "evRec", type: "toggle", label: "Récession en 2028", ref: false, note: "S'ajoute aux chocs tirés au hasard en mandat. Le PIB décroche de 2 %, puis rattrape." },
     { sec: "evt", id: "evRate", type: "toggle", label: "Choc de taux mondial dès 2027", ref: false, note: "+1,5 point sur tous les nouveaux emprunts, durablement." }
   ];
   const ENG_SECS = [
     ["seuils", "Seuils de fin de partie", "Les bornes du jeu. Chacune est adossée à un précédent, aucune n'est automatique dans la réalité."],
+    ["mandat", "Le mandat", "Capital politique et hasard, en mode tour par tour."],
     ["marches", "Les marchés", "Écart de taux avec l'Allemagne, en points de base (pb). Il réagit à l'année écoulée."],
     ["rue", "La rue", "Comment la colère naît, dure et retombe."],
     ["groupes", "Colère par milliard retiré, groupe par groupe", "Combien de points d'indice coûte 1 Md€ pris à chaque groupe. Ce sont les paramètres les plus politiques du jeu."],
     ["eco", "L'économie", "Croissance, activité, chômage."],
     ["fuites", "Réactions aux impôts", "Part du rendement théorique d'une hausse d'impôt qui disparaît."],
-    ["evt", "Coups du sort", "Des chocs que vous ne contrôlez pas."]
+    ["evt", "Coups du sort imposés", "Des chocs certains, en plus du hasard."]
   ];
   const ALL = LEVERS.concat(ENGINE);
   const REF = Object.fromEntries(ALL.map(p => [p.id, p.ref]));
+  const POLICY_IDS = LEVERS.map(l => l.id);
+  const policyOf = (src) => Object.fromEntries(POLICY_IDS.map(id => [id, src[id]]));
+  const REF_POLICY = policyOf(REF);
   const TABS = [["rec", "Recettes"], ["dep", "Dépenses"]];
   const PRESETS = [
     ["ref", "Politique inchangée", {}],
@@ -586,36 +628,41 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     ["fil", "Tout lâcher", { tva: 18, ir: -2, age: 62, idxRet: 0.5, idxPrest: 0.5, ondam: 4, point: 1, educ: 8, def: 3, invest: 20 }]
   ];
 
-  let state = { ...REF };
-  let activeTab = "rec";
-  let pickYear = 2030;
-  let view = "play";
-
   // ---------- Modèle ----------
   const BF = { faible: 0.5, moyen: 1, fort: 1.6 };
-  function spending(Q, t, k, pi) {
-    const n = t - 2024, m = Math.max(0, t - 2025);
-    const retBase = 395 * Math.pow((1 + pi) * (1 + Q.demoRet / 100), n);
-    const dAge = Math.sign(Q.age - 64) * Math.min(Math.abs(Q.age - 64), 0.25 * m);
-    const retIdx = retBase * (Math.pow(1 + Q.idxRet / 100, m) - 1);
-    const retraites = retBase + retIdx - dAge * 8.5 * (retBase / 395);
-    const sante = n === 0 ? 255 : 255 * 1.03 * Math.pow(1 + Q.ondam / 100, m);
-    const prestBase = 130 * Math.pow((1 + pi) * 1.005, n);
-    const prestIdx = prestBase * (Math.pow(1 + Q.idxPrest / 100, m) - 1);
+  // Ce que les décisions accumulent d'une année sur l'autre (indexations, âge atteint, effectifs…)
+  const newAcc = () => ({ ret: 1, prest: 1, point: 1, coll: 1, age: 64, def: 1.9, eff: 0, sante: 255 });
+  function advance(acc, Q, t) {
+    if (t === 2025) acc.sante *= 1.03;
+    if (t < FIRST) return;
+    acc.ret *= 1 + Q.idxRet / 100; acc.prest *= 1 + Q.idxPrest / 100;
+    acc.point *= 1 + Q.point / 100; acc.coll *= 1 + Q.coll / 100;
+    acc.sante *= 1 + Q.ondam / 100;
+    acc.age += clamp(Q.age - acc.age, -0.25, 0.25);
+    acc.def += clamp(Q.def - acc.def, -0.3, 0.3);
+    acc.eff += clamp(Q.eff - acc.eff, -5 / 3, 5 / 3);
+  }
+  function spending(Q, acc, t, k, price) {
+    const n = t - 2024, on = t >= FIRST;
+    const retBase = 395 * price * Math.pow(1 + Q.demoRet / 100, n);
+    const retIdx = retBase * (acc.ret - 1);
+    const retraites = retBase + retIdx - (acc.age - 64) * 8.5 * (retBase / 395);
+    const prestBase = 130 * price * Math.pow(1.005, n);
+    const prestIdx = prestBase * (acc.prest - 1);
     const chomBase = 40 * k;
-    const chomD = m > 0 ? chomBase * Q.chom / 100 : 0;
-    const educ = 155 * k * (m > 0 ? 1 + Q.educ / 100 : 1);
-    const secuD = m > 0 ? 50 * k * Q.secu / 100 : 0;
-    const defense = (1.9 + (Q.def - 1.9) * Math.min(1, m / 5)) / 100 * Y0 * k;
-    const remun = 210 * k * (Math.pow(1 + Q.point / 100, m) - 1);
-    const effD = 350 * k * Q.eff / 100 * Math.min(1, m / 3);
-    const collD = 290 * k * (Math.pow(1 + Q.coll / 100, m) - 1);
-    const apdD = m > 0 ? 14 * k * Q.apd / 100 : 0;
-    const investD = m > 0 ? Q.invest * k : 0;
+    const chomD = on ? chomBase * Q.chom / 100 : 0;
+    const educ = 155 * k * (on ? 1 + Q.educ / 100 : 1);
+    const secuD = on ? 50 * k * Q.secu / 100 : 0;
+    const defense = acc.def / 100 * Y0 * k;
+    const remun = 210 * k * (acc.point - 1);
+    const effD = 350 * k * acc.eff / 100;
+    const collD = 290 * k * (acc.coll - 1);
+    const apdD = on ? 14 * k * Q.apd / 100 : 0;
+    const investD = on ? Q.invest * k : 0;
     return {
       cat: {
-        retraites, sante, prest: prestBase + prestIdx + chomBase + chomD, educ, defense,
-        securite: 50 * k + secuD, eco: 175 * k + investD, autres: (355 - 14) * k + remun + effD + collD + 14 * k + apdD
+        retraites, sante: acc.sante, prest: prestBase + prestIdx + chomBase + chomD, educ, defense,
+        securite: 50 * k + secuD, eco: 175 * k + investD, autres: 341 * k + remun + effD + collD + 14 * k + apdD
       },
       retIdx, prestIdx, chomD, secuD, remun, effD, collD, apdD, investD
     };
@@ -639,16 +686,17 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       tva: net.tva + net.tvaInt + net.tvaRed, energie: net.carbone, csg: net.csg, ir: net.ir + net.abatRet + net.pfu,
       local: net.th, is: net.is, cotis: net.alleg, autres: net.succ + net.cir + net.niches + net.zucman + net.fraude
     };
-    return { mech, net, cat };
+    return { mech, cat };
   }
   // Colère : pertes infligées à chaque groupe, en Md€ de 2024. Une perte pèse plus qu'un gain.
+  // Les montants fiscaux sont déjà en euros de 2024 ; les dépenses sont ramenées en euros de 2024 par k.
   const PAIN_MAP = [
-    ["idxRet", "retraites", (s) => -s.retIdx], ["abatRet", "retraites", (s, r, tx) => tx.mech.abatRet],
-    ["idxPrest", "modestes", (s) => -s.prestIdx], ["chom", "chomeurs", (s) => -s.chomD],
-    ["ondam", "sante", (s, r) => r.cat.sante - s.cat.sante], ["educ", "ecole", (s, r) => r.cat.educ - s.cat.educ],
-    ["point", "agents", (s) => -s.remun], ["eff", "agents", (s) => -s.effD],
-    ["secu", "usagers", (s) => -s.secuD], ["coll", "usagers", (s) => -s.collD], ["invest", "usagers", (s) => -s.investD],
-    ["apd", "solidarite", (s) => -s.apdD],
+    ["idxRet", "retraites", (s) => -s.retIdx, true], ["abatRet", "retraites", (s, r, tx) => tx.mech.abatRet],
+    ["idxPrest", "modestes", (s) => -s.prestIdx, true], ["chom", "chomeurs", (s) => -s.chomD, true],
+    ["ondam", "sante", (s, r) => r.cat.sante - s.cat.sante, true], ["educ", "ecole", (s, r) => r.cat.educ - s.cat.educ, true],
+    ["point", "agents", (s) => -s.remun, true], ["eff", "agents", (s) => -s.effD, true],
+    ["secu", "usagers", (s) => -s.secuD, true], ["coll", "usagers", (s) => -s.collD, true], ["invest", "usagers", (s) => -s.investD, true],
+    ["apd", "solidarite", (s) => -s.apdD, true],
     ["tva", "menages", (s, r, tx) => tx.mech.tva], ["tvaInt", "menages", (s, r, tx) => tx.mech.tvaInt], ["tvaRed", "menages", (s, r, tx) => tx.mech.tvaRed],
     ["csg", "menages", (s, r, tx) => tx.mech.csg], ["th", "menages", (s, r, tx) => tx.mech.th],
     ["carbone", "automob", (s, r, tx) => tx.mech.carbone],
@@ -665,8 +713,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       groups[g] = (groups[g] || 0) + v;
       if (g === "entreprises") { business += v; per[id].biz += v; } else { street += v; per[id].street += v; }
     };
-    PAIN_MAP.forEach(([id, g, fn]) => {
-      const amt = fn(s, sRef, tx) / (tx === null ? 1 : (["tva", "tvaInt", "tvaRed", "csg", "th", "carbone", "ir", "pfu", "niches", "succ", "is", "alleg", "cir", "abatRet"].includes(id) ? 1 : k));
+    PAIN_MAP.forEach(([id, g, fn, isSpend]) => {
+      const amt = fn(s, sRef, tx) / (isSpend ? k : 1);
       const c = Q["c_" + g];
       add(id, g, amt >= 0 ? amt * c : amt * c * Q.giftRatio);
     });
@@ -678,25 +726,39 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
   const NOPAIN = { per: {}, groups: {}, street: 0, business: 0 };
 
-  function simulate(P) {
-    const R = { ...P }; LEVERS.forEach(l => { R[l.id] = l.ref; });
-    const pi = P.infl / 100;
+  // opt.path : politique votée année par année (mandat). Sans path, la politique de P vaut pour toutes les années.
+  // opt.shocks : chocs tirés au hasard ; opt.force : années votées par 49.3 ; opt.upto : dernière année simulée.
+  function simulate(P, opt = {}) {
+    const upto = opt.upto ?? LAST;
+    const R = { ...P, ...REF_POLICY };
     const o = { Y: [], sp: [], spTot: [], rev: [], revTot: [], int: [], def: [], defR: [], D: [], d: [], prim: [], po: [],
-      spread: [], rate: [], anger: [], u: [], notch: [], groups: [], per: [], events: [], defeat: null };
-    let Ypot = Y0, D = D0, rEff = I0 / D0, gap = 0, impPrev = 0, attackBonus = 0;
+      spread: [], rate: [], anger: [], u: [], notch: [], groups: [], per: [], events: [], defeat: null, won: {} };
+    let Ypot = Y0, D = D0, rEff = I0 / D0, gap = 0, impPrev = 0, attackBonus = 0, price = 1;
     let streakUp = 0, inMouv = false, ecbAnnounced = false, ecbRefused = false, debtFell = false, outPDE = false, fined = false;
+    const accP = newAcc(), accR = newAcc();
     const ev = (year, kind, title, detail) => o.events.push({ year, kind, title, detail });
 
-    YEARS.forEach((t, n) => {
-      const m = Math.max(0, t - 2025);
-      const boost = P.investReturn * (P.invest / Y0 * 100) * Math.min(1, m / 3);
-      if (n > 0) Ypot *= (1 + (P.growth + boost) / 100) * (1 + pi);
-      const k = Ypot / Y0, on = t >= 2026;
-      const s = spending(P, t, k, pi), sRef = spending(R, t, k, pi);
-      const tx = taxes(on ? P : R);
-      const pn = on ? pain(P, s, sRef, k, tx) : NOPAIN;
+    for (const t of YEARS) {
+      if (t > upto) break;
+      const n = t - 2024, on = t >= FIRST;
+      const Q = opt.path && on ? { ...P, ...opt.path[t] } : P;
+      const shocks = ((opt.shocks && opt.shocks[t]) || []).map(id => SHOCK_BY_ID[id]);
+      const sh = (key) => shocks.reduce((a, s) => a + (s[key] || 0), 0);
+      const piT = (P.infl + sh("infl")) / 100;
+      const boost = on ? P.investReturn * (Q.invest / Y0 * 100) * Math.min(1, (t - 2025) / 3) : 0;
+      if (n > 0) { Ypot *= (1 + (P.growth + boost) / 100) * (1 + piT); price *= 1 + piT; }
+      advance(accP, Q, t); advance(accR, R, t);
+      const k = Ypot / Y0;
+      const s = spending(Q, accP, t, k, price), sRef = spending(R, accR, t, k, price);
+      const extra = sh("spend") / 100 * Ypot;
+      s.cat.autres += extra; sRef.cat.autres += extra;
+      const tx = taxes(on ? Q : R);
+      const pn = on ? pain(Q, s, sRef, k, tx) : NOPAIN;
       const dRev = sum(tx.cat) * k;
       const imp = ((sum(s.cat) - sum(sRef.cat)) - P.taxMult * dRev) / Ypot;
+      if (on && !o.defeat) shocks.forEach(x => ev(t, x.kind, x.title, x.detail));
+      const forced = !!(opt.force && opt.force[t]);
+      if (forced && !o.defeat) ev(t, "warn", "Budget adopté par le 49.3", `Faute de majorité, le gouvernement engage sa responsabilité. Le budget passe, la colère monte de ${f0(P.force493Anger)} points.`);
 
       // 1. Les marchés réagissent à l'année écoulée
       let spread = SPREAD0, attack = false, prot = false;
@@ -711,8 +773,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
         if (P.ecb && raw > P.ecbCap) {
           if (compliant) {
             prot = true; spread = P.ecbCap;
-            if (!ecbAnnounced) { ecbAnnounced = true; ev(t, "good", "La BCE active son bouclier anti-écart", `Sans elle, l'écart atteindrait ${f0(raw)} pb. Elle achète de la dette française pour le contenir à ${f0(P.ecbCap)} pb, parce que la France tient sa trajectoire européenne.`); }
-          } else if (!ecbRefused) {
+            if (!ecbAnnounced && !o.defeat) { ecbAnnounced = true; ev(t, "good", "La BCE active son bouclier anti-écart", `Sans elle, l'écart atteindrait ${f0(raw)} pb. Elle achète de la dette française pour le contenir à ${f0(P.ecbCap)} pb, parce que la France tient sa trajectoire européenne.`); }
+          } else if (!ecbRefused && !o.defeat) {
             ecbRefused = true; ev(t, "bad", "La BCE refuse d'intervenir", `Le déficit dépasse ${smart(P.ruleUE)} % et ne se résorbe pas. Son bouclier est réservé aux pays qui respectent les règles.`);
           }
         }
@@ -722,11 +784,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
         } else attackBonus *= 0.5;
         spread += prot ? 0 : attackBonus;
       }
-      const mRate = P.bund / 100 + spread / 10000 + (P.evRate && t >= 2027 ? 0.015 : 0);
+      const mRate = P.bund / 100 + spread / 10000 + sh("rate") + (P.evRate && t >= 2027 ? 0.015 : 0);
 
       // 2. L'activité
       const angerPrev = n > 0 ? o.anger[n - 1] : P.anger0;
-      gap = P.persist * gap + P.mult * (imp - impPrev)
+      gap = P.persist * gap + P.mult * (imp - impPrev) + sh("gdp")
         + (P.evRec && t === 2028 ? -0.02 : 0)
         + (attack ? -0.01 : 0)
         + (n > 0 && angerPrev > P.ruleMouv ? -P.strikeCost / 100 : 0);
@@ -741,16 +803,16 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       const deficit = spTot + interest - revTot;
       if (n > 0) {
         const Dn = D + deficit;
-        const sh = Math.min(1, (D / P.maturity + Math.max(0, deficit)) / Dn);
-        rEff = rEff * (1 - sh) + mRate * sh;
+        const sh2 = Math.min(1, (D / P.maturity + Math.max(0, deficit)) / Dn);
+        rEff = rEff * (1 - sh2) + mRate * sh2;
         D = Dn;
       }
       const d = D / Y * 100, defR = deficit / Y * 100;
 
       // 4. La rue
       const u = P.u0 - P.okun * 100 * gap + P.allegJobs * Math.max(0, on ? tx.mech.alleg : 0);
-      const target = P.anger0 + pn.street + P.uWeight * Math.max(0, u - 7.5);
-      const anger = n === 0 ? P.anger0 : Math.max(0, Math.min(100, P.inertia * angerPrev + (1 - P.inertia) * target));
+      const target = P.anger0 + pn.street + P.uWeight * Math.max(0, u - 7.5) + sh("anger") + (forced ? P.force493Anger : 0);
+      const anger = n === 0 ? P.anger0 : clamp(P.inertia * angerPrev + (1 - P.inertia) * target, 0, 100);
       const notch = n === 0 ? 0 : Math.min(RATINGS.length - 1, Math.max(0, Math.floor((spread - 90) / P.notchWidth)));
 
       o.Y.push(Y); o.sp.push({ ...s.cat, int: interest }); o.spTot.push(spTot + interest);
@@ -759,7 +821,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       o.prim.push(revTot - spTot); o.po.push((revTot - rev.nonfisc) / Y * 100);
       o.spread.push(spread); o.rate.push(mRate * 100); o.anger.push(anger); o.u.push(u); o.notch.push(notch);
       o.groups.push(pn.groups); o.per.push(pn.per);
-      if (n === 0 || o.defeat) return;
+      if (n === 0 || o.defeat) continue;
 
       // 5. Le journal
       if (notch > o.notch[n - 1]) {
@@ -793,8 +855,16 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       } else if (anger > P.ruleChute) {
         o.defeat = { year: t, type: "chute" };
         ev(t, "end", "Le gouvernement est renversé", `Colère à ${f0(anger)}/100, au-delà du seuil de ${f0(P.ruleChute)}. ${topGroups(pn.groups)} Une motion de censure emporte la majorité.`);
+      } else if (ELECTIONS.includes(t)) {
+        if (anger > P.ruleElection) {
+          o.defeat = { year: t, type: "battu" };
+          ev(t, "end", "Votre camp perd l'élection présidentielle", `Colère à ${f0(anger)}/100 le jour du vote, au-delà du seuil de ${f0(P.ruleElection)}. ${topGroups(pn.groups)} Vos successeurs défont une partie de vos réformes.`);
+        } else {
+          o.won[t] = true;
+          ev(t, "good", "Votre camp remporte l'élection présidentielle", `Colère à ${f0(anger)}/100 : les électeurs vous reconduisent. Votre capital politique remonte.`);
+        }
       }
-    });
+    }
     return o;
   }
   function topGroups(groups) {
@@ -803,16 +873,90 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   }
   const idx = (y) => y - 2024;
 
+  // ---------- Partie en mode mandat ----------
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function drawShocks(seed, freq) {
+    const r = rng(seed), out = {};
+    for (let y = FIRST; y <= LAST; y++) {
+      const list = SHOCKS.filter(s => r() < s.p * freq).map(s => s.id);
+      if (list.includes("rec") && list.includes("boom")) list.splice(list.indexOf("boom"), 1);
+      if (list.length) out[y] = list;
+    }
+    return out;
+  }
+  let state = { ...REF };
+  let game = null;
+  let view = "mandat", activeTab = "rec", pickYear = 2030;
+
+  function newGame() {
+    const seed = Math.floor(Math.random() * 1e9);
+    game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null };
+    draftPolicy = null;
+    if (lastPlay === "mandat") Object.assign(state, REF_POLICY);
+  }
+  const inForce = () => game.year === FIRST ? REF_POLICY : game.path[game.year - 1];
+  const played = () => game.over && game.over.type !== "fin" ? game.over.year : game.year - 1;
+  const gameOpt = () => ({ path: game.path, shocks: game.shocks, force: game.force, upto: played() });
+
+  // Douleur à terme d'un levier seul (rue + moitié de l'entreprise), pour chiffrer son coût politique
+  function painProxy(id, v, base, cache) {
+    if (v === REF[id]) return 0;
+    const key = id + "|" + v;
+    if (!(key in cache)) {
+      const solo = simulate({ ...base, [id]: v });
+      const pv = solo.per[idx(2030)][id];
+      cache[key] = { street: pv ? pv.street : 0, biz: pv ? pv.biz : 0, def: solo.def[idx(2030)] };
+    }
+    return cache[key];
+  }
+  function budgetCost(base, cache) {
+    const prev = inForce();
+    let cost = 0;
+    const per = {};
+    POLICY_IDS.forEach(id => {
+      if (state[id] === prev[id]) return;
+      const pN = painProxy(id, state[id], base, cache), pO = painProxy(id, prev[id], base, cache);
+      const hurt = (pN ? pN.street + 0.5 * pN.biz : 0) - (pO ? pO.street + 0.5 * pO.biz : 0);
+      per[id] = Math.round(state.capBase + state.capPerPain * Math.max(0, hurt));
+      cost += per[id];
+    });
+    return { cost, per };
+  }
+  function vote(force) {
+    if (!game || game.over) return;
+    const base = { ...state, ...REF_POLICY };
+    const { cost } = budgetCost(base, {});
+    if (!force && cost > game.capital) return;
+    const y = game.year;
+    game.path[y] = policyOf(state);
+    if (force) { game.force[y] = true; game.capital = 0; } else game.capital -= cost;
+    const res = simulate(state, { path: game.path, shocks: game.shocks, force: game.force, upto: y });
+    if (res.defeat) { game.over = res.defeat; }
+    else {
+      const i = idx(y);
+      let regen = state.capRegen + (res.anger[i] > state.ruleMouv ? -10 : 0) + (res.defR[i] < res.defR[i - 1] ? 5 : 0) + (res.won[y] ? 30 : 0);
+      game.capital = clamp(game.capital + regen, 0, 150);
+      game.year = y + 1;
+      if (game.year > LAST) game.over = { type: "fin", year: LAST };
+    }
+    pickYear = y;
+    save(); syncInputs(); update();
+  }
+
   // ---------- Construction de l'interface ----------
   const $ = (id) => document.getElementById(id);
   const isLever = (p) => !!p.sec && (p.sec.startsWith("rec") || p.sec.startsWith("dep"));
+  const isPlay = () => view === "mandat" || view === "sandbox";
 
   function paramHTML(p) {
-    const chips = isLever(p) ? `<span class="chips"><span class="delta neutral" data-delta></span><span class="delta neutral" data-pain></span></span>` : "";
+    const chips = isLever(p) ? `<span class="chips"><span class="delta neutral" data-delta></span><span class="delta neutral" data-pain></span><span class="delta cost" data-cost hidden></span></span>` : "";
     const today = isLever(p) ? "Aujourd'hui" : "Par défaut";
     if (p.type === "toggle") {
       return `<div class="lever" data-param="${p.id}"><div class="switch"><label for="in-${p.id}">${p.label}</label><input type="checkbox" role="switch" id="in-${p.id}"></div>
-        <div class="lever-meta"><span>${today} : ${p.ref ? "oui" : "non"}</span>${chips}</div>
+        <div class="lever-meta"><span data-today>${today} : ${p.ref ? "oui" : "non"}</span>${chips}</div>
         ${p.note ? `<p class="lever-note">${p.note}</p>` : ""}</div>`;
     }
     if (p.type === "choice") {
@@ -824,24 +968,21 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     return `<div class="lever" data-param="${p.id}">
       <div class="lever-head"><label for="in-${p.id}">${p.label}</label><output id="out-${p.id}" for="in-${p.id}"></output></div>
       <div class="track"><span class="refmark" style="--pos:${pos}%"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>
-      <div class="lever-meta"><span>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
+      <div class="lever-meta"><span data-today>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
       ${p.note || p.id === "ir" ? `<p class="lever-note" ${p.id === "ir" ? 'id="irNote"' : ""}>${p.note || ""}</p>` : ""}
     </div>`;
   }
 
-  // Vue Jouer
   const presetsEl = $("presets");
   PRESETS.forEach(([key, label]) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "chipbtn"; b.dataset.preset = key; b.textContent = label;
-    b.setAttribute("aria-pressed", key === "ref" ? "true" : "false");
     presetsEl.appendChild(b);
   });
   presetsEl.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-preset]"); if (!b) return;
+    const b = e.target.closest("[data-preset]"); if (!b || b.disabled) return;
     const p = PRESETS.find(x => x[0] === b.dataset.preset);
-    LEVERS.forEach(l => { state[l.id] = l.ref; });
-    Object.assign(state, p[2]);
+    Object.assign(state, REF_POLICY, p[2]);
     syncInputs(); update();
     presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
   });
@@ -854,16 +995,14 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   });
   tabsEl.addEventListener("click", (e) => {
     const b = e.target.closest("[data-tab]"); if (!b) return;
-    activeTab = b.dataset.tab; renderTabs();
+    activeTab = b.dataset.tab; renderTabs(); save();
   });
   const leversEl = $("levers");
   const secs = [...new Set(LEVERS.map(l => l.sec))];
   leversEl.innerHTML = TABS.map(([tab]) =>
-    `<div data-tab-body="${tab}"><p class="group-intro">Chaque levier affiche ce qu'il rapporte au déficit 2030 et la colère qu'il provoque, à terme.</p>${secs.filter(s => s.startsWith(tab)).map(s =>
+    `<div data-tab-body="${tab}"><p class="group-intro" data-intro></p>${secs.filter(s => s.startsWith(tab)).map(s =>
       `<div class="group-title">${SEC_TITLES[s]}</div>${LEVERS.filter(l => l.sec === s).map(paramHTML).join("")}`).join("")}</div>`
   ).join("");
-
-  // Vue Moteur
   $("engGrid").innerHTML = ENG_SECS.map(([key, title, sub]) =>
     `<div class="panel"><h2>${title}</h2><p class="sub">${sub}</p>${ENGINE.filter(p => p.sec === key).map(paramHTML).join("")}</div>`).join("");
 
@@ -871,18 +1010,29 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   function onInput(e) {
     const el = e.target; if (!el.id || !el.id.startsWith("in-")) return;
     const id = el.id.slice(3);
+    if (game && game.over && view === "mandat" && isLever(paramById[id])) { syncInputs(); return; }
     state[id] = el.type === "checkbox" ? el.checked : parseFloat(el.value);
     if (isLever(paramById[id])) clearPreset();
-    update();
+    update(); save();
   }
   function onChoice(e) {
     const b = e.target.closest("[data-choice]"); if (!b) return;
     const id = b.closest("[data-param]").dataset.param;
-    state[id] = b.dataset.choice; syncInputs(); update();
+    state[id] = b.dataset.choice; syncInputs(); update(); save();
   }
   [leversEl, $("engGrid")].forEach(c => { c.addEventListener("input", onInput); c.addEventListener("click", onChoice); });
-  $("reset").addEventListener("click", () => { presetsEl.querySelector('[data-preset="ref"]').click(); });
-  $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); syncInputs(); update(); });
+  $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); syncInputs(); update(); save(); });
+  $("consoleFoot").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const act = b.dataset.act;
+    if (act === "vote") vote(false);
+    else if (act === "force") vote(true);
+    else if (act === "undo") { Object.assign(state, inForce()); clearPreset(); syncInputs(); update(); save(); }
+    else if (act === "reset") { Object.assign(state, REF_POLICY); clearPreset(); syncInputs(); update(); save(); }
+    else if (act === "new") startNew();
+  });
+  $("verdictActions").addEventListener("click", (e) => { if (e.target.closest('[data-act="new"]')) startNew(); });
+  function startNew() { newGame(); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
 
   function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
   function syncInputs() {
@@ -900,23 +1050,38 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     leversEl.querySelectorAll("[data-tab-body]").forEach(g => { g.hidden = g.dataset.tabBody !== activeTab; });
   }
   const viewSeg = document.querySelector(".viewseg");
+  const HINTS = {
+    mandat: "Un budget par an, avec le capital politique et le hasard. L'avenir ne se voit pas.",
+    sandbox: "Une politique fixe de 2026 à 2035, sans hasard. Tout se voit tout de suite.",
+    engine: "Le bandeau reflète la vue que vous avez quittée, avec ce moteur."
+  };
+  let lastPlay = "mandat";
   function setView(v) {
+    // Chaque vue de jeu garde ses propres leviers
+    if (v !== "engine" && v !== lastPlay) {
+      if (v === "mandat") { sandboxPolicy = policyOf(state); Object.assign(state, game.over ? inForceOrLast() : (draftPolicy || inForce())); }
+      else { draftPolicy = policyOf(state); Object.assign(state, sandboxPolicy || REF_POLICY); }
+      lastPlay = v;
+    }
     view = v;
-    $("playView").hidden = v !== "play"; $("engineView").hidden = v !== "engine";
+    $("playView").hidden = v === "engine"; $("engineView").hidden = v !== "engine";
     viewSeg.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v ? "true" : "false"));
-    $("viewHint").textContent = v === "engine" ? "Le bandeau reflète vos leviers actuels avec ce moteur." : "Les leviers d'un gouvernement. Les hypothèses sont dans le moteur.";
+    $("viewHint").textContent = HINTS[v];
+    syncInputs();
   }
-  viewSeg.addEventListener("click", (e) => { const b = e.target.closest("[data-view]"); if (b) { setView(b.dataset.view); window.scrollTo({ top: 0 }); } });
+  let sandboxPolicy = null, draftPolicy = null;
+  const inForceOrLast = () => game.path[played()] || REF_POLICY;
+  viewSeg.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-view]"); if (!b) return;
+    setView(b.dataset.view); update(); save(); window.scrollTo({ top: 0 });
+  });
 
-  function yearButtons(container, onPick) {
-    [2026, 2030, 2035].forEach(y => {
-      const b = document.createElement("button");
-      b.type = "button"; b.className = "chipbtn num"; b.dataset.year = y; b.textContent = y; container.appendChild(b);
-    });
-    container.addEventListener("click", (e) => { const b = e.target.closest("[data-year]"); if (b) onPick(+b.dataset.year); });
+  function yearChips(container, years) {
+    container.innerHTML = years.map(y => `<button type="button" class="chipbtn num" data-year="${y}" aria-pressed="${y === pickYear}">${y}</button>`).join("");
   }
-  yearButtons($("yearpick"), (y) => { pickYear = y; update(); });
-  yearButtons($("groupYears"), (y) => { pickYear = y; update(); });
+  [$("yearpick"), $("groupYears")].forEach(c => c.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-year]"); if (b) { pickYear = +b.dataset.year; update(); }
+  }));
 
   // ---------- Graphiques ----------
   const svgNS = "http://www.w3.org/2000/svg";
@@ -928,12 +1093,16 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   }
   const W = 520, H = 250, PL = 44, PR = 60, PT = 14, PB = 26;
   const xAt = (i) => PL + i * (W - PL - PR) / (YEARS.length - 1);
-  function frame(svg, yMin, yMax, step, unit, defeat) {
+  function frame(svg, yMin, yMax, step, unit, defeat, lastIdx) {
     const yAt = (v) => PT + (yMax - v) / (yMax - yMin) * (H - PT - PB);
-    if (defeat) {
+    if (defeat && defeat.type !== "fin") {
       const i = idx(defeat.year);
       svg.appendChild(el("rect", { x: xAt(i), y: PT, width: W - PR - xAt(i), height: H - PT - PB, class: "after" }));
       svg.appendChild(el("text", { x: xAt(i) + 4, y: PT + 12, class: "t-after" }, "fin de partie"));
+    } else if (lastIdx < YEARS.length - 1) {
+      const x0 = xAt(lastIdx) + 6;
+      svg.appendChild(el("rect", { x: x0, y: PT, width: W - PR - x0, height: H - PT - PB, class: "future" }));
+      svg.appendChild(el("text", { x: (x0 + W - PR) / 2, y: PT + (H - PT - PB) / 2, class: "t-future", "text-anchor": "middle" }, "à écrire"));
     }
     for (let v = yMin; v <= yMax + 1e-9; v += step) {
       svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(v), y2: yAt(v), class: v === 0 ? "axis0" : "grid" }));
@@ -945,8 +1114,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   const niceStep = (range) => [5, 10, 20, 25, 50, 100, 200].find(s => range / s <= 6) || 500;
   function placeLabels(svg, labels) {
     labels.sort((a, b) => a.y - b.y);
-    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13;
-    labels.forEach(l => svg.appendChild(el("text", { x: W - PR + 6, y: l.y + 4, class: l.cls }, l.text)));
+    for (let i = 1; i < labels.length; i++) if (labels[i].x === labels[i - 1].x && labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13;
+    labels.forEach(l => svg.appendChild(el("text", { x: l.x, y: l.y + 4, class: l.cls }, l.text)));
   }
   function lineChart(svg, P, R, opts) {
     svg.replaceChildren();
@@ -955,37 +1124,37 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     let yMin = Math.floor((Math.min(...all) - step / 2) / step) * step;
     if (opts.floor != null) yMin = Math.max(opts.floor, yMin);
     const yMax = Math.ceil((Math.max(...all) + step / 3) / step) * step;
-    const yAt = frame(svg, yMin, yMax, step, opts.unit, opts.defeat);
+    const last = P.length - 1;
+    const yAt = frame(svg, yMin, yMax, step, opts.unit, opts.defeat, last);
     const pts = (arr) => arr.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
-    const labels = [];
+    const labels = [], edge = W - PR + 6, lx = last === YEARS.length - 1 ? edge : xAt(last) + 8;
     (opts.limits || []).forEach(l => {
       svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(l.v), y2: yAt(l.v), class: l.cls }));
-      labels.push({ y: yAt(l.v), text: l.label, cls: "t-" + l.cls });
+      labels.push({ x: edge, y: yAt(l.v), text: l.label, cls: "t-" + l.cls });
     });
-    svg.appendChild(el("polygon", { points: `${xAt(0)},${yAt(yMin)} ${pts(P)} ${xAt(YEARS.length - 1)},${yAt(yMin)}`, class: "a-player" }));
+    svg.appendChild(el("polygon", { points: `${xAt(0)},${yAt(yMin)} ${pts(P)} ${xAt(last)},${yAt(yMin)}`, class: "a-player" }));
     svg.appendChild(el("polyline", { points: pts(R), class: "l-ref" }));
     svg.appendChild(el("polyline", { points: pts(P), class: "l-player" }));
-    const last = YEARS.length - 1;
     svg.appendChild(el("circle", { cx: xAt(last), cy: yAt(P[last]), r: 4, fill: "var(--accent)" }));
-    labels.push({ y: yAt(P[last]), text: opts.fmt(P[last]), cls: "t-player" });
-    labels.push({ y: yAt(R[last]), text: opts.fmt(R[last]), cls: "" });
+    labels.push({ x: lx, y: yAt(P[last]), text: opts.fmt(P[last]), cls: "t-player" });
+    labels.push({ x: lx, y: yAt(R[last]), text: opts.fmt(R[last]), cls: "" });
     placeLabels(svg, labels);
   }
   function drawDef(svg, P, R, rule, defeat) {
     svg.replaceChildren();
-    const all = P.defR.concat(R.defR, [rule, 0]);
+    const all = P.concat(R, [rule, 0]);
     const yMax = Math.ceil(Math.max(...all) + 0.5), yMin = Math.min(0, Math.floor(Math.min(...all) - 0.5));
     const step = yMax - yMin > 10 ? 2 : 1;
-    const yAt = frame(svg, yMin, yMax, step, " %", defeat);
+    const last = P.length - 1;
+    const yAt = frame(svg, yMin, yMax, step, " %", defeat, last);
     const bw = (W - PL - PR) / YEARS.length * 0.62;
-    P.defR.forEach((v, i) => {
+    P.forEach((v, i) => {
       const y1 = yAt(Math.max(v, 0)), y2 = yAt(Math.min(v, 0));
       svg.appendChild(el("rect", { x: xAt(i) - bw / 2, y: y1, width: bw, height: Math.max(1, y2 - y1), rx: 2, class: v > rule ? "bar-bad" : "bar-good" }));
-      svg.appendChild(el("line", { x1: xAt(i) - bw / 2 - 2, x2: xAt(i) + bw / 2 + 2, y1: yAt(R.defR[i]), y2: yAt(R.defR[i]), class: "tick-ref" }));
+      svg.appendChild(el("line", { x1: xAt(i) - bw / 2 - 2, x2: xAt(i) + bw / 2 + 2, y1: yAt(R[i]), y2: yAt(R[i]), class: "tick-ref" }));
     });
     svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(rule), y2: yAt(rule), class: "limit" }));
-    const last = YEARS.length - 1;
-    placeLabels(svg, [{ y: yAt(rule), text: `${smart(rule)} %`, cls: "t-limit" }, { y: yAt(P.defR[last]), text: `${f1(P.defR[last])} %`, cls: "t-player" }]);
+    placeLabels(svg, [{ x: W - PR + 6, y: yAt(rule), text: `${smart(rule)} %`, cls: "t-limit" }, { x: last === YEARS.length - 1 ? W - PR + 6 : xAt(last) + bw / 2 + 4, y: yAt(P[last]), text: `${f1(P[last])} %`, cls: "t-player" }]);
   }
 
   // ---------- Rendu ----------
@@ -1005,91 +1174,162 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     node.className = "delta " + (street > 0 ? "bad" : "good");
     node.textContent = `colère ${signed(street, f1)}`;
   }
-  function kpi(label, val, sub, cls) {
-    return `<div class="kpi ${cls || ""}"><span class="k-label">${label}</span><span class="k-val">${val}</span><span class="k-sub">${sub}</span></div>`;
+  function kpi(label, val, sub, cls, extra = "") {
+    return `<div class="kpi ${cls || ""}"><span class="k-label">${label}</span><span class="k-val">${val}</span><span class="k-sub">${sub}</span>${extra}</div>`;
   }
+  const DEFEAT_LABEL = { fmi: "Tutelle", chute: "Renversé", battu: "Battu" };
+  const DEFEAT_SUB = { fmi: "Le FMI et l'Europe prennent la main", chute: "Motion de censure adoptée", battu: "Présidentielle perdue" };
 
   function update() {
-    const P = simulate(state);
-    const refState = { ...state }; LEVERS.forEach(l => { refState[l.id] = l.ref; });
-    const R = simulate(refState);
+    const mandat = lastPlay === "mandat";
+    const P = mandat ? simulate(state, gameOpt()) : simulate(state);
+    const refState = { ...state, ...REF_POLICY };
+    const R = mandat ? simulate(refState, { shocks: game.shocks, upto: played() }) : simulate(refState);
+    const lastI = P.d.length - 1, lastY = YEARS[lastI];
+    const end = P.defeat ? idx(P.defeat.year) : lastI;
     const i29 = idx(2029), i30 = idx(2030), i35 = idx(2035);
-    const end = P.defeat ? idx(P.defeat.year) : i35;
+    const reached = (y) => idx(y) <= lastI;
+    const over = mandat ? game.over : { type: P.defeat ? P.defeat.type : "fin", year: P.defeat ? P.defeat.year : LAST };
+    const finished = !mandat || !!game.over;
+    const cache = {};
+    const cost = mandat && !game.over ? budgetCost(refState, cache) : { cost: 0, per: {} };
+    const prev = mandat ? (game.over ? inForceOrLast() : inForce()) : REF_POLICY;
 
-    // Paramètres : état, valeurs, pastilles
+    // Leviers : état, valeurs, pastilles
     let changedL = 0, changedE = 0;
     const perTab = { rec: 0, dep: 0 };
     ALL.forEach(p => {
       const node = document.querySelector(`[data-param="${p.id}"]`);
-      const ch = state[p.id] !== p.ref;
-      node.classList.toggle("changed", ch);
-      if (ch) { if (isLever(p)) { changedL++; perTab[p.sec.slice(0, 3)]++; } else changedE++; }
-      const out = $("out-" + p.id); if (out) out.textContent = p.fmt(state[p.id]);
       if (isLever(p)) {
-        const solo = ch ? simulate({ ...refState, [p.id]: state[p.id] }) : R;
-        moneyChip(node.querySelector("[data-delta]"), R.def[i30] - solo.def[i30]);
-        painChip(node.querySelector("[data-pain]"), P.per[i30][p.id]);
+        const ch = state[p.id] !== prev[p.id];
+        node.classList.toggle("changed", ch);
+        if (ch) { changedL++; perTab[p.sec.slice(0, 3)]++; }
+        const pr = painProxy(p.id, state[p.id], refState, cache);
+        moneyChip(node.querySelector("[data-delta]"), pr ? refDef30(refState, cache) - pr.def : 0);
+        painChip(node.querySelector("[data-pain]"), pr || null);
+        const cc = node.querySelector("[data-cost]");
+        cc.hidden = !(mandat && cost.per[p.id] != null);
+        if (!cc.hidden) cc.textContent = `capital −${cost.per[p.id]}`;
+        const label = mandat ? (game.year === FIRST && !game.over ? "Aujourd'hui" : "En vigueur") : "Aujourd'hui";
+        const pv = prev[p.id];
+        node.querySelector("[data-today]").textContent = `${label} : ${p.type === "toggle" ? (pv ? "oui" : "non") : p.fmt(pv)}`;
+        const rm = node.querySelector(".refmark");
+        if (rm) rm.style.setProperty("--pos", `${(pv - p.min) / (p.max - p.min) * 100}%`);
+      } else {
+        const ch = state[p.id] !== p.ref;
+        node.classList.toggle("changed", ch);
+        if (ch) changedE++;
       }
+      const out = $("out-" + p.id); if (out) out.textContent = p.fmt(state[p.id]);
     });
     tabsEl.querySelectorAll("[data-tab]").forEach(b => { b.querySelector(".tcount").textContent = perTab[b.dataset.tab] || ""; });
-    $("changedCount").textContent = changedL ? `${changedL} levier${changedL > 1 ? "s" : ""} modifié${changedL > 1 ? "s" : ""}` : "Aucun levier modifié";
-    $("engBadge").textContent = changedE ? `${changedE} modifié${changedE > 1 ? "s" : ""}` : "";
+    $("engBadge").textContent = changedE ? ` ${changedE}` : "";
+    leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = mandat ? "Pastilles : effet sur le déficit 2030 si la mesure durait, colère à terme, et coût en capital politique pour la faire voter cette année." : "Pastilles : effet sur le déficit 2030 et colère provoquée, à terme."; });
     const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
     $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
+    presetsEl.querySelectorAll("[data-preset]").forEach(b => { b.disabled = mandat && !!game.over; });
+
+    // Pied du pupitre
+    const foot = $("consoleFoot");
+    if (!mandat) {
+      foot.innerHTML = `<div class="foot-row"><span>${changedL ? `${changedL} levier${changedL > 1 ? "s" : ""} modifié${changedL > 1 ? "s" : ""}` : "Aucun levier modifié"}</span><button class="textbtn" data-act="reset" type="button">Remettre les leviers à zéro</button></div>`;
+    } else if (game.over) {
+      foot.innerHTML = `<div class="foot-row"><span>Partie terminée.</span><button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div>`;
+    } else {
+      const tooMuch = cost.cost > game.capital;
+      foot.innerHTML = `<div class="foot-cost ${tooMuch ? "over" : ""}">Budget ${game.year} : ${changedL ? `${changedL} mesure${changedL > 1 ? "s" : ""}, coût <b>${cost.cost}</b> points` : "aucune mesure nouvelle"}. Capital disponible : <b>${f0(game.capital)}</b>.</div>
+        <div class="foot-row">
+          <button class="btn btn-primary" data-act="vote" type="button" ${tooMuch ? "disabled" : ""}>Voter le budget ${game.year}</button>
+          ${tooMuch ? `<button class="btn btn-force" data-act="force" type="button">Passer en force (49.3)</button>` : ""}
+          ${changedL ? `<button class="textbtn" data-act="undo" type="button">Annuler mes changements</button>` : ""}
+        </div>`;
+    }
 
     // Bandeau
-    const maxRate = Math.max(...P.rate.slice(1, end + 1)), maxAnger = Math.max(...P.anger.slice(1, end + 1));
+    const maxRate = Math.max(...P.rate.slice(0, end + 1)), maxAnger = Math.max(...P.anger.slice(0, end + 1));
     const iRate = P.rate.indexOf(maxRate), iAnger = P.anger.indexOf(maxAnger);
-    const status = P.defeat
-      ? kpi("Statut", P.defeat.type === "fmi" ? `Tutelle ${P.defeat.year}` : `Renversé ${P.defeat.year}`, P.defeat.type === "fmi" ? "Le FMI et l'Europe prennent la main" : "Motion de censure adoptée", "status lost")
-      : kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[i35]]}`, "status ok");
-    $("kpis").innerHTML = status +
-      kpi("Déficit 2029", `${f1(P.defR[i29])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[i29] <= state.ruleUE ? "is-good" : "is-bad") +
-      kpi("Dette 2035", `${f0(P.d[i35])} %`, `du PIB · cible ${f0(state.ruleDebt)} %`, P.d[i35] <= state.ruleDebt ? "is-good" : "is-bad") +
-      kpi("Taux à 10 ans", `${f1(maxRate)} %`, `pic en ${YEARS[iRate]} · tutelle à ${smart(state.ruleFMI)} %`, maxRate > state.ruleFMI ? "is-bad" : maxRate > state.ruleFMI - 1.5 ? "is-warn" : "") +
-      kpi("Colère", `${f0(maxAnger)}/100`, `pic en ${YEARS[iAnger]} · chute à ${f0(state.ruleChute)}`, maxAnger > state.ruleChute ? "is-bad" : maxAnger > state.ruleMouv ? "is-warn" : "");
+    let status;
+    if (P.defeat) status = kpi("Statut", `${DEFEAT_LABEL[P.defeat.type]} ${P.defeat.year}`, DEFEAT_SUB[P.defeat.type], "status lost");
+    else if (finished) status = kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[lastI]]}`, "status ok");
+    else status = kpi("Statut", `Budget ${game.year}`, `Année ${game.year - FIRST + 1} sur 10 · note ${RATINGS[P.notch[lastI]]}`, "status turn");
+    if (mandat) {
+      const capPct = clamp(game.capital / 150 * 100, 0, 100);
+      $("kpis").innerHTML = status +
+        kpi("Capital politique", f0(game.capital), game.over ? "fin du mandat" : `ce budget coûte ${cost.cost}`, cost.cost > game.capital && !game.over ? "is-bad" : "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
+        kpi(`Déficit ${lastY}`, `${f1(P.defR[lastI])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[lastI] <= state.ruleUE ? "is-good" : "is-bad") +
+        kpi(`Dette ${lastY}`, `${f0(P.d[lastI])} %`, `du PIB · taux ${f1(P.rate[lastI])} %`, P.rate[lastI] > state.ruleFMI - 1.5 ? "is-warn" : "") +
+        kpi(`Colère ${lastY}`, `${f0(P.anger[lastI])}/100`, `chute à ${f0(state.ruleChute)}`, P.anger[lastI] > state.ruleChute ? "is-bad" : P.anger[lastI] > state.ruleMouv ? "is-warn" : "");
+    } else {
+      $("kpis").innerHTML = status +
+        kpi("Déficit 2029", `${f1(P.defR[i29])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[i29] <= state.ruleUE ? "is-good" : "is-bad") +
+        kpi("Dette 2035", `${f0(P.d[i35])} %`, `du PIB · cible ${f0(state.ruleDebt)} %`, P.d[i35] <= state.ruleDebt ? "is-good" : "is-bad") +
+        kpi("Taux à 10 ans", `${f1(maxRate)} %`, `pic en ${YEARS[iRate]} · tutelle à ${smart(state.ruleFMI)} %`, maxRate > state.ruleFMI ? "is-bad" : maxRate > state.ruleFMI - 1.5 ? "is-warn" : "") +
+        kpi("Colère", `${f0(maxAnger)}/100`, `pic en ${YEARS[iAnger]} · chute à ${f0(state.ruleChute)}`, maxAnger > state.ruleChute ? "is-bad" : maxAnger > state.ruleMouv ? "is-warn" : "");
+    }
 
     // Verdict
-    const effort = P.prim[i30] - R.prim[i30];
-    const perHab = effort * 1e9 / (POP * 1e6);
     const vp = $("verdictPanel");
-    vp.classList.toggle("lost", !!P.defeat); vp.classList.toggle("ok", !P.defeat);
+    vp.classList.toggle("lost", !!P.defeat); vp.classList.toggle("ok", finished && !P.defeat); vp.classList.toggle("turn", !finished && !P.defeat);
     let head, v;
     if (P.defeat && P.defeat.type === "fmi") {
-      head = `Partie perdue en ${P.defeat.year}. La France passe sous tutelle.`;
+      head = `Partie perdue en ${P.defeat.year}. Faillite : la France passe sous tutelle.`;
       v = `Les marchés ne prêtent plus qu'à ${f1(P.rate[end])} %. Il faut désormais appliquer le programme des créanciers. En Grèce, ce programme a fait passer la TVA à 23 % et baissé certaines pensions de plus d'un quart.`;
-    } else if (P.defeat) {
-      head = `Partie perdue en ${P.defeat.year}. Le gouvernement tombe.`;
+    } else if (P.defeat && P.defeat.type === "chute") {
+      head = `Partie perdue en ${P.defeat.year}. Révolte : le gouvernement tombe.`;
       v = `La colère atteint ${f0(P.anger[end])}/100. Vos réformes s'arrêtent là, et le déficit reste à ${f1(P.defR[end])} % du PIB.`;
+    } else if (P.defeat) {
+      head = `Partie perdue en ${P.defeat.year}. Les électeurs vous congédient.`;
+      v = `La colère atteint ${f0(P.anger[end])}/100 le jour du vote. Le déficit est à ${f1(P.defR[end])} % du PIB, la dette à ${f0(P.d[end])} %.`;
+    } else if (!finished && game.year === FIRST) {
+      head = "Septembre 2026. Votre premier budget.";
+      v = `Vous héritez d'un déficit de <b>${f1(P.defR[lastI])} %</b> du PIB et d'une dette de <b>${f0(P.d[lastI])} %</b>. Chaque automne, vous votez un budget. Chaque mesure coûte du capital politique, d'autant plus qu'elle fait mal. Récessions, crises et élections tombent sans prévenir. Vous avez <b>${f0(game.capital)} points</b> de capital : réglez vos leviers, puis votez.`;
+    } else if (!finished) {
+      const yearEv = P.events.filter(e => e.year === lastY).map(e => e.title.toLowerCase());
+      head = `Septembre ${game.year}. Préparez le budget ${game.year}.`;
+      v = `En ${lastY}, le déficit est de <b>${f1(P.defR[lastI])} %</b> du PIB, la dette de <b>${f0(P.d[lastI])} %</b>, l'État emprunte à <b>${f1(P.rate[lastI])} %</b> et la colère est à <b>${f0(P.anger[lastI])}/100</b>.`;
+      v += yearEv.length ? ` L'année a été marquée par : ${yearEv.join(", ")}.` : " Une année sans surprise.";
+      v += ` Il vous reste <b>${f0(game.capital)} points</b> de capital politique.`;
     } else {
-      head = P.d[i35] <= state.ruleDebt && P.defR[i29] <= state.ruleUE ? "Mandat tenu, comptes redressés." : "Mandat tenu, mais la dette court toujours.";
-      v = `En 2035, la dette atteint <b>${f0(P.D[i35])} milliards d'euros</b>, soit <b>${f0(P.d[i35])} % du PIB</b>`;
-      v += Math.abs(P.d[i35] - R.d[i35]) < 0.5 ? `, comme si rien n'avait changé. ` : `, ${f0(Math.abs(P.d[i35] - R.d[i35]))} points ${P.d[i35] < R.d[i35] ? "de moins" : "de plus"} qu'en laissant faire. `;
-      v += `Ses intérêts coûtent <b>${f0(P.int[i35])} Md€</b> par an, ${P.int[i35] > P.sp[i35].educ ? "plus" : "moins"} que l'enseignement. Le chômage finit à ${f1(P.u[i35])} %.`;
+      head = P.d[lastI] <= state.ruleDebt && P.defR[Math.min(i29, lastI)] <= state.ruleUE ? "Mandat tenu, comptes redressés." : "Mandat tenu, mais la dette court toujours.";
+      v = `En 2035, la dette atteint <b>${f0(P.D[lastI])} milliards d'euros</b>, soit <b>${f0(P.d[lastI])} % du PIB</b>`;
+      v += Math.abs(P.d[lastI] - R.d[lastI]) < 0.5 ? `, comme si rien n'avait changé. ` : `, ${f0(Math.abs(P.d[lastI] - R.d[lastI]))} points ${P.d[lastI] < R.d[lastI] ? "de moins" : "de plus"} qu'en laissant faire. `;
+      v += `Ses intérêts coûtent <b>${f0(P.int[lastI])} Md€</b> par an, ${P.int[lastI] > P.sp[lastI].educ ? "plus" : "moins"} que l'enseignement. Le chômage finit à ${f1(P.u[lastI])} %.`;
     }
-    if (Math.abs(effort) >= 1) v += ` En 2030, vous ${effort > 0 ? "demandez" : "rendez"} <b>${f0(Math.abs(effort))} Md€</b>, environ ${f0(Math.abs(perHab))} € par habitant.`;
-    else if (!P.defeat) v += ` Vous n'avez touché à aucun levier : c'est la trajectoire « politique inchangée ».`;
+    if (finished && lastI >= i30) {
+      const effort = P.prim[i30] - R.prim[i30];
+      const perHab = effort * 1e9 / (POP * 1e6);
+      if (Math.abs(effort) >= 1) v += ` En 2030, vous ${effort > 0 ? "demandez" : "rendez"} <b>${f0(Math.abs(effort))} Md€</b>, environ ${f0(Math.abs(perHab))} € par habitant.`;
+    }
     $("ending").textContent = head;
     $("verdict").innerHTML = v;
+    $("verdictActions").innerHTML = mandat && game.over ? `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>` : "";
 
     // Journal
-    $("journal").innerHTML = P.events.length
-      ? P.events.map(e => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`).join("")
-      : `<li><span class="empty">Rien à signaler : ni les marchés, ni la rue, ni Bruxelles ne réagissent.</span></li>`;
+    const evs = P.events;
+    $("journal").innerHTML = evs.length
+      ? evs.map(e => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`).join("")
+      : `<li><span class="empty">${mandat && lastI < idx(FIRST) ? "Le journal s'écrira à mesure que vous votez vos budgets." : "Rien à signaler : ni les marchés, ni la rue, ni Bruxelles ne réagissent."}</span></li>`;
 
     // Courbes
     const lim = (val, label, cls) => ({ v: val, label, cls });
-    lineChart($("debtChart"), P.d, R.d, { unit: " %", fmt: x => `${f0(x)} %`, limits: [lim(state.ruleDebt, `cible ${f0(state.ruleDebt)}`, "limit")], defeat: P.defeat });
-    drawDef($("defChart"), P, R, state.ruleUE, P.defeat);
-    lineChart($("spreadChart"), P.spread, R.spread, { unit: "", fmt: x => `${f0(x)} pb`, limits: [lim(state.ruleAttack, "attaque", "limit-bad")], defeat: P.defeat, floor: 0 });
-    lineChart($("angerChart"), P.anger, R.anger, { unit: "", fmt: x => f0(x), limits: [lim(state.ruleMouv, "grèves", "limit"), lim(state.ruleChute, "chute", "limit-bad")], defeat: P.defeat, floor: 0 });
+    const dfeat = P.defeat;
+    const cut = (arr) => arr.slice(0, lastI + 1);
+    lineChart($("debtChart"), cut(P.d), cut(R.d), { unit: " %", fmt: x => `${f0(x)} %`, limits: [lim(state.ruleDebt, `cible ${f0(state.ruleDebt)}`, "limit")], defeat: dfeat });
+    drawDef($("defChart"), cut(P.defR), cut(R.defR), state.ruleUE, dfeat);
+    lineChart($("spreadChart"), cut(P.spread), cut(R.spread), { unit: "", fmt: x => `${f0(x)} pb`, limits: [lim(state.ruleAttack, "attaque", "limit-bad")], defeat: dfeat, floor: 0 });
+    lineChart($("angerChart"), cut(P.anger), cut(R.anger), { unit: "", fmt: x => f0(x), limits: [lim(state.ruleMouv, "grèves", "limit"), lim(state.ruleChute, "chute", "limit-bad")], defeat: dfeat, floor: 0 });
     $("angerSub").textContent = `Indice de colère sociale, de 0 à 100. ${f0(state.anger0)} = climat de 2024.`;
 
-    // Qui paie, qui proteste
-    document.querySelectorAll("#yearpick [data-year], #groupYears [data-year]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.year === pickYear ? "true" : "false"));
+    // Années consultables
+    const years = mandat ? YEARS.filter(y => y >= FIRST && y <= lastY) : [2026, 2030, 2035];
+    if (!years.length) years.push(lastY);
+    if (!years.includes(pickYear)) pickYear = years[years.length - 1];
+    yearChips($("yearpick"), years); yearChips($("groupYears"), years);
     const iy = idx(pickYear);
+
+    // Qui paie, qui proteste
     $("groupsSub").textContent = `Colère ajoutée par vos choix en ${pickYear}, groupe par groupe, en points de l'indice une fois l'inertie passée.`;
-    const gEntries = Object.entries(P.groups[iy]).filter(([, x]) => Math.abs(x) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+    const gEntries = Object.entries(P.groups[iy] || {}).filter(([, x]) => Math.abs(x) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
     const gMax = Math.max(10, ...gEntries.map(e => Math.abs(e[1])));
     $("groups").innerHTML = gEntries.length ? gEntries.map(([g, x]) => {
       const cls = g === "entreprises" ? (x > 0 ? "biz" : "neg") : (x > 0 ? "pos" : "neg");
@@ -1097,16 +1337,17 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     }).join("") : `<p class="lever-note">Personne ne perd rien en ${pickYear}, personne ne proteste. La dette, elle, continue de courir.</p>`;
 
     // Objectifs
+    const wait = (y) => !reached(y) && !P.defeat;
     const OBJ = [
-      [!P.defeat, "Finir le mandat", "Ni tutelle des créanciers, ni chute du gouvernement avant 2035.", P.defeat ? `perdu en ${P.defeat.year}` : "tenu"],
-      [P.defR[i29] <= state.ruleUE, `Déficit sous ${smart(state.ruleUE)} % en 2029`, "Le seuil de Bruxelles, réglable dans le moteur.", `${f1(P.defR[i29])} %`],
-      [P.d[i35] <= state.ruleDebt, `Dette sous ${f0(state.ruleDebt)} % du PIB en 2035`, "Votre cible, réglable dans le moteur.", `${f0(P.d[i35])} %`],
-      [P.notch[i35] <= 1, "Garder une note A ou mieux", "La confiance des prêteurs. On part de A+.", RATINGS[P.notch[i35]]],
-      [maxAnger <= state.ruleMouv, "Pas de mouvement social", "La colère ne franchit jamais le seuil des grèves.", `pic ${f0(maxAnger)}/100`]
+      [finished ? !P.defeat : null, "Finir le mandat", "Ni tutelle, ni chute du gouvernement, ni défaite électorale avant 2035.", P.defeat ? `perdu en ${P.defeat.year}` : finished ? "tenu" : "en cours"],
+      [wait(2029) ? null : reached(2029) && P.defR[i29] <= state.ruleUE, `Déficit sous ${smart(state.ruleUE)} % en 2029`, "Le seuil de Bruxelles, réglable dans le moteur.", reached(2029) ? `${f1(P.defR[i29])} %` : "—"],
+      [wait(2035) ? null : reached(2035) && P.d[i35] <= state.ruleDebt, `Dette sous ${f0(state.ruleDebt)} % du PIB en 2035`, "Votre cible, réglable dans le moteur.", reached(2035) ? `${f0(P.d[i35])} %` : "—"],
+      [wait(2035) ? null : reached(2035) && P.notch[i35] <= 1, "Garder une note A ou mieux", "La confiance des prêteurs. On part de A+.", RATINGS[P.notch[lastI]]],
+      [maxAnger > state.ruleMouv ? false : finished ? true : null, "Pas de mouvement social", "La colère ne franchit jamais le seuil des grèves.", `pic ${f0(maxAnger)}/100`]
     ];
     $("objectives").innerHTML = OBJ.map(([ok, t, why, val]) =>
-      `<li><span class="pill ${ok ? "ok" : "ko"}">${ok ? "TENU" : "RATÉ"}</span><div><div class="o-title">${t}</div><div class="o-why">${why}</div></div><span class="o-val">${val}</span></li>`).join("");
-    $("score").textContent = `${OBJ.filter(o => o[0]).length}/${OBJ.length}`;
+      `<li><span class="pill ${ok === null ? "wait" : ok ? "ok" : "ko"}">${ok === null ? "EN COURS" : ok ? "TENU" : "RATÉ"}</span><div><div class="o-title">${t}</div><div class="o-why">${why}</div></div><span class="o-val">${val}</span></li>`).join("");
+    $("score").textContent = `${OBJ.filter(o => o[0] === true).length}/${OBJ.length}`;
 
     // Budget par année
     const rowsHTML = (obj, ref, labels, cls) => {
@@ -1122,6 +1363,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     $("revRows").innerHTML = rowsHTML(P.rev[iy], R.rev[iy], REV_LABELS, "is-rev");
     $("spTotal").textContent = `${f0(P.spTot[iy])} Md€`;
     $("revTotal").textContent = `${f0(P.revTot[iy])} Md€`;
+  }
+  // Déficit 2030 de la politique inchangée, sans hasard : base des pastilles Md€
+  function refDef30(base, cache) {
+    if (!("__ref" in cache)) cache.__ref = simulate(base).def[idx(2030)];
+    return cache.__ref;
   }
 
   // ---------- Sources ----------
@@ -1157,8 +1403,26 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   ];
   $("srcRows").innerHTML = SRC.map(([a, b, c]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${c}</td><td><span class="tag">mémoire · à vérifier</span></td></tr>`).join("");
 
-  syncInputs(); renderTabs();
-  setView(location.hash === "#moteur" ? "engine" : "play");
-  update();
+  // ---------- Sauvegarde et démarrage ----------
+  const KEY = "faillite-ou-revolution:v4";
+  function snapshot() { return { state, game, view, lastPlay, activeTab, sandboxPolicy, draftPolicy }; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { /* stockage indisponible : la partie vit le temps de la page */ } }
+  function restore(data) {
+    if (!data || !data.state) return false;
+    state = { ...REF, ...data.state };
+    game = data.game || null; activeTab = data.activeTab || "rec";
+    sandboxPolicy = data.sandboxPolicy || null; draftPolicy = data.draftPolicy || null;
+    view = data.view || "mandat"; lastPlay = data.lastPlay || "mandat";
+    return !!game;
+  }
+  function start(data) {
+    let ok = restore(data);
+    if (!ok) { try { ok = restore(JSON.parse(localStorage.getItem(KEY) || "null")); } catch (e) { ok = false; } }
+    if (!ok) { newGame(); view = location.hash === "#moteur" ? "engine" : location.hash === "#bac-a-sable" ? "sandbox" : "mandat"; lastPlay = view === "engine" ? "mandat" : view; }
+    setView(view);
+    renderTabs(); syncInputs(); update();
+  }
+  window.claude?.hot?.snapshot?.(snapshot);
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
 </script>
