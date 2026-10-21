@@ -150,6 +150,16 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px 
 .delta.warn { background: var(--warn-soft); color: var(--warn); }
 .delta.neutral { color: var(--muted); border-color: var(--line); }
 .lever-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+.track-row { display: flex; align-items: center; gap: 10px; }
+.track-row .track { flex: 1; min-width: 0; }
+.stepbtn { flex: none; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; line-height: 1; font-family: var(--f-data); display: grid; place-items: center; }
+.stepbtn:hover { background: var(--secondary); }
+.stepbtn:active { transform: scale(.94); }
+.morebtn { width: 100%; margin-top: 14px; }
+.kpi.fc .k-sub { display: flex; align-items: center; gap: 6px; }
+.k-was { color: var(--muted); }
+.rk-fc { font-size: 11.5px; }
+.rk-fc.bad { color: var(--bad); } .rk-fc.good { color: var(--good); }
 .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .switch label { font-weight: 500; font-size: 13.5px; }
 input[type="checkbox"][role="switch"] { -webkit-appearance: none; appearance: none; flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--line); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
@@ -366,7 +376,7 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .ab-acts .btn-ghost { padding: 0 12px; }
 .ab-acts .btn-sub { font-weight: 400; opacity: .75; font-size: 12.5px; }
 .ab-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.ab-undo, .btn-mini, .mswitch { display: none; }
+.ab-undo, .btn-mini, .mswitch, .ab-y { display: none; }
 .mswitch { gap: 2px; padding: 3px; background: var(--secondary); border-radius: 10px; flex: none; }
 .mswitch button { border: 0; background: none; border-radius: 7px; padding: 0 12px; height: 38px; font-weight: 500; font-size: 13px; color: var(--muted); }
 .mswitch button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
@@ -443,6 +453,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .ab-in.turn .ab-title, .ab-in.turn .ab-mid, .ab-acts > .btn-ghost, .st-x { display: none; }
   .ab-mid { font-size: 12px; }
   .ab-undo { display: inline-flex; margin-left: auto; }
+  .ab-y { display: inline; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .steps { flex-wrap: nowrap; }
   .steps li { padding-right: 8px; }
   .ab-acts { justify-content: stretch; flex-wrap: nowrap; }
@@ -451,6 +462,18 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .ab-acts .btn > span { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .btn-mini { display: block; font-weight: 400; font-size: 11.5px; opacity: .75; }
   .lever-note { display: none; }
+  .stepbtn { width: 44px; height: 40px; font-size: 20px; }
+  .track input[type="range"] { pointer-events: none; }
+  .kpi.fc .k-sub { display: flex; }
+  .ab-new { flex: none !important; }
+  /* En cours d'année, le tableau de bord reste en haut de l'écran : c'est lui qui répond à chaque cran */
+  /* Le sélecteur de vue défile hors de l'écran, les quatre chiffres restent */
+  .dash.turn { position: sticky; top: calc(env(safe-area-inset-top, 0px) - var(--vb-h, 40px) - 6px); padding-block: 6px; gap: 6px; }
+  .dash.turn .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .dash.turn .kpi.status, .dash.turn .k-x, .dash.turn .k-was { display: none; }
+  .dash.turn .kpi { padding: 6px 8px; gap: 2px; }
+  .dash.turn .k-val { font-size: 16px; }
+  .dash.turn .k-label { font-size: 11px; }
   .lever.changed .lever-note, .lever-note#irNote { display: block; }
   .recap-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .modal { place-items: end center; }
@@ -470,14 +493,17 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .b-seats, .b-score { display: none; }
   .panel { padding: 16px; }
 }
+@keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
+  .rk, #rcEvents li { animation: reveal .4s ease both; animation-delay: calc(var(--i, 0) * 110ms + 150ms); }
+  .kpi.fc .k-val { transition: color .2s; }
   .row .r-bar div, .grow .g-bar div, .capbar div, .vb-track span { transition: width .25s ease; }
 }
 </style>
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.9</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.10</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -602,7 +628,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="panel" data-pane="src">
         <details class="sources" open>
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.9. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.10. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -1291,8 +1317,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   let game = null;
   let view = "mandat", activeTab = "rec", pickYear = 2030;
 
-  function newGame() {
-    const seed = Math.floor(Math.random() * 1e9);
+  function newGame(seed = Math.floor(Math.random() * 1e9)) {
     game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null,
       gov: GOVS[state.gov] || GOVS.centre, govKey: state.gov, seats: { ...SEATS0 }, nego: {}, extra: [],
       dossiers: drawDossiers(seed, state.dossierFreq), picks: {}, lastDiss: 2024 };
@@ -1328,14 +1353,19 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const A = assembly(state, game.gov, game.seats, game.nego, voteBonus());
     if (!force && !A.passes) return;
     const y = game.year;
-    recap = { year: y, cap0: game.capital, force, pour: A.pour, contre: A.contre, abst: A.abst, censure: A.censure };
+    const F = forecast(A), iy = idx(y);
+    recap = { year: y, cap0: game.capital, force, pour: A.pour, contre: A.contre, abst: A.abst, censure: A.censure,
+      fc: force && A.falls ? null : { defR: F.defR[iy], d: F.d[iy], rate: F.rate[iy], anger: F.anger[iy] } };
     game.capital -= negoSpent();
     Object.keys(game.nego).forEach(id => note(y, "info", `Accord avec : ${blocLabel(id)}`, `Contre ${f0(state.negoCost)} points de capital, le groupe obtient des concessions sur le budget ${y}.`));
     game.nego = {};
     pickYear = y;
     if (force && A.falls) {
       game.path[y] = { ...inForce() };
-      game.over = { type: "censure", year: y, votes: A.censure };
+      // Le groupe qui censure et qu'il aurait fallu ramener au simple vote contre
+      const near = A.blocs.filter(b => b.pos === "censure").map(b => ({ id: b.id, n: b.n, gap: -state.censureAt - b.score }))
+        .filter(b => b.n >= A.censure - MAJ + 1).sort((a, b) => a.gap - b.gap)[0];
+      game.over = { type: "censure", year: y, votes: A.censure, near };
       save(); syncInputs(); update(); return;
     }
     game.path[y] = policyOf(state);
@@ -1356,6 +1386,25 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       if (game.year > LAST) game.over = { type: "fin", year: LAST };
     }
     save(); syncInputs(); update();
+  }
+  // Ce que donnerait le budget en préparation. Les chocs de l'année restent cachés : c'est la part de hasard du vote.
+  function forecast(A) {
+    const y = game.year, sh = { ...game.shocks }; delete sh[y];
+    return simulate(state, { ...gameOpt(), path: { ...game.path, [y]: policyOf(state) }, shocks: sh,
+      force: A.passes ? game.force : { ...game.force, [y]: true }, upto: y });
+  }
+  // De combien la partie s'est perdue : c'est ce qui donne envie de la rejouer
+  function nearMiss(P) {
+    const o = game && game.over; if (!o || o.type === "fin") return "";
+    const i = idx(o.year), pts = (x) => `${f1(x)} point${x >= 2 ? "s" : ""}`;
+    if (o.type === "censure") {
+      const m = o.votes - MAJ + 1;
+      return `La censure passe avec ${f0(m)} voix de plus que nécessaire.${o.near ? ` Il suffisait que le groupe « ${BLOCS.find(b => b.id === o.near.id).label} » vote contre sans censurer : il ${o.near.gap < 0.05 ? "s'en est fallu d'un rien" : `lui manquait ${pts(o.near.gap)} de note`}.` : ""}`;
+    }
+    if (o.type === "fmi") return `Le taux à dix ans dépasse le seuil de ${pts(P.rate[i] - state.ruleFMI)}.`;
+    if (o.type === "chute") return `La colère dépasse le seuil de ${pts(P.anger[i] - state.ruleChute)}.`;
+    if (o.type === "battu") return `La colère dépasse le seuil de l'élection de ${pts(P.anger[i] - state.ruleElection)}.`;
+    return "";
   }
   // Déplace des sièges entre la coalition et l'opposition, au prorata des groupes. swing < 0 : la coalition en perd.
   function shiftSeats(swing) {
@@ -1435,7 +1484,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const pos = (p.ref - p.min) / (p.max - p.min) * 100;
     return `<div class="lever" data-param="${p.id}">
       <div class="lever-head"><label for="in-${p.id}">${p.label}</label><output id="out-${p.id}" for="in-${p.id}"></output></div>
-      <div class="track"><span class="refmark" style="--pos:${pos}"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>
+      <div class="track-row">${isLever(p) ? `<button type="button" class="stepbtn" data-step="-1" aria-label="${p.label} : baisser">−</button>` : ""}<div class="track"><span class="refmark" style="--pos:${pos}"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>${isLever(p) ? `<button type="button" class="stepbtn" data-step="1" aria-label="${p.label} : monter">+</button>` : ""}</div>
       <div class="lever-meta"><span data-today>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
       ${p.note || p.id === "ir" ? `<p class="lever-note" ${p.id === "ir" ? 'id="irNote"' : ""}>${p.note || ""}</p>` : ""}
     </div>`;
@@ -1451,7 +1500,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const b = e.target.closest("[data-preset]"); if (!b || b.disabled) return;
     const p = PRESETS.find(x => x[0] === b.dataset.preset);
     Object.assign(state, REF_POLICY, p[2]);
-    syncInputs(); update();
+    syncInputs(); update(); save();
     presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
   });
   const tabsEl = $("tabs");
@@ -1467,10 +1516,16 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   });
   const leversEl = $("levers");
   const secs = [...new Set(LEVERS.map(l => l.sec))];
+  // Les leviers qui pèsent le plus, affichés d'emblée. Les autres se déplient, et restent visibles une fois modifiés.
+  const MAIN = ["tva", "csg", "ir", "is", "niches", "zucman", "age", "idxRet", "idxPrest", "ondam", "point", "eff"];
+  const showAll = { rec: false, dep: false };
   leversEl.innerHTML = TABS.map(([tab]) =>
     `<div data-tab-body="${tab}"><p class="group-intro" data-intro></p>${secs.filter(s => s.startsWith(tab)).map(s =>
-      `<div class="group-title">${SEC_TITLES[s]}</div>${LEVERS.filter(l => l.sec === s).map(paramHTML).join("")}`).join("")}</div>`
+      `<div class="lsec"><div class="group-title">${SEC_TITLES[s]}</div>${LEVERS.filter(l => l.sec === s).map(paramHTML).join("")}</div>`).join("")}
+      <button type="button" class="btn btn-outline morebtn" data-more="${tab}"></button></div>`
   ).join("");
+  // Un clic sur − ou + avance d'un cran lisible : une vingtaine de crans sur toute la plage
+  function stepOf(p) { return p.step * Math.max(1, Math.round((p.max - p.min) / p.step / 20)); }
   $("engGrid").innerHTML = ENG_SECS.map(([key, title, sub]) =>
     `<div class="panel"><h2>${title}</h2><p class="sub">${sub}</p>${ENGINE.filter(p => p.sec === key).map(paramHTML).join("")}</div>`).join("");
 
@@ -1484,6 +1539,16 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     update(); save();
   }
   function onChoice(e) {
+    const more = e.target.closest("[data-more]");
+    if (more) { showAll[more.dataset.more] = !showAll[more.dataset.more]; update(); return; }
+    const st = e.target.closest("[data-step]");
+    if (st) {
+      const p = paramById[st.closest("[data-param]").dataset.param];
+      if (game && game.over && view === "mandat") return;
+      const dec = (String(p.step).split(".")[1] || "").length;
+      state[p.id] = +clamp(state[p.id] + stepOf(p) * +st.dataset.step, p.min, p.max).toFixed(dec);
+      clearPreset(); syncInputs(); update(); save(); return;
+    }
     const b = e.target.closest("[data-choice]"); if (!b) return;
     const id = b.closest("[data-param]").dataset.param;
     state[id] = b.dataset.choice; syncInputs(); update(); save();
@@ -1499,7 +1564,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     else if (act === "force") vote(true);
     else if (act === "undo") { Object.assign(state, inForce()); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "reset") { Object.assign(state, REF_POLICY); clearPreset(); syncInputs(); update(); save(); }
-    else if (act === "new") startNew();
+    else if (act === "new" || act === "replay") startNew(act === "replay");
     else if (act === "dossier") { dossierLater = false; update(); }
   });
   $("dossierModal").addEventListener("click", (e) => {
@@ -1529,8 +1594,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (game.nego[id]) delete game.nego[id]; else if (game.capital - negoSpent() >= state.negoCost) game.nego[id] = true;
     update(); save();
   });
-  $("verdictActions").addEventListener("click", (e) => { if (e.target.closest('[data-act="new"]')) startNew(); });
-  function startNew() { recap = null; dossierLater = false; setMview("levers"); newGame(); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
+  $("verdictActions").addEventListener("click", (e) => { const b = e.target.closest("[data-act]"); if (b) startNew(b.dataset.act === "replay"); });
+  // Rejouer garde la graine : mêmes crises, mêmes dossiers, aux mêmes dates
+  function startNew(replay) { recap = null; dossierLater = false; setMview("levers"); newGame(replay && game ? game.seed : undefined); clearPreset(); syncInputs(); update(); save(); window.scrollTo({ top: 0 }); }
 
   function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
   function syncInputs() {
@@ -1748,6 +1814,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const show = mandat && !!recap && !tourOn();
     $("recapModal").hidden = !show;
     if (!show) return;
+    if (recap.shown) return;
+    recap.shown = true;
     const y = recap.year, i = idx(y), card = $("recapModal").querySelector(".modal-card");
     const lost = P.defeat && P.defeat.year === y;
     card.classList.toggle("lost", !!lost); card.classList.toggle("good", !lost && !recap.force);
@@ -1756,15 +1824,21 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     $("rcText").innerHTML = lost && P.defeat.type === "censure" ? `La censure réunit <b>${f0(recap.censure)} voix</b> sur ${MAJ}.`
       : recap.force ? `Sans majorité, vous engagez la responsabilité du gouvernement. La censure ne réunit que ${f0(recap.censure)} voix sur ${MAJ}.`
       : `${f0(recap.pour)} pour, ${f0(recap.contre)} contre, ${f0(recap.abst)} abstentions.`;
-    const rk = (label, now, before, fmt, upIsBad) => {
+    if (lost) $("rcText").innerHTML += ` ${nearMiss(P)}`;
+    let k = 0;
+    // Le prévu sort de la prévision affichée avant le vote : l'écart, c'est le hasard de l'année
+    const rk = (label, now, before, fmt, upIsBad, fc) => {
       const dlt = now - before, cls = Math.abs(dlt) < 0.05 ? "neutral" : (dlt > 0) === upIsBad ? "bad" : "good";
-      return `<div class="rk"><span>${label}</span><b>${fmt(now)}</b><span class="delta ${cls}">${signed(Math.round(dlt * 10) / 10, f1)}</span></div>`;
+      const miss = fc != null && fmt(fc) !== fmt(now) ? `<span class="rk-fc ${(now > fc) === upIsBad ? "bad" : "good"}">prévu ${fmt(fc)}</span>` : "";
+      return `<div class="rk" style="--i:${k++}"><span>${label}</span><b>${fmt(now)}</b><span class="delta ${cls}">${signed(Math.round(dlt * 10) / 10, f1)}</span>${miss}</div>`;
     };
-    $("rcKpis").innerHTML = rk("Déficit", P.defR[i], P.defR[i - 1], v => `${f1(v)} %`, true) + rk("Dette", P.d[i], P.d[i - 1], v => `${f0(v)} %`, true)
-      + rk("Taux à 10 ans", P.rate[i], P.rate[i - 1], v => `${f1(v)} %`, true) + rk("Colère", P.anger[i], P.anger[i - 1], v => `${f0(v)}/100`, true)
+    const fc = recap.fc || {};
+    $("rcKpis").innerHTML = rk("Déficit", P.defR[i], P.defR[i - 1], v => `${f1(v)} %`, true, fc.defR) + rk("Dette", P.d[i], P.d[i - 1], v => `${f0(v)} %`, true, fc.d)
+      + rk("Taux à 10 ans", P.rate[i], P.rate[i - 1], v => `${f1(v)} %`, true, fc.rate) + rk("Colère", P.anger[i], P.anger[i - 1], v => `${f0(v)}/100`, true, fc.anger)
       + rk("Capital", game.capital, recap.cap0, v => f0(v), false);
     const evs = sortEvents(game.extra.filter(e => e.year === y && !e.title.startsWith(`Budget ${y}`)).concat(P.events.filter(e => e.year === y)));
     $("rcEvents").innerHTML = evs.map(evHTML).join("");
+    [...$("rcEvents").children].forEach((li, j) => li.style.setProperty("--i", k + j));
     $("rcHint").textContent = game.over ? "" : evs.length ? "Tout reste consultable dans l'onglet Journal." : "Une année sans surprise.";
     $("rcNext").textContent = game.over ? "Voir le bilan" : `Préparer le budget ${game.year}`;
   }
@@ -1853,6 +1927,21 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       const rg = p.type ? null : $("in-" + p.id); if (rg) rg.style.setProperty("--fill", `${(state[p.id] - p.min) / (p.max - p.min) * 100}%`);
     });
     tabsEl.querySelectorAll("[data-tab]").forEach(b => { b.querySelector(".tcount").textContent = perTab[b.dataset.tab] || ""; });
+    TABS.forEach(([tab]) => {
+      const body = leversEl.querySelector(`[data-tab-body="${tab}"]`);
+      let hid = 0;
+      body.querySelectorAll(".lsec").forEach(sec => {
+        let vis = 0;
+        sec.querySelectorAll("[data-param]").forEach(n => {
+          const h = !showAll[tab] && !MAIN.includes(n.dataset.param) && !n.classList.contains("changed");
+          n.hidden = h; if (h) hid++; else vis++;
+        });
+        sec.hidden = !vis;
+      });
+      const mb = body.querySelector("[data-more]");
+      mb.hidden = !showAll[tab] && !hid;
+      mb.textContent = showAll[tab] ? "Ne garder que les leviers principaux" : `Voir les ${hid} autres leviers`;
+    });
     $("engBadge").textContent = changedE ? ` ${changedE}` : "";
     leversEl.querySelectorAll("[data-intro]").forEach(n => { n.textContent = `Pastilles : effet sur le déficit 2030${mandat ? " si la mesure durait" : ""}, colère provoquée à terme, et le groupe dont elle fait le plus bouger le vote. Un groupe vote pour au-dessus de 1 et contre sous −1.`; });
     const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
@@ -1869,8 +1958,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <div class="ab-acts">${mswitch()}${changedL ? `<button class="btn btn-outline" data-act="reset" type="button">Remettre à zéro</button>` : ""}</div></div>`;
     } else if (game.over) {
       bar.innerHTML = `<div class="ab-in"><div class="ab-lead"><span class="ab-title"><b>Partie terminée</b>${game.over.type === "fin" ? "mandat tenu jusqu'en 2035" : DEFEAT_SUB[game.over.type].toLowerCase()}</span></div>
-        <div class="ab-mid"><span>Le bilan est dans les onglets : journal, trajectoires, objectifs.</span></div>
-        <div class="ab-acts">${mswitch()}<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div></div>`;
+        <div class="ab-mid"><span>${nearMiss(P) || "Le bilan est dans les onglets : journal, trajectoires, objectifs."}</span></div>
+        <div class="ab-acts">${mswitch()}${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la partie</button><button class="btn btn-outline ab-new" data-act="new" type="button">Nouvelle</button>` : `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>`}</div></div>`;
     } else {
       const d = dossierNow(), pend = pending();
       let k = 0;
@@ -1886,12 +1975,14 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         : A.passes ? `<button class="btn btn-primary" data-act="vote" type="button"><span>Voter le budget ${game.year}</span>${mini}</button>`
         : `<button class="btn ${A.falls ? "btn-destructive" : "btn-primary"}" data-act="force" type="button"><span>Passer par le 49.3</span>${A.falls ? `<span class="btn-sub">censure assurée</span>` : mini}</button>`;
       const undo = changedL && !pend ? `<button class="btn btn-ghost" data-act="undo" type="button">Annuler</button>` : "";
-      bar.innerHTML = `<div class="ab-in turn"><div class="ab-lead"><span class="ab-title"><b>Budget ${game.year}</b>année ${game.year - FIRST + 1} sur 10</span><div class="ab-row"><ol class="steps">${steps}</ol>${undo.replace("btn btn-ghost", "btn btn-ghost btn-sm ab-undo")}</div></div>
+      bar.innerHTML = `<div class="ab-in turn"><div class="ab-lead"><span class="ab-title"><b>Budget ${game.year}</b>année ${game.year - FIRST + 1} sur 10</span><div class="ab-row"><b class="ab-y">${game.year}</b><ol class="steps">${steps}</ol>${undo.replace("btn btn-ghost", "btn btn-ghost btn-sm ab-undo")}</div></div>
         <div class="ab-mid">${mid}</div>
         <div class="ab-acts">${mswitch()}${undo}${cta}</div></div>`;
     }
     $("playView").dataset.mview = mview;
     document.documentElement.style.setProperty("--ab-h", `${bar.offsetHeight || 88}px`);
+    document.querySelector(".dash").classList.toggle("turn", mandat && !game.over);
+    document.documentElement.style.setProperty("--vb-h", `${$("viewbar").offsetHeight || 40}px`);
     document.querySelector("header.hero").classList.toggle("compact", !(mandat && game.year === FIRST && !game.over));
 
     // Bandeau
@@ -1901,11 +1992,25 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     if (P.defeat) status = kpi("Statut", `${DEFEAT_LABEL[P.defeat.type]} ${P.defeat.year}`, DEFEAT_SUB[P.defeat.type], "status lost");
     else if (finished) status = kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[lastI]]}`, "status ok");
     else status = kpi("Statut", `Budget ${game.year}`, `Année ${game.year - FIRST + 1} sur 10 · note ${RATINGS[P.notch[lastI]]}`, "status turn");
-    if (mandat) {
-      const avail = game.capital - (game.over ? 0 : negoSpent());
+    if (mandat && !game.over) {
+      // Pendant l'année, les chiffres montrent ce que donnerait le budget en préparation
+      const F = forecast(A), y = game.year, iy = idx(y), j = iy - 1;
+      const avail = game.capital - negoSpent(), capPct = clamp(avail / 150 * 100, 0, 100);
+      const arrow = (now, before, fmt, upIsBad) => {
+        const dl = now - before, cls = Math.abs(dl) < 0.05 ? "neutral" : (dl > 0) === upIsBad ? "bad" : "good";
+        return `<span class="k-was">${fmt(before)} →</span><span class="delta ${cls}">${signed(Math.round(dl * 10) / 10, f1)}</span>`;
+      };
+      const pc1 = (x) => `${f1(x)} %`, pc0 = (x) => `${f0(x)} %`;
+      $("kpis").innerHTML = status +
+        kpi(`Capital<span class="k-x"> politique</span>`, f0(avail), negoSpent() ? `dont ${f0(negoSpent())} engagés en accords` : `un accord coûte ${f0(state.negoCost)}`, "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
+        kpi(`Bruxelles<span class="k-x"> · déficit ${y}</span>`, pc1(F.defR[iy]), arrow(F.defR[iy], P.defR[j], pc1, true), F.defR[iy] <= state.ruleUE ? "is-good fc" : "is-bad fc") +
+        kpi(`Marchés<span class="k-x"> · taux ${y}</span>`, pc1(F.rate[iy]), arrow(F.rate[iy], P.rate[j], pc1, true), F.rate[iy] > state.ruleFMI ? "is-bad fc" : F.rate[iy] > state.ruleFMI - 1.5 ? "is-warn fc" : "fc") +
+        kpi(`La rue<span class="k-x"> · colère ${y}</span>`, `${f0(F.anger[iy])}/100`, arrow(F.anger[iy], P.anger[j], f0, true), F.anger[iy] > state.ruleChute ? "is-bad fc" : F.anger[iy] > state.ruleMouv ? "is-warn fc" : "fc");
+    } else if (mandat) {
+      const avail = game.capital;
       const capPct = clamp(avail / 150 * 100, 0, 100);
       $("kpis").innerHTML = status +
-        kpi("Capital politique", f0(avail), game.over ? "fin du mandat" : negoSpent() ? `dont ${f0(negoSpent())} engagés en accords` : `un accord coûte ${f0(state.negoCost)}`, "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
+        kpi("Capital politique", f0(avail), "fin du mandat", "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
         kpi(`Déficit ${lastY}`, `${f1(P.defR[lastI])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[lastI] <= state.ruleUE ? "is-good" : "is-bad") +
         kpi(`Dette ${lastY}`, `${f0(P.d[lastI])} %`, `du PIB · taux ${f1(P.rate[lastI])} %`, P.rate[lastI] > state.ruleFMI - 1.5 ? "is-warn" : "") +
         kpi(`Colère ${lastY}`, `${f0(P.anger[lastI])}/100`, `chute à ${f0(state.ruleChute)}`, P.anger[lastI] > state.ruleChute ? "is-bad" : P.anger[lastI] > state.ruleMouv ? "is-warn" : "");
@@ -1953,9 +2058,10 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       const perHab = effort * 1e9 / (POP * 1e6);
       if (Math.abs(effort) >= 1) v += ` En 2030, vous ${effort > 0 ? "demandez" : "rendez"} <b>${f0(Math.abs(effort))} Md€</b>, environ ${f0(Math.abs(perHab))} € par habitant.`;
     }
+    if (mandat && P.defeat) v += ` <b>${nearMiss(P)}</b>`;
     $("ending").textContent = head;
     $("verdict").innerHTML = v;
-    $("verdictActions").innerHTML = mandat && game.over ? `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>` : "";
+    $("verdictActions").innerHTML = mandat && game.over ? `${game.over.type !== "fin" ? `<button class="btn btn-primary" data-act="replay" type="button">Rejouer la même partie</button>` : ""}<button class="btn ${game.over.type !== "fin" ? "btn-outline" : "btn-primary"}" data-act="new" type="button">Nouvelle partie</button>` : "";
 
     renderAssembly(A, mandat);
     renderDossier(mandat);
@@ -2103,7 +2209,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   const TOUR = [
     { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer ».` },
     { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, déficit, dette et colère, pour la dernière année votée. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
-    { target: "levers", mview: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Le trait gris marque la valeur en vigueur. Sous chaque levier, des pastilles : ce que la mesure change au déficit de 2030, la colère qu'elle provoque, et le groupe de l'Assemblée qu'elle fait le plus bouger. Les politiques types, en haut, servent de point de départ.` },
+    { target: "levers", mview: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Les douze qui pèsent le plus sont affichés, les autres se déplient. Les boutons − et + avancent d'un cran, et le trait gris marque la valeur en vigueur. Chaque cran fait bouger les prévisions du tableau de bord. Sous chaque levier, des pastilles : ce que la mesure change au déficit de 2030, la colère qu'elle provoque, et le groupe de l'Assemblée qu'elle fait le plus bouger. Les politiques types, en haut, servent de point de départ.` },
     { target: null, title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose souvent un arbitrage : une grève, une crue, une usine qui ferme. Une fenêtre s'ouvre en début d'année, et il faut trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
     { target: "assemblyPanel", tab: "asm", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
     { target: "actionBar", title: "Le vote", text: () => `La barre du bas suit votre année : dossier, leviers, vote. Son bouton fait toujours le geste suivant. Sur téléphone, elle bascule aussi entre les leviers et les résultats. Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
