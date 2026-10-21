@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Faillite ou Révolution</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -340,6 +341,38 @@ td a { color: var(--ink); text-decoration-color: var(--ref); text-underline-offs
 .limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; max-width: 78ch; }
 footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 75ch; }
 
+/* Dossier de l'année */
+.panel.dossier { border-color: var(--warn); }
+.d-kicker { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); }
+.d-opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.d-opt { display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; transition: border-color .15s, background .15s; }
+.d-opt:hover:not(:disabled) { border-color: var(--ink); }
+.d-opt:disabled { cursor: default; opacity: .5; }
+.d-opt[aria-pressed="true"] { opacity: 1; border-color: var(--accent); background: var(--accent-soft); }
+.d-opt-title { font-weight: 600; font-size: 14px; }
+.d-opt-text { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.d-fx { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Dissolution */
+.asm-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-top: 14px; font-size: 12.5px; color: var(--muted); }
+.asm-foot p { margin: 0; max-width: 60ch; }
+.asm-foot p b { color: var(--ink); font-weight: 600; }
+.asm-foot .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Tutoriel */
+.tourbtn { margin-left: auto; }
+.tour { position: fixed; z-index: 50; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); display: grid; gap: 10px; padding: 18px 20px 16px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgb(9 9 11 / .22); }
+.tour-step { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); }
+.tour h3 { margin: 0; font-family: var(--f-display); font-size: 17px; font-weight: 600; letter-spacing: -.015em; }
+.tour p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+.tour p b { color: var(--ink); font-weight: 600; }
+.tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.tour-dots { display: flex; gap: 5px; }
+.tour-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.tour-dots i.on { background: var(--ink); }
+.tour-nav { display: flex; gap: 6px; }
+.tour-target { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 12px; }
+
 @media (max-width: 1060px) {
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .kpi.status { grid-column: 1 / -1; }
@@ -372,7 +405,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.6</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.7</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -388,13 +421,14 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   </header>
 
   <div class="dash">
-    <div class="viewbar">
+    <div class="viewbar" id="viewbar">
       <div class="viewseg" role="group" aria-label="Vue">
         <button type="button" data-view="mandat" aria-pressed="true">Mandat</button>
         <button type="button" data-view="sandbox" aria-pressed="false">Bac à sable</button>
         <button type="button" data-view="engine" aria-pressed="false">Moteur<span class="badge" id="engBadge"></span></button>
       </div>
       <span class="viewhint" id="viewHint"></span>
+      <button type="button" class="btn btn-outline btn-sm tourbtn" id="tourBtn">Comment jouer</button>
     </div>
     <div class="kpis" id="kpis"></div>
   </div>
@@ -416,6 +450,13 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         <div class="verdict-actions" id="verdictActions"></div>
       </div>
 
+      <div class="panel dossier" id="dossierPanel" hidden>
+        <p class="d-kicker" id="dKicker"></p>
+        <h2 id="dTitle"></h2>
+        <p class="sub" id="dText"></p>
+        <div class="d-opts" id="dOpts"></div>
+      </div>
+
       <div class="panel" id="assemblyPanel">
         <h2>L'Assemblée nationale</h2>
         <p class="sub" id="asmSub"></p>
@@ -424,10 +465,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
           <div class="asm-side" id="asmSide"></div>
         </div>
         <div class="blocs" id="blocs"></div>
+        <div class="asm-foot" id="asmFoot" hidden></div>
         <p class="groups-note">Composition simplifiée de l'Assemblée élue en 2024, en six blocs. Chaque groupe juge le budget sur la colère qu'il provoque chez ses électeurs à l'horizon 2030, et la droite comme le centre aussi sur le déficit évité. Les poids sont des choix de conception, réglables dans le moteur.</p>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="journalPanel">
         <h2>Journal du mandat</h2>
         <p class="sub">Ce que vos choix et le hasard déclenchent, année après année. Les seuils se règlent dans le moteur.</p>
         <ol class="journal" id="journal"></ol>
@@ -508,6 +550,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
             <li>En mandat, les chocs sont tirés au hasard en début de partie et révélés année après année. Le capital politique est une convention de jeu.</li>
             <li>Les seuils de fin de partie sont des conventions de jeu adossées à des précédents. Aucun seuil réel n'est mécanique.</li>
             <li>L'Assemblée est réduite à six blocs qui votent d'un seul tenant. Chacun juge le budget sur la colère de ses électeurs à l'horizon 2030 et, pour certains, sur le déficit évité. Aucune défection individuelle, aucun amendement.</li>
+            <li>Les dossiers de l'année sont inspirés de crises réelles. Leurs montants sont des ordres de grandeur, et leur effet sur le vote des groupes est un choix de conception.</li>
+            <li>Une dissolution rebat les sièges selon l'écart entre la colère du moment et celle de 2024, à 12 sièges près. Aucun groupe ne change d'alliance.</li>
             <li>Pas encore de ménages types : le modèle dit quel groupe perd, pas combien chaque foyer paie.</li>
           </ul>
         </details>
@@ -527,6 +571,20 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   </section>
 
   <footer>Projet pédagogique indépendant, sans lien avec aucune administration ni aucune agence de notation. Le modèle est volontairement simple : il montre des ordres de grandeur et des mécanismes. Il ne prévoit rien.<br>Conçu par Glamdring Labs.</footer>
+
+  <div class="tour" id="tour" role="dialog" aria-labelledby="tourTitle" hidden>
+    <span class="tour-step" id="tourStep"></span>
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+    <div class="tour-actions">
+      <div class="tour-dots" id="tourDots"></div>
+      <div class="tour-nav">
+        <button type="button" class="btn btn-ghost btn-sm" data-tour="close">Passer</button>
+        <button type="button" class="btn btn-outline btn-sm" data-tour="prev">Précédent</button>
+        <button type="button" class="btn btn-primary btn-sm" data-tour="next">Suivant</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -567,6 +625,61 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     { id: "pandemic", p: 0.025, kind: "bad", title: "Pandémie", detail: "Confinements et soutien à l'économie : −4 % de PIB et 1,5 % du PIB de dépenses exceptionnelles.", gdp: -0.04, spend: 1.5 }
   ];
   const SHOCK_BY_ID = Object.fromEntries(SHOCKS.map(s => [s.id, s]));
+  // Dossiers de l'année : un arbitrage imposé par l'actualité, à trancher avant le budget. Montants : ordres de grandeur.
+  // md : Md€ l'année du choix (négatif : économie) ; mdFrom : Md€ par an, durablement ; cat : poste de dépense ;
+  // anger : points de colère l'année du choix ; gdp : écart d'activité ; capital : points ; vote : score de chaque bloc au budget de l'année.
+  const DOSSIERS = [
+    { id: "agri", title: "Les agriculteurs bloquent les autoroutes", text: "Prix d'achat trop bas, normes, concurrence du Mercosur : les tracteurs encerclent Paris et les préfectures.",
+      opts: [
+        { label: "Plan de soutien à l'agriculture", text: "Aides de trésorerie et allègements de charges, chaque année.", mdFrom: 1.5, cat: "eco", anger: -2, vote: { lr: 1, rn: 1, liot: 1 } },
+        { label: "Tenir bon", text: "Quelques gestes symboliques, pas d'argent.", anger: 4, vote: { rn: -1, lr: -0.5 } }] },
+    { id: "hopital", title: "Les urgences ferment l'été", text: "Faute de médecins, une centaine de services d'urgence ferment la nuit. Les soignants menacent de démissionner.",
+      opts: [
+        { label: "Plan pour l'hôpital", text: "Gardes revalorisées et embauches, 2 Md€ par an.", mdFrom: 2, cat: "sante", anger: -2, vote: { ps: 1, lfi: 0.5, liot: 0.5 } },
+        { label: "Réorganiser sans moyens", text: "Régulation par le 15 et fermetures tournantes.", anger: 3, vote: { ps: -1, lfi: -1 } }] },
+    { id: "ukraine", title: "L'Ukraine demande des armes", text: "Kiev réclame des munitions et des systèmes de défense aérienne. Les alliés attendent la France.",
+      opts: [
+        { label: "Livrer 3 Md€ d'armement", text: "Une enveloppe exceptionnelle, cette année.", md: 3, cat: "defense", vote: { centre: 1, ps: 0.5, lr: 0.5, rn: -1, lfi: -1 } },
+        { label: "Refuser", text: "La France s'en tient au soutien diplomatique.", capital: -15, vote: { centre: -1, ps: -0.5 } }] },
+    { id: "acier", title: "Une aciérie du Nord menace de fermer", text: "Le propriétaire veut arrêter deux hauts-fourneaux : 4 000 emplois directs, trois fois plus chez les sous-traitants.",
+      opts: [
+        { label: "Nationalisation temporaire", text: "L'État reprend le site et y investit 2,5 Md€.", md: 2.5, cat: "eco", anger: -1, vote: { lfi: 1.5, ps: 1, rn: 0.5, centre: -1, lr: -1 } },
+        { label: "Laisser fermer", text: "Plan social accompagné, pas de reprise.", anger: 3, gdp: -0.002, vote: { lfi: -1, rn: -1 } }] },
+    { id: "gazole", title: "Le gazole dépasse 2 € le litre", text: "Le baril flambe. Les ménages qui roulent sont pris à la gorge, les routiers menacent de bloquer les dépôts.",
+      opts: [
+        { label: "Remise à la pompe pour tous", text: "15 centimes par litre pendant un an.", md: 4, cat: "eco", anger: -4, vote: { rn: 1, liot: 0.5 } },
+        { label: "Chèque ciblé", text: "Pour les gros rouleurs modestes seulement.", md: 1, cat: "prest", anger: -1 },
+        { label: "Ne rien faire", text: "Le prix fait baisser la consommation.", anger: 4, vote: { rn: -1, liot: -0.5 } }] },
+    { id: "profs", title: "Pénurie d'enseignants à la rentrée", text: "Trois mille postes restent vacants. Les concours ne font plus le plein.",
+      opts: [
+        { label: "Revaloriser les débuts de carrière", text: "Environ 200 € net par mois, 2,5 Md€ par an.", mdFrom: 2.5, cat: "educ", anger: -2, vote: { ps: 1, lfi: 0.5 } },
+        { label: "Recruter des contractuels", text: "Des remplaçants formés en quelques jours.", anger: 2, vote: { ps: -0.5 } }] },
+    { id: "maires", title: "Les maires réclament leurs dotations", text: "Les associations d'élus accusent l'État d'étrangler les communes et menacent de reporter leurs investissements.",
+      opts: [
+        { label: "Rendre 2 Md€ aux collectivités", text: "Hausse durable de la dotation globale de fonctionnement.", mdFrom: 2, vote: { liot: 1.5, lr: 1, centre: 0.5 } },
+        { label: "Geler les dotations", text: "Les collectivités participent à l'effort.", anger: 1, vote: { liot: -1.5, lr: -1 } }] },
+    { id: "crue", title: "Crues historiques dans le Sud-Ouest", text: "Des milliers de maisons inondées, des routes coupées, des récoltes perdues.",
+      opts: [
+        { label: "Fonds de reconstruction", text: "3 Md€ cette année, au-delà des assurances.", md: 3, cat: "eco", anger: -1, vote: { liot: 0.5 } },
+        { label: "Laisser jouer les assurances", text: "Le régime des catastrophes naturelles suffit.", anger: 4, capital: -10 }] },
+    { id: "fraude", title: "Un rapport chiffre la fraude sociale", text: "La Cour des comptes estime à plusieurs milliards les prestations versées à tort chaque année.",
+      opts: [
+        { label: "Durcir les contrôles", text: "Fichiers croisés, droits suspendus plus vite : 1 Md€ récupéré par an.", mdFrom: -1, cat: "prest", anger: 1, vote: { lr: 1, rn: 0.5, centre: 0.5, lfi: -1 } },
+        { label: "Classer le rapport", text: "Le sujet divise la coalition.", vote: { lr: -0.5 } }] },
+    { id: "europe", title: "Bruxelles propose un emprunt commun pour la défense", text: "Les États membres emprunteraient ensemble et se partageraient les fonds. La France toucherait 4 Md€ cette année.",
+      opts: [
+        { label: "Soutenir l'emprunt européen", text: "4 Md€ de dépenses militaires déjà prévues, payées par l'Union.", md: -4, cat: "defense", vote: { centre: 1, ps: 1, rn: -1.5, lfi: -0.5 } },
+        { label: "S'y opposer", text: "Au nom de la souveraineté budgétaire.", capital: -10, vote: { rn: 1, centre: -1, ps: -0.5 } }] },
+    { id: "sncf", title: "Grève reconductible à la SNCF", text: "Les cheminots réclament une hausse de salaire. Les trains sont à l'arrêt depuis dix jours.",
+      opts: [
+        { label: "Céder sur les salaires", text: "800 M€ par an pour l'entreprise publique.", mdFrom: 0.8, cat: "eco", anger: -2, vote: { lr: -0.5 } },
+        { label: "Tenir jusqu'au bout", text: "La grève s'épuise, au prix de l'activité.", anger: 3, gdp: -0.002, capital: 5, vote: { lr: 0.5, lfi: -0.5 } }] },
+    { id: "medic", title: "Pénurie de médicaments", text: "Antibiotiques, insuline, anticancéreux : des centaines de références manquent en pharmacie.",
+      opts: [
+        { label: "Relocaliser la production", text: "Subventions à six usines, 1,5 Md€ cette année.", md: 1.5, cat: "sante", vote: { rn: 0.5, lfi: 0.5, ps: 0.5 } },
+        { label: "Stocks et importations", text: "On achète ailleurs, plus cher, au fil de l'eau.", anger: 2 }] }
+  ];
+  const DOSSIER_BY_ID = Object.fromEntries(DOSSIERS.map(d => [d.id, d]));
   const YEARS = []; for (let y = 2024; y <= LAST; y++) YEARS.push(y);
 
   // ---------- Formatage ----------
@@ -653,6 +766,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     { sec: "mandat", id: "capital0", label: "Capital politique de départ", min: 0, max: 150, step: 5, ref: 60, fmt: v => `${f0(v)} points`, note: "La monnaie des négociations avec les groupes d'opposition." },
     { sec: "mandat", id: "capRegen", label: "Capital regagné chaque année", min: 0, max: 40, step: 1, ref: 15, fmt: v => `${f0(v)} points`, note: "Moins 10 pendant un mouvement social, plus 5 si le déficit baisse, plus 30 après une élection gagnée. Plafond : 150." },
     { sec: "mandat", id: "shockFreq", label: "Fréquence des chocs", min: 0, max: 3, step: 0.25, ref: 1, fmt: v => `×${smart(v)}`, note: "S'applique à la partie suivante. À ×1 : environ une récession tous les onze ans, une crise de l'énergie tous les quatorze." },
+    { sec: "mandat", id: "dossierFreq", label: "Probabilité d'un dossier chaque année", min: 0, max: 1, step: 0.1, ref: 0.7, fmt: v => `${f0(v * 100)} %`, note: "S'applique à la partie suivante. Un dossier est un arbitrage imposé par l'actualité, à trancher avant le budget. Aucun en 2026." },
 
     { sec: "assemblee", id: "govLoyalty", label: "Soutien des groupes de la coalition", min: 0, max: 10, step: 0.5, ref: 4, fmt: v => `${signed(v)}`, note: "Score de départ des groupes qui gouvernent. Ils lâchent le gouvernement si le budget frappe trop leurs électeurs." },
     { sec: "assemblee", id: "kPain", label: "Sensibilité des groupes à la colère de leurs électeurs", min: 0, max: 1, step: 0.05, ref: 0.35, fmt: v => smart(v), note: "Points de score perdus par point de colère d'un groupe social que le bloc représente pleinement. Choix de conception." },
@@ -660,7 +774,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     { sec: "assemblee", id: "negoCost", label: "Coût d'une négociation", min: 0, max: 60, step: 5, ref: 20, fmt: v => `${f0(v)} points`, note: "Capital dépensé pour un accord avec un groupe : un amendement, une concession, une promesse." },
     { sec: "assemblee", id: "negoGain", label: "Effet d'une négociation", min: 0, max: 5, step: 0.5, ref: 2, fmt: v => `+${smart(v)} de score`, note: "Vaut pour le budget de l'année. L'an suivant, tout est à refaire." },
     { sec: "assemblee", id: "force493Anger", label: "Colère provoquée par un 49.3", min: 0, max: 20, step: 1, ref: 6, fmt: v => `${f0(v)} points`, note: "Le budget passe sans vote, sauf si une motion de censure réunit 289 voix." },
-    { sec: "assemblee", id: "legSwing", label: "Sièges gagnés aux législatives par point de colère", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} siège`, note: "Après une présidentielle gagnée, le président dissout. Sa coalition gagne ce nombre de sièges par point de colère sous le seuil électoral." },
+    { sec: "assemblee", id: "legSwing", label: "Sièges gagnés aux législatives par point de colère", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} siège`, note: "Après une présidentielle gagnée, le président dissout. Sa coalition gagne ce nombre de sièges par point de colère sous le seuil électoral. Une dissolution décidée par vous compte depuis la colère de départ : au-dessus, la coalition perd des sièges." },
+    { sec: "assemblee", id: "dissCost", label: "Coût d'une dissolution", min: 0, max: 60, step: 5, ref: 20, fmt: v => `${f0(v)} points`, note: "Capital dépensé pour dissoudre. Le résultat varie de 12 sièges autour de la prévision." },
     { sec: "assemblee", id: "b_lfi", label: "Opposition de principe : LFI et communistes", min: -10, max: 2, step: 0.5, ref: -6, fmt: v => signed(v), note: "Score de départ d'un groupe qui ne gouverne pas, avant l'effet du budget." },
     { sec: "assemblee", id: "b_ps", label: "Opposition de principe : socialistes et écologistes", min: -10, max: 2, step: 0.5, ref: -2.5, fmt: v => signed(v), note: null },
     { sec: "assemblee", id: "b_liot", label: "Opposition de principe : indépendants", min: -10, max: 2, step: 0.5, ref: -1, fmt: v => signed(v), note: null },
@@ -864,6 +979,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   // opt.path : politique votée année par année (mandat). Sans path, la politique de P vaut pour toutes les années.
   // opt.shocks : chocs tirés au hasard ; opt.force : années votées par 49.3 ; opt.upto : dernière année simulée.
   // opt.censure : { year, votes } si l'Assemblée a renversé le gouvernement sur un budget.
+  // opt.picks : option retenue pour le dossier de chaque année.
   function simulate(P, opt = {}) {
     const upto = opt.upto ?? LAST;
     const R = { ...P, ...REF_POLICY };
@@ -871,7 +987,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       spread: [], rate: [], anger: [], u: [], notch: [], groups: [], per: [], events: [], defeat: null, won: {} };
     let Ypot = Y0, D = D0, rEff = I0 / D0, gap = 0, impPrev = 0, attackBonus = 0, price = 1;
     let streakUp = 0, inMouv = false, ecbAnnounced = false, ecbRefused = false, debtFell = false, outPDE = false, fined = false;
-    const accP = newAcc(), accR = newAcc();
+    const accP = newAcc(), accR = newAcc(), durable = {};
     const ev = (year, kind, title, detail) => o.events.push({ year, kind, title, detail });
 
     for (const t of YEARS) {
@@ -890,6 +1006,11 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       s.cat.autres += extra; sRef.cat.autres += extra;
       const tx = taxes(on ? Q : R);
       const pn = on ? pain(Q, s, sRef, k, tx) : NOPAIN;
+      // Dossiers tranchés : leur dépense s'ajoute après la colère des leviers, qui ne doit pas la compter
+      const pick = on && opt.picks ? opt.picks[t] : null;
+      if (pick && pick.mdFrom) durable[pick.cat || "autres"] = (durable[pick.cat || "autres"] || 0) + pick.mdFrom;
+      if (on) for (const c in durable) s.cat[c] += durable[c] * k;
+      if (pick && pick.md) s.cat[pick.cat || "autres"] += pick.md * k;
       const dRev = sum(tx.cat) * k;
       const imp = ((sum(s.cat) - sum(sRef.cat)) - P.taxMult * dRev) / Ypot;
       if (on && !o.defeat) shocks.forEach(x => ev(t, x.kind, x.title, x.detail));
@@ -926,7 +1047,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       gap = P.persist * gap + P.mult * (imp - impPrev) + sh("gdp")
         + (P.evRec && t === 2028 ? -0.02 : 0)
         + (attack ? -0.01 : 0)
-        + (n > 0 && angerPrev > P.ruleMouv ? -P.strikeCost / 100 : 0);
+        + (n > 0 && angerPrev > P.ruleMouv ? -P.strikeCost / 100 : 0)
+        + (pick && pick.gdp || 0);
       impPrev = imp;
       const Y = Ypot * (1 + gap);
 
@@ -947,7 +1069,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       // 4. La rue
       const u = P.u0 - P.okun * 100 * gap + P.allegJobs * Math.max(0, on ? tx.mech.alleg : 0);
       const target = P.anger0 + pn.street + P.uWeight * Math.max(0, u - 7.5) + sh("anger") + (forced ? P.force493Anger : 0);
-      const anger = n === 0 ? P.anger0 : clamp(P.inertia * angerPrev + (1 - P.inertia) * target, 0, 100);
+      const anger = n === 0 ? P.anger0 : clamp(P.inertia * angerPrev + (1 - P.inertia) * target + (pick && pick.anger || 0), 0, 100);
       const notch = n === 0 ? 0 : Math.min(RATINGS.length - 1, Math.max(0, Math.floor((spread - NOTCH0) / P.notchWidth)));
 
       o.Y.push(Y); o.sp.push({ ...s.cat, int: interest }); o.spTot.push(spTot + interest);
@@ -1033,15 +1155,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   const GOVS = { centre: ["centre", "lr"], gauche: ["lfi", "ps"], rn: ["rn", "lr"] };
   const POS_LABEL = { pour: "Pour", abst: "Abstention", contre: "Contre", censure: "Censure" };
   // Le jugement porte sur la politique tenue jusqu'en 2030, sans hasard : les groupes votent sur l'effet à terme.
-  function assembly(Q, gov, seats, nego) {
+  function assembly(Q, gov, seats, nego, bonus = {}) {
     const S = simulate(Q), R = simulate({ ...Q, ...REF_POLICY }), i = idx(2030);
     const groups = S.groups[i] || {}, saved = R.defR[i] - S.defR[i];
     const out = { blocs: [], pour: 0, abst: 0, contre: 0, censure: 0 };
     BLOCS.forEach(b => {
       const inGov = gov.includes(b.id);
       const base = inGov ? Q.govLoyalty : Q["b_" + b.id];
-      let score = base + b.hawk * saved + (nego && nego[b.id] ? Q.negoGain : 0);
-      const parts = [];
+      let score = base + b.hawk * saved + (nego && nego[b.id] ? Q.negoGain : 0) + (bonus[b.id] || 0);
+      const parts = bonus[b.id] ? [["dossier", bonus[b.id]]] : [];
       for (const g in groups) { const c = -(b.w[g] || 0) * groups[g] * Q.kPain; score += c; if (Math.abs(c) >= 0.3) parts.push([g, c]); }
       if (Math.abs(b.hawk * saved) >= 0.3) parts.push(["deficit", b.hawk * saved]);
       parts.sort((a, c) => a[1] - c[1]);
@@ -1070,6 +1192,12 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     }
     return out;
   }
+  // Flux de hasard séparé de celui des chocs : ajouter les dossiers ne change pas les chocs d'une graine donnée
+  function drawDossiers(seed, freq) {
+    const r = rng(seed ^ 0x5bd1e995), out = {}, pool = DOSSIERS.map(d => d.id);
+    for (let y = FIRST + 1; y <= LAST && pool.length; y++) if (r() < freq) out[y] = pool.splice(Math.floor(r() * pool.length), 1)[0];
+    return out;
+  }
   let state = { ...REF };
   let game = null;
   let view = "mandat", activeTab = "rec", pickYear = 2030;
@@ -1077,13 +1205,18 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   function newGame() {
     const seed = Math.floor(Math.random() * 1e9);
     game = { seed, shocks: drawShocks(seed, state.shockFreq), year: FIRST, path: {}, force: {}, capital: state.capital0, over: null,
-      gov: GOVS[state.gov] || GOVS.centre, govKey: state.gov, seats: { ...SEATS0 }, nego: {}, extra: [] };
+      gov: GOVS[state.gov] || GOVS.centre, govKey: state.gov, seats: { ...SEATS0 }, nego: {}, extra: [],
+      dossiers: drawDossiers(seed, state.dossierFreq), picks: {}, lastDiss: 2024 };
     draftPolicy = null;
     if (lastPlay === "mandat") Object.assign(state, REF_POLICY);
   }
   const inForce = () => game.year === FIRST ? REF_POLICY : game.path[game.year - 1];
   const played = () => game.over && game.over.type !== "fin" ? game.over.year : game.year - 1;
-  const gameOpt = () => ({ path: game.path, shocks: game.shocks, force: game.force, upto: played(), censure: game.over && game.over.type === "censure" ? game.over : null });
+  const picksOf = () => Object.fromEntries(Object.entries(game.picks).map(([y, j]) => [y, DOSSIER_BY_ID[game.dossiers[y]].opts[j]]));
+  const gameOpt = () => ({ path: game.path, shocks: game.shocks, force: game.force, picks: picksOf(), upto: played(), censure: game.over && game.over.type === "censure" ? game.over : null });
+  const dossierNow = () => game && !game.over && game.dossiers[game.year] ? DOSSIER_BY_ID[game.dossiers[game.year]] : null;
+  const pending = () => !!dossierNow() && game.picks[game.year] == null;
+  const voteBonus = () => { const d = dossierNow(); return d && game.picks[game.year] != null ? d.opts[game.picks[game.year]].vote || {} : {}; };
   const negoSpent = () => Object.keys(game.nego).length * state.negoCost;
   const lc = (t) => /^[A-Z]{2}/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
   const blocLabel = (id) => lc(BLOCS.find(b => b.id === id).label);
@@ -1102,7 +1235,8 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   }
   function vote(force) {
     if (!game || game.over) return;
-    const A = assembly(state, game.gov, game.seats, game.nego);
+    if (pending()) return;
+    const A = assembly(state, game.gov, game.seats, game.nego, voteBonus());
     if (!force && !A.passes) return;
     const y = game.year;
     game.capital -= negoSpent();
@@ -1121,7 +1255,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       note(y, "warn", `Budget ${y} adopté par le 49.3`, `Faute de majorité, le gouvernement engage sa responsabilité. La motion de censure ne réunit que ${f0(A.censure)} voix sur ${MAJ}${who.length ? ` (${who.join(", ")})` : ""}. La colère monte de ${f0(state.force493Anger)} points.`);
     }
     else note(y, "good", `Budget ${y} voté par l'Assemblée`, `${f0(A.pour)} pour, ${f0(A.contre)} contre, ${f0(A.abst)} abstentions.`);
-    const res = simulate(state, { path: game.path, shocks: game.shocks, force: game.force, upto: y });
+    const res = simulate(state, { path: game.path, shocks: game.shocks, force: game.force, picks: picksOf(), upto: y });
     if (res.defeat) { game.over = res.defeat; }
     else {
       const i = idx(y);
@@ -1133,17 +1267,60 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     }
     save(); syncInputs(); update();
   }
+  // Déplace des sièges entre la coalition et l'opposition, au prorata des groupes. swing < 0 : la coalition en perd.
+  function shiftSeats(swing) {
+    const opp = BLOCS.filter(b => !game.gov.includes(b.id)), mine = BLOCS.filter(b => game.gov.includes(b.id));
+    const total = (list) => list.reduce((a, b) => a + game.seats[b.id], 0);
+    swing = clamp(swing, -total(mine), total(opp));
+    const move = (list, n) => {
+      const tot = total(list); let left = n;
+      list.forEach((b, j) => { const d = j === list.length - 1 ? left : Math.round(n * game.seats[b.id] / tot); game.seats[b.id] += d; left -= d; });
+    };
+    if (swing > 0) { move(opp, -swing); move(mine, swing); } else if (swing < 0) { move(mine, swing); move(opp, -swing); }
+    return swing;
+  }
+  const govSeats = () => game.gov.reduce((a, id) => a + game.seats[id], 0);
+  const seatsLine = () => { const t = govSeats(); return `La coalition compte ${f0(t)} députés sur ${SEATS}, ${t >= MAJ ? "une majorité absolue." : `${f0(MAJ - t)} de moins que la majorité absolue.`}`; };
   // Après une présidentielle gagnée, le président dissout : sa coalition gagne des sièges si la colère est basse.
   function legislatives(y, anger) {
-    const opp = BLOCS.filter(b => !game.gov.includes(b.id)), mine = BLOCS.filter(b => game.gov.includes(b.id));
-    const oppSeats = opp.reduce((a, b) => a + game.seats[b.id], 0), mySeats = SEATS - oppSeats;
-    const swing = clamp(Math.round(state.legSwing * (state.ruleElection - anger)), 0, oppSeats);
-    let left = swing;
-    opp.forEach((b, j) => { const take = j === opp.length - 1 ? left : Math.round(swing * game.seats[b.id] / oppSeats); game.seats[b.id] -= take; left -= take; });
-    left = swing;
-    mine.forEach((b, j) => { const add = j === mine.length - 1 ? left : Math.round(swing * game.seats[b.id] / mySeats); game.seats[b.id] += add; left -= add; });
-    const total = mySeats + swing;
-    note(y, "good", `Législatives ${y} : votre coalition gagne ${f0(swing)} sièges`, `Le président élu dissout l'Assemblée. La coalition compte ${f0(total)} députés sur ${SEATS}, ${total >= MAJ ? "une majorité absolue." : `toujours ${f0(MAJ - total)} de moins que la majorité absolue.`}`, true);
+    const swing = shiftSeats(Math.max(0, Math.round(state.legSwing * (state.ruleElection - anger))));
+    game.lastDiss = y + 1;
+    note(y, "good", `Législatives ${y} : votre coalition gagne ${f0(swing)} sièges`, `Le président élu dissout l'Assemblée. ${seatsLine()}`, true);
+  }
+  // Dissolution décidée par le joueur, avant le budget : sans élan présidentiel, la référence est le climat de 2024. Plus un aléa.
+  const DISS_NOISE = 12;
+  const canDissolve = () => !!game && !game.over && game.year > game.lastDiss && game.capital - negoSpent() >= state.dissCost;
+  function dissForecast() {
+    const res = simulate(state, gameOpt());
+    const anger = res.anger[res.anger.length - 1], center = state.legSwing * (state.anger0 - anger);
+    return { anger, center, lo: Math.round(center - DISS_NOISE), hi: Math.round(center + DISS_NOISE) };
+  }
+  function dissolve() {
+    if (!canDissolve()) return;
+    const F = dissForecast(), y = game.year;
+    const swing = shiftSeats(Math.round(F.center + (rng(game.seed ^ (y * 7919))() * 2 - 1) * DISS_NOISE));
+    game.capital = clamp(game.capital - state.dissCost, 0, 150);
+    game.lastDiss = y; game.nego = {};
+    note(y, swing >= 0 ? "good" : "bad", `Dissolution : votre coalition ${swing >= 0 ? "gagne" : "perd"} ${f0(Math.abs(swing))} sièges`,
+      `Vous dissolvez l'Assemblée avant le budget ${y}, avec une colère à ${f0(F.anger)}/100. ${seatsLine()}`);
+  }
+  function choose(j) {
+    const d = dossierNow(); if (!d || !pending()) return;
+    const o = d.opts[j], y = game.year;
+    game.picks[y] = j;
+    if (o.capital) game.capital = clamp(game.capital + o.capital, 0, 150);
+    note(y, "info", d.title, `Vous choisissez : ${lc(o.label)}. ${o.text}`);
+  }
+  // Effets lisibles d'une option, pour les pastilles
+  function fxChips(o) {
+    const out = [];
+    if (o.mdFrom) out.push([o.mdFrom > 0 ? "bad" : "good", `${signed(o.mdFrom, f1)} Md€ par an`]);
+    if (o.md) out.push([o.md > 0 ? "bad" : "good", `${signed(o.md, f1)} Md€ cette année`]);
+    if (o.anger) out.push([o.anger > 0 ? "bad" : "good", `colère ${signed(o.anger)}`]);
+    if (o.gdp) out.push(["bad", `activité ${signed(o.gdp * 100, f1)} %`]);
+    if (o.capital) out.push([o.capital > 0 ? "good" : "bad", `capital ${signed(o.capital)}`]);
+    Object.entries(o.vote || {}).forEach(([id, v]) => out.push([v > 0 ? "good" : "warn", `${BLOCS.find(b => b.id === id).label} ${signed(v, f1)}`]));
+    return out.map(([c, t]) => `<span class="delta ${c}">${t}</span>`).join("");
   }
 
   // ---------- Construction de l'interface ----------
@@ -1230,7 +1407,20 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     else if (act === "undo") { Object.assign(state, inForce()); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "reset") { Object.assign(state, REF_POLICY); clearPreset(); syncInputs(); update(); save(); }
     else if (act === "new") startNew();
+    else if (act === "dossier") $("dossierPanel").scrollIntoView?.({ block: "center", behavior: smooth() });
   });
+  $("dOpts").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-pick]"); if (!b || b.disabled) return;
+    choose(+b.dataset.pick); update(); save();
+  });
+  let dissArm = false;
+  $("asmFoot").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-diss]"); if (!b || b.disabled) return;
+    const a = b.dataset.diss;
+    if (a === "arm") dissArm = true; else if (a === "cancel") dissArm = false; else { dissArm = false; dissolve(); }
+    update(); save();
+  });
+  const smooth = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
   $("blocs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-nego]"); if (!b || b.disabled || !game || game.over) return;
     const id = b.dataset.nego;
@@ -1396,7 +1586,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       <div class="vb-legend"><span><i class="d-pour"></i>Pour ${f0(A.pour)}</span><span><i class="d-abst"></i>Abstention ${f0(A.abst)}</span><span><i class="d-contre"></i>Contre ${f0(A.contre - A.censure)}</span><span><i class="d-censure"></i>Censure ${f0(A.censure)}</span></div>
     </div>`;
   }
-  const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : GROUPS[g].toLowerCase();
+  const PART_LABEL = (g) => g === "deficit" ? "déficit évité" : g === "dossier" ? "dossier de l'année" : GROUPS[g].toLowerCase();
   const POS_BADGE = { pour: "ok", abst: "muted", contre: "warn", censure: "ko" };
   function renderAssembly(A, mandat) {
     const gov = mandat ? game.gov : (GOVS[state.gov] || GOVS.centre);
@@ -1425,6 +1615,28 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
         ${nego ? `<div class="b-nego">${nego}</div>` : ""}
       </div>`;
     }).join("");
+    const foot = $("asmFoot");
+    foot.hidden = !canNego;
+    if (!canNego) return;
+    if (dissArm && canDissolve()) {
+      const F = dissForecast();
+      foot.innerHTML = `<p>Avec une colère à <b>${f0(F.anger)}/100</b>, des élections donneraient à votre coalition entre <b>${signed(F.lo)}</b> et <b>${signed(F.hi)} sièges</b>. Coût : ${f0(state.dissCost)} points de capital. Les accords en cours sont perdus.</p>
+        <div class="acts"><button type="button" class="btn btn-destructive btn-sm" data-diss="go">Dissoudre</button><button type="button" class="btn btn-ghost btn-sm" data-diss="cancel">Renoncer</button></div>`;
+    } else {
+      const why = game.year <= game.lastDiss ? "Pas de nouvelle dissolution dans l'année qui suit des législatives." : avail < state.dissCost ? `Il faut ${f0(state.dissCost)} points de capital pour dissoudre.` : `Des élections anticipées rebattent les sièges. Votre coalition en gagne si la colère est sous ${f0(state.anger0)}/100, le climat de 2024, et en perd au-dessus.`;
+      foot.innerHTML = `<p>${why}</p><div class="acts"><button type="button" class="btn btn-outline btn-sm" data-diss="arm" ${canDissolve() ? "" : "disabled"}>Dissoudre l'Assemblée</button></div>`;
+    }
+  }
+  function renderDossier(mandat) {
+    const d = mandat ? dossierNow() : null, panel = $("dossierPanel");
+    panel.hidden = !d;
+    if (!d) return;
+    const pick = game.picks[game.year];
+    $("dKicker").textContent = pick == null ? `Dossier de l'année ${game.year} · à trancher avant le budget` : `Dossier de l'année ${game.year} · tranché`;
+    $("dTitle").textContent = d.title;
+    $("dText").textContent = d.text;
+    $("dOpts").innerHTML = d.opts.map((o, j) => `<button type="button" class="d-opt" data-pick="${j}" aria-pressed="${pick === j}" ${pick != null ? "disabled" : ""}>
+      <span class="d-opt-title">${o.label}</span><span class="d-opt-text">${o.text}</span><span class="d-fx">${fxChips(o) || `<span class="delta neutral">sans effet chiffré</span>`}</span></button>`).join("");
   }
 
   // ---------- Rendu ----------
@@ -1462,7 +1674,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     const over = mandat ? game.over : { type: P.defeat ? P.defeat.type : "fin", year: P.defeat ? P.defeat.year : LAST };
     const finished = !mandat || !!game.over;
     const cache = {};
-    const A = mandat ? assembly(state, game.gov, game.seats, game.over ? {} : game.nego) : assembly(state, GOVS[state.gov] || GOVS.centre, SEATS0, {});
+    const A = mandat ? assembly(state, game.gov, game.seats, game.over ? {} : game.nego, game.over ? {} : voteBonus()) : assembly(state, GOVS[state.gov] || GOVS.centre, SEATS0, {});
     const prev = mandat ? (game.over ? inForceOrLast() : inForce()) : REF_POLICY;
 
     // Leviers : état, valeurs, pastilles
@@ -1503,6 +1715,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
       foot.innerHTML = `<div class="foot-row"><span>${changedL ? `${changedL} levier${changedL > 1 ? "s" : ""} modifié${changedL > 1 ? "s" : ""}` : "Aucun levier modifié"}</span><button class="textbtn" data-act="reset" type="button">Remettre les leviers à zéro</button></div>`;
     } else if (game.over) {
       foot.innerHTML = `<div class="foot-row"><span>Partie terminée.</span><button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button></div>`;
+    } else if (pending()) {
+      foot.innerHTML = `<div class="foot-cost">Budget ${game.year}. Avant le vote, tranchez le dossier de l'année : <b class="warn">«&nbsp;${dossierNow().title}&nbsp;»</b>.</div>
+        <div class="foot-row"><button class="btn btn-outline" data-act="dossier" type="button">Voir le dossier</button></div>`;
     } else {
       const verdictTxt = A.passes ? `<b class="ok">adopté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre)` : A.falls ? `<b class="ko">rejeté</b>, et une censure réunirait ${f0(A.censure)} voix sur ${MAJ}` : `<b class="warn">rejeté</b> (${f0(A.pour)} pour, ${f0(A.contre)} contre). Censure : ${f0(A.censure)} voix sur ${MAJ}`;
       foot.innerHTML = `<div class="foot-cost">Budget ${game.year}${changedL ? ` · ${changedL} mesure${changedL > 1 ? "s" : ""} nouvelle${changedL > 1 ? "s" : ""}` : ""}. Au vote : ${verdictTxt}.</div>
@@ -1577,6 +1792,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     $("verdictActions").innerHTML = mandat && game.over ? `<button class="btn btn-primary" data-act="new" type="button">Nouvelle partie</button>` : "";
 
     renderAssembly(A, mandat);
+    renderDossier(mandat);
 
     // Journal
     const evs = mandat ? game.extra.filter(e => e.year <= lastY).concat(P.events).map((e, j) => [e, j]).sort((a, b) => a[0].year - b[0].year || (a[0].kind === "end") - (b[0].kind === "end") || !!a[0].late - !!b[0].late || a[1] - b[1]).map(x => x[0]) : P.events;
@@ -1694,9 +1910,60 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     ["Aides personnelles au logement", "≈ 15 Md€, 5,8 millions de foyers", "Comptes du logement, DREES", "https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse/panoramas-de-la-drees/minima-sociaux-et-prestations-sociales", "est"],
     ["Aides publiques aux entreprises", "211 Md€ au total ; ≈ 30 Md€ de subventions ciblables", "Sénat, commission d'enquête de 2025 (total) ; part ciblable estimée", "https://www.senat.fr/rap/r24-808-1/r24-808-1.html", "est"],
     ["Composition de l'Assemblée", "577 sièges en six blocs : 88, 104, 38, 161, 47, 139", "Assemblée nationale, groupes politiques (arrondi, simplifié)", "https://www2.assemblee-nationale.fr/instances/liste/groupes_politiques/effectif", "est"],
+    ["Dossiers de l'année", "12 arbitrages, de 0,8 à 4 Md€", "Ordres de grandeur inspirés de crises récentes, non chiffrés au cas par cas", null, "est"],
     ["Comportement des groupes, colère, capital, seuils", "voir le moteur", "Choix de conception, adossés à des précédents", null, "est"]
   ];
   $("srcRows").innerHTML = SRC.map(([a, b, c, url, st]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">${c}</a>` : c}</td><td><span class="tag ${st}">${st === "ok" ? "sourcé" : "estimation"}</span></td></tr>`).join("");
+
+  // ---------- Tutoriel ----------
+  // target : élément à éclairer. S'il est caché (dossier absent cette année), l'étape s'affiche sans repère.
+  const TOUR = [
+    { target: null, title: "Bienvenue à Matignon", text: () => `Vous avez <b>dix budgets</b>, de 2026 à 2035, pour redresser les comptes publics sans que le gouvernement tombe. Ce tour prend une minute. Vous pourrez le relancer avec le bouton « Comment jouer ».` },
+    { target: "kpis", title: "Le tableau de bord", text: () => `Statut, capital politique, déficit, dette et colère, pour la dernière année votée. Un chiffre passe en orange à l'approche d'un seuil, en rouge quand il est franchi.` },
+    { target: "levers", title: "Les leviers", text: () => `${LEVERS.length} leviers en deux onglets, recettes et dépenses. Le trait gris marque la valeur en vigueur. Sous chaque levier, deux pastilles : ce que la mesure change au déficit de 2030, et la colère qu'elle provoque. Les politiques types, en haut, servent de point de départ.` },
+    { target: "dossierPanel", title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose parfois un arbitrage : une grève, une crue, une usine qui ferme. Il faut le trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
+    { target: "assemblyPanel", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
+    { target: "consoleFoot", title: "Le vote", text: () => `Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
+    { target: "journalPanel", title: "Les trois juges", text: () => `Après chaque vote, le journal raconte l'année. Les marchés relèvent vos taux si la dette dérape, la rue se soulève si vous frappez trop fort, Bruxelles sanctionne un déficit au-dessus de ${smart(state.ruleUE)} %. Vous perdez sous tutelle du FMI, renversé par la rue ou par la censure, ou battu à la présidentielle.` },
+    { target: "viewbar", title: "Bac à sable et moteur", text: () => `Le bac à sable applique une politique fixe sur dix ans, sans hasard, pour comparer des stratégies. Le moteur montre les ${ENGINE.length} hypothèses du modèle, toutes réglables. À vous de jouer.` }
+  ];
+  const TOUR_KEY = "faillite-ou-revolution:tour";
+  let tourAt = -1;
+  function tourShow(i) {
+    document.querySelectorAll(".tour-target").forEach(n => n.classList.remove("tour-target"));
+    if (i < 0 || i >= TOUR.length) {
+      tourAt = -1; $("tour").hidden = true;
+      try { localStorage.setItem(TOUR_KEY, "1"); } catch (e) { /* stockage indisponible : le tour se relancera */ }
+      return;
+    }
+    tourAt = i;
+    const step = TOUR[i], node = step.target && $(step.target);
+    $("tourStep").textContent = `${i + 1} / ${TOUR.length}`;
+    $("tourTitle").textContent = step.title;
+    $("tourText").innerHTML = step.text();
+    $("tourDots").innerHTML = TOUR.map((_, j) => `<i class="${j === i ? "on" : ""}"></i>`).join("");
+    $("tour").querySelector('[data-tour="prev"]').disabled = i === 0;
+    $("tour").querySelector('[data-tour="next"]').textContent = i === TOUR.length - 1 ? "Jouer" : "Suivant";
+    $("tour").hidden = false;
+    if (node && !node.hidden && node.offsetParent !== null) { node.classList.add("tour-target"); node.scrollIntoView?.({ block: "center", behavior: smooth() }); }
+    else if (i === 0) window.scrollTo({ top: 0 });
+  }
+  function tourStart() {
+    if (view === "engine") { setView(lastPlay); update(); }
+    tourShow(0);
+  }
+  $("tourBtn").addEventListener("click", tourStart);
+  $("tour").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tour]"); if (!b) return;
+    const a = b.dataset.tour;
+    tourShow(a === "close" ? -1 : a === "prev" ? tourAt - 1 : tourAt + 1);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (tourAt < 0 || e.target.closest("input, select, textarea")) return;
+    if (e.key === "Escape") tourShow(-1);
+    else if (e.key === "ArrowRight") tourShow(tourAt + 1);
+    else if (e.key === "ArrowLeft" && tourAt > 0) tourShow(tourAt - 1);
+  });
 
   // ---------- Sauvegarde et démarrage ----------
   const KEY = "faillite-ou-revolution:v6";
@@ -1705,7 +1972,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
   function restore(data) {
     if (!data || !data.state) return false;
     state = { ...REF, ...data.state };
-    game = data.game || null; activeTab = data.activeTab || "rec";
+    game = data.game || null;
+    if (game && !game.dossiers) Object.assign(game, { dossiers: {}, picks: {}, lastDiss: 2024 });
+    activeTab = data.activeTab || "rec";
     sandboxPolicy = data.sandboxPolicy || null; draftPolicy = data.draftPolicy || null;
     view = data.view || "mandat"; lastPlay = data.lastPlay || "mandat";
     return !!game;
@@ -1716,6 +1985,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 28px; max-width: 7
     if (!ok) { newGame(); view = location.hash === "#moteur" ? "engine" : location.hash === "#bac-a-sable" ? "sandbox" : "mandat"; lastPlay = view === "engine" ? "mandat" : view; }
     setView(view);
     renderTabs(); syncInputs(); update();
+    let seen = true;
+    try { seen = !!localStorage.getItem(TOUR_KEY); } catch (e) { seen = true; }
+    if (!seen && !(data && data.state)) tourShow(0);
   }
   window.claude?.hot?.snapshot?.(snapshot);
   window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
