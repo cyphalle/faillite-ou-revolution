@@ -1425,7 +1425,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   $("srcRows").innerHTML = SRC.map(([a, b, c, url, st]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">${c}</a>` : c}</td><td><span class="tag ${st}">${st === "ok" ? "sourcé" : "estimation"}</span></td></tr>`).join("");
 
   // ---------- Sauvegarde et démarrage ----------
-  const KEY = "faillite-ou-revolution:v4";
+  const KEY = "faillite-ou-revolution:v5";
   function snapshot() { return { state, game, view, lastPlay, activeTab, sandboxPolicy, draftPolicy }; }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (e) { /* stockage indisponible : la partie vit le temps de la page */ } }
   function restore(data) {
