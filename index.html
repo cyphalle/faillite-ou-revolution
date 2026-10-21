@@ -246,6 +246,8 @@ th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line
 th { font-family: var(--f-data); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
 td.v { font-family: var(--f-data); white-space: nowrap; }
 .tag { font-family: var(--f-data); font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+.tag.ok { background: var(--good-soft); color: var(--good); }
+td a { color: var(--accent); }
 .limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; display: grid; gap: 4px; max-width: 78ch; }
 footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 75ch; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -279,15 +281,15 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   <header class="hero">
     <div class="eyebrow">Finances publiques · mandat 2026 → 2035</div>
     <h1>Faillite ou <span>Révolution</span></h1>
-    <p class="lede">La France dépense <strong>1 670 milliards d'euros</strong> par an et en prélève <strong>1 500</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
+    <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
       <span>Départ 2024</span>
-      <span>PIB <b>2 920 Md€</b></span>
-      <span>Dépenses <b>1 670</b></span>
-      <span>Recettes <b>1 502</b></span>
-      <span>Déficit <b>168 (5,8 %)</b></span>
-      <span>Dette <b>3 300 (113 %)</b></span>
-      <span>Intérêts <b>60</b></span>
+      <span>PIB <b>2 935 Md€</b></span>
+      <span>Dépenses <b>1 673</b></span>
+      <span>Recettes <b>1 504</b></span>
+      <span>Déficit <b>169 (5,8 %)</b></span>
+      <span>Dette <b>3 306 (113 %)</b></span>
+      <span>Intérêts <b>58</b></span>
       <span>Note <b>A+</b></span>
     </div>
   </header>
@@ -388,7 +390,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       <div class="panel">
         <details class="sources">
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.4. Tous les chiffres ci-dessous sont des ordres de grandeur 2024 tirés de mémoire. Ils seront remplacés un par un par les données publiées (INSEE, PLF, COR, Agence France Trésor, barèmes IPP).</p>
+          <p class="sub" style="margin-top:10px">Version 0.5. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -425,11 +427,13 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 <script>
 (() => {
   // ---------- Données de départ (2024, Md€, de mémoire, à vérifier) ----------
-  const Y0 = 2920, D0 = 3300, I0 = 60, POP = 68.4, SPREAD0 = 80;
+  const Y0 = 2935, D0 = 3306, I0 = 58, POP = 68.4, SPREAD0 = 65, NOTCH0 = 130;
   const RATINGS = ["A+", "A", "A−", "BBB+", "BBB", "BBB−", "BB+", "BB", "B"];
   const JUNK = 6;
   const FIRST = 2026, LAST = 2035, ELECTIONS = [2027, 2032];
-  const REV0 = { cotis: 420, tva: 210, csg: 155, ir: 95, is: 60, local: 55, energie: 35, autres: 222, nonfisc: 250 };
+  // Taux allemand observé avant le début de la partie (moyennes annuelles, BCE)
+  const BUND_HIST = { 2024: 2.3, 2025: 2.6 };
+  const REV0 = { cotis: 432, tva: 208, csg: 162, ir: 87, is: 57, local: 57, energie: 39, autres: 212, nonfisc: 250 };
   const REV_LABELS = {
     cotis: "Cotisations sociales", tva: "TVA", csg: "CSG et CRDS", ir: "Impôt sur le revenu et prélèvements sur le capital",
     is: "Impôt sur les sociétés", local: "Impôts locaux (foncier, habitation…)", energie: "Taxes sur l'énergie",
@@ -477,43 +481,43 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
   // ---------- Leviers de politique ----------
   const LEVERS = [
-    { id: "tva", sec: "rec-conso", label: "TVA, taux normal", min: 15, max: 25, step: 0.5, ref: 20, fmt: pct, note: "Deux tiers de la consommation. 1 point ≈ 10,5 Md€." },
-    { id: "tvaInt", sec: "rec-conso", label: "TVA, taux intermédiaire", min: 5.5, max: 20, step: 0.5, ref: 10, fmt: pct, note: "Restauration, travaux, transports. 1 point ≈ 1,8 Md€." },
-    { id: "tvaRed", sec: "rec-conso", label: "TVA, taux réduit", min: 2.5, max: 10, step: 0.5, ref: 5.5, fmt: pct, note: "Alimentation, énergie, livres. 1 point ≈ 3 Md€. Le taux de 2,1 % (médicaments, presse) ne bouge pas." },
-    { id: "carbone", sec: "rec-conso", label: "Taxe carbone sur l'énergie", min: 0, max: 150, step: 5, ref: 45, fmt: v => `${f0(v)} € / tonne`, note: "Gelée à 44,6 €/t depuis 2018, après les gilets jaunes. 10 €/t ≈ 2,5 Md€." },
+    { id: "tva", sec: "rec-conso", label: "TVA, taux normal", min: 15, max: 25, step: 0.5, ref: 20, fmt: pct, note: "Deux tiers de la consommation. 1 point ≈ 8,9 Md€." },
+    { id: "tvaInt", sec: "rec-conso", label: "TVA, taux intermédiaire", min: 5.5, max: 20, step: 0.5, ref: 10, fmt: pct, note: "Restauration, travaux, transports. 1 point ≈ 1,9 Md€." },
+    { id: "tvaRed", sec: "rec-conso", label: "TVA, taux réduit", min: 2.5, max: 10, step: 0.5, ref: 5.5, fmt: pct, note: "Alimentation, énergie, livres. 1 point ≈ 2,4 Md€. Le taux de 2,1 % (médicaments, presse) ne bouge pas." },
+    { id: "carbone", sec: "rec-conso", label: "Taxe carbone sur l'énergie", min: 0, max: 150, step: 5, ref: 45, fmt: v => `${f0(v)} € / tonne`, note: "Gelée à 44,6 €/t depuis 2018, après les gilets jaunes. 10 €/t ≈ 2 Md€ (estimation)." },
 
-    { id: "csg", sec: "rec-revenus", label: "CSG, tous les taux", min: -3, max: 3, step: 0.25, ref: 0, fmt: sPt, note: "9,2 % sur les salaires, 8,3 % sur la plupart des pensions. 1 point ≈ 15 Md€." },
+    { id: "csg", sec: "rec-revenus", label: "CSG, tous les taux", min: -3, max: 3, step: 0.25, ref: 0, fmt: sPt, note: "9,2 % sur les salaires, 8,3 % sur la plupart des pensions. 1 point ≈ 17,5 Md€." },
     { id: "ir", sec: "rec-revenus", label: "Impôt sur le revenu, toutes les tranches", min: -5, max: 5, step: 0.5, ref: 0, fmt: sPt, note: null },
-    { id: "abatRet", sec: "rec-revenus", type: "toggle", label: "Supprimer l'abattement de 10 % des retraités", ref: false, note: "Les pensions bénéficient du même abattement que les salaires, sans frais professionnels. ≈ 4 Md€." },
-    { id: "th", sec: "rec-revenus", type: "toggle", label: "Rétablir la taxe d'habitation sur les résidences principales", ref: false, note: "Supprimée entre 2018 et 2023. ≈ 22 Md€, compensés aujourd'hui aux communes par l'État." },
+    { id: "abatRet", sec: "rec-revenus", type: "toggle", label: "Supprimer l'abattement de 10 % des retraités", ref: false, note: "Les pensions bénéficient du même abattement que les salaires, sans frais professionnels. ≈ 4,8 Md€." },
+    { id: "th", sec: "rec-revenus", type: "toggle", label: "Rétablir la taxe d'habitation sur les résidences principales", ref: false, note: "Supprimée entre 2018 et 2023. ≈ 19 Md€, compensés aujourd'hui aux communes par l'État." },
 
-    { id: "pfu", sec: "rec-capital", label: "Prélèvement forfaitaire sur le capital", min: 20, max: 45, step: 1, ref: 30, fmt: pct, note: "Dividendes, intérêts, plus-values. 1 point ≈ 0,6 Md€, très sensible à l'optimisation." },
-    { id: "succ", sec: "rec-capital", label: "Droits de succession et de donation", min: -50, max: 50, step: 5, ref: 0, fmt: sPct, note: "≈ 18 Md€. L'un des impôts les plus impopulaires, y compris chez ceux qui ne le paient pas." },
+    { id: "pfu", sec: "rec-capital", label: "Prélèvement forfaitaire sur le capital", min: 21.4, max: 45.4, step: 1, ref: 31.4, fmt: pct, note: "Dividendes, intérêts, plus-values : 31,4 % depuis la hausse de la CSG sur le capital en 2026. 1 point ≈ 1 Md€ (estimation), très sensible à l'optimisation." },
+    { id: "succ", sec: "rec-capital", label: "Droits de succession et de donation", min: -50, max: 50, step: 5, ref: 0, fmt: sPct, note: "≈ 21 Md€. L'un des impôts les plus impopulaires, y compris chez ceux qui ne le paient pas." },
     { id: "zucman", sec: "rec-capital", type: "toggle", label: "Impôt plancher de 2 % sur les patrimoines de plus de 100 M€", ref: false, note: "Populaire, mais les investisseurs le lisent comme un signal hostile. Rendement débattu : de 5 à 20 Md€." },
 
     { id: "is", sec: "rec-entreprises", label: "Impôt sur les sociétés", min: 15, max: 35, step: 0.5, ref: 25, fmt: pct, note: "1 point ≈ 2,4 Md€ avant réaction des entreprises." },
-    { id: "alleg", sec: "rec-entreprises", label: "Allègements de cotisations patronales", min: 0, max: 120, step: 5, ref: 100, fmt: v => `${f0(v)} % conservés`, note: "≈ 75 Md€ par an, surtout sur les bas salaires. Les réduire rapporte, au prix d'emplois peu qualifiés." },
-    { id: "cir", sec: "rec-entreprises", label: "Crédit d'impôt recherche", min: 0, max: 150, step: 10, ref: 100, fmt: v => `${f0(v)} % conservé`, note: "≈ 7,6 Md€, l'un des dispositifs les plus généreux de l'OCDE." },
-    { id: "niches", sec: "rec-entreprises", label: "Autres niches fiscales supprimées", min: 0, max: 50, step: 5, ref: 0, fmt: v => `${f0(v)} %`, note: "≈ 77 Md€ hors crédit d'impôt recherche : emploi à domicile, dons, investissement outre-mer, carburants professionnels…" },
+    { id: "alleg", sec: "rec-entreprises", label: "Allègements de cotisations patronales", min: 0, max: 120, step: 5, ref: 100, fmt: v => `${f0(v)} % conservés`, note: "≈ 78 Md€ par an, surtout sur les bas salaires. Les réduire rapporte, au prix d'emplois peu qualifiés." },
+    { id: "cir", sec: "rec-entreprises", label: "Crédit d'impôt recherche", min: 0, max: 150, step: 10, ref: 100, fmt: v => `${f0(v)} % conservé`, note: "≈ 7,9 Md€, l'un des dispositifs les plus généreux de l'OCDE." },
+    { id: "niches", sec: "rec-entreprises", label: "Autres niches fiscales supprimées", min: 0, max: 50, step: 5, ref: 0, fmt: v => `${f0(v)} %`, note: "≈ 75 Md€ hors crédit d'impôt recherche : emploi à domicile, dons, investissement outre-mer, carburants professionnels…" },
 
     { id: "fraude", sec: "rec-controle", label: "Lutte contre la fraude : recettes visées", min: 0, max: 15, step: 1, ref: 0, fmt: md, note: "Les estimations de la fraude fiscale et sociale varient du simple au double. Une part seulement se récupère (réglable dans le moteur)." },
 
-    { id: "age", sec: "dep-retraites", label: "Âge légal de départ à la retraite", min: 60, max: 67, step: 0.25, ref: 64, fmt: ageFmt, note: "64 ans : cible de la réforme de 2023, dont l'application a été suspendue (à vérifier). Le changement avance de 3 mois par an. 1 an ≈ 8,5 Md€ à terme." },
-    { id: "idxRet", sec: "dep-retraites", label: "Revalorisation des pensions", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Masse ≈ 395 Md€. 1 point sous l'inflation ≈ 4 Md€ de moins, cumulés chaque année." },
+    { id: "age", sec: "dep-retraites", label: "Âge légal de départ visé", min: 60, max: 67, step: 0.25, ref: 64, fmt: ageFmt, note: "Loi actuelle : 62 ans et 9 mois en 2026, la réforme de 2023 étant suspendue pour la génération 1964, puis retour progressif vers 64 ans. L'âge avance de 3 mois par an au plus. 1 an ≈ 8,5 Md€ à terme (estimation)." },
+    { id: "idxRet", sec: "dep-retraites", label: "Revalorisation des pensions", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Masse ≈ 408 Md€. 1 point sous l'inflation ≈ 4,1 Md€ de moins, cumulés chaque année." },
 
-    { id: "idxPrest", sec: "dep-social", label: "Revalorisation des prestations sociales", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Allocations familiales, RSA, AAH, aides au logement : ≈ 130 Md€." },
-    { id: "chom", sec: "dep-social", label: "Assurance chômage", min: -30, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 40 Md€ d'indemnisation. Se règle par la durée et le montant des droits." },
-    { id: "ondam", sec: "dep-social", label: "Hausse annuelle des dépenses de santé", min: 1, max: 5, step: 0.1, ref: 3, fmt: v => `${smart(v)} % par an`, note: "L'objectif national (ONDAM) ≈ 255 Md€. Vieillissement et innovation poussent vers 3 à 4 %." },
+    { id: "idxPrest", sec: "dep-social", label: "Revalorisation des prestations sociales", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Allocations familiales, RSA, AAH, aides au logement : ≈ 124 Md€." },
+    { id: "chom", sec: "dep-social", label: "Assurance chômage", min: -30, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 37 Md€ d'indemnisation. Se règle par la durée et le montant des droits." },
+    { id: "ondam", sec: "dep-social", label: "Hausse annuelle des dépenses de santé", min: 1, max: 5, step: 0.1, ref: 3, fmt: v => `${smart(v)} % par an`, note: "L'objectif national (ONDAM) ≈ 256 Md€. Vieillissement et innovation poussent vers 3 à 4 %." },
 
     { id: "point", sec: "dep-services", label: "Point d'indice des fonctionnaires", min: -1, max: 2, step: 0.1, ref: 0, fmt: vsInfl, note: "1 % de point d'indice ≈ 2,1 Md€." },
-    { id: "eff", sec: "dep-services", label: "Effectifs de la fonction publique", min: -5, max: 5, step: 0.5, ref: 0, fmt: sPct, note: "5,7 millions d'agents. 1 % ≈ 57 000 postes et 3,5 Md€. Effet étalé sur 3 ans." },
-    { id: "educ", sec: "dep-services", label: "Budget de l'enseignement", min: -15, max: 15, step: 1, ref: 0, fmt: sPct, note: "≈ 155 Md€. 1 Md€ ≈ 16 000 enseignants au coût complet." },
-    { id: "secu", sec: "dep-services", label: "Sécurité et justice", min: -15, max: 20, step: 1, ref: 0, fmt: sPct, note: "Police, gendarmerie, justice, prisons : ≈ 50 Md€." },
-    { id: "coll", sec: "dep-services", label: "Dépenses des collectivités locales", min: -1.5, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "≈ 290 Md€. L'État agit par les dotations et les règles d'encadrement." },
+    { id: "eff", sec: "dep-services", label: "Effectifs de la fonction publique", min: -5, max: 5, step: 0.5, ref: 0, fmt: sPct, note: "5,85 millions d'agents. 1 % ≈ 58 000 postes et 3,6 Md€. Effet étalé sur 3 ans." },
+    { id: "educ", sec: "dep-services", label: "Budget de l'enseignement", min: -15, max: 15, step: 1, ref: 0, fmt: sPct, note: "≈ 149 Md€. 1 Md€ ≈ 16 000 enseignants au coût complet." },
+    { id: "secu", sec: "dep-services", label: "Sécurité et justice", min: -15, max: 20, step: 1, ref: 0, fmt: sPct, note: "Police, gendarmerie, justice, prisons : ≈ 52 Md€." },
+    { id: "coll", sec: "dep-services", label: "Dépenses des collectivités locales", min: -1.5, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "≈ 330 Md€. L'État agit par les dotations et les règles d'encadrement." },
 
     { id: "invest", sec: "dep-avenir", label: "Investissement public supplémentaire", min: -20, max: 40, step: 1, ref: 0, fmt: v => v === 0 ? "inchangé" : `${signed(v)} Md€ par an`, note: "Transition écologique, réseaux, recherche. Il peut relever la croissance future : effet réglable dans le moteur." },
 
-    { id: "def", sec: "dep-monde", label: "Effort de défense visé", min: 1.5, max: 3.5, step: 0.1, ref: 1.9, fmt: v => `${smart(v)} % du PIB`, note: "≈ 55 Md€ aujourd'hui. L'OTAN demande au moins 2 %. L'effort bouge de 0,3 point par an au plus." },
+    { id: "def", sec: "dep-monde", label: "Effort de défense visé", min: 1.55, max: 3.55, step: 0.1, ref: 1.85, fmt: v => `${smart(v)} % du PIB`, note: "≈ 54 Md€, 1,85 % du PIB. L'OTAN demande au moins 2 %. L'effort bouge de 0,3 point par an au plus." },
     { id: "apd", sec: "dep-monde", label: "Aide publique au développement", min: -50, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 14 Md€, environ 0,5 % du revenu national. Peu visible, donc souvent coupée en premier." }
   ];
   const SEC_TITLES = {
@@ -542,17 +546,18 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
     { sec: "mandat", id: "force493Anger", label: "Colère provoquée par un 49.3", min: 0, max: 20, step: 1, ref: 8, fmt: v => `${f0(v)} points`, note: "Passer en force vide le capital et irrite l'opinion." },
     { sec: "mandat", id: "shockFreq", label: "Fréquence des chocs", min: 0, max: 3, step: 0.25, ref: 1, fmt: v => `×${smart(v)}`, note: "S'applique à la partie suivante. À ×1 : environ une récession tous les onze ans, une crise de l'énergie tous les quatorze." },
 
-    { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 5, step: 0.1, ref: 2.6, fmt: pct, note: "Le taux de référence en zone euro. La France emprunte à ce taux plus son écart." },
-    { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 150, step: 5, ref: 50, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part." },
-    { sec: "marches", id: "prime", label: "Par point de dette au-delà de 113 %", min: 0, max: 8, step: 0.5, ref: 2, fmt: v => `${smart(v)} pb`, note: "La littérature trouve de 2 à 5 pb par point pour les pays de la zone euro." },
+    { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 6, step: 0.1, ref: 3.4, fmt: pct, note: "Le taux de référence en zone euro : 3,4 % en octobre 2026. La France emprunte à ce taux plus son écart." },
+    { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 200, step: 5, ref: 70, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part. Calé pour retrouver un écart d'environ 105 pb en 2026 (97 pb en moyenne en septembre 2026, 151 pb le 20 octobre, 65 pb en moyenne en 2024) : il inclut la prime d'instabilité politique." },
+    { sec: "marches", id: "prime", label: "Par point de dette au-delà de 113 %", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} pb`, note: "Environ 3 pb par point en zone euro, jusqu'au double quand la dette est élevée (SUERF)." },
     { sec: "marches", id: "kDef", label: "Par point de déficit au-delà du seuil de Bruxelles", min: 0, max: 20, step: 1, ref: 6, fmt: v => `${f0(v)} pb`, note: null },
     { sec: "marches", id: "kRise", label: "Par point de hausse annuelle de la dette", min: 0, max: 20, step: 1, ref: 5, fmt: v => `${f0(v)} pb`, note: "Les marchés regardent la pente autant que le niveau." },
     { sec: "marches", id: "kAnger", label: "Par point de colère au-delà de 50", min: 0, max: 4, step: 0.25, ref: 1, fmt: v => `${smart(v)} pb`, note: "Le risque politique. Juin 2024 : la dissolution fait bondir l'écart d'environ 30 pb." },
     { sec: "marches", id: "kBiz", label: "Par point de mécontentement des entreprises", min: 0, max: 2, step: 0.1, ref: 0.6, fmt: v => `${smart(v)} pb`, note: null },
-    { sec: "marches", id: "notchWidth", label: "Écart qui fait perdre un cran de note", min: 15, max: 80, step: 5, ref: 35, fmt: v => `tous les ${f0(v)} pb`, note: "On part de A+. Le premier cran tombe à 90 pb + cette valeur." },
+    { sec: "marches", id: "notchWidth", label: "Écart qui fait perdre un cran de note", min: 15, max: 80, step: 5, ref: 35, fmt: v => `tous les ${f0(v)} pb`, note: "On part de A+ (S&P et Fitch). Le premier cran tombe à 130 pb + cette valeur." },
     { sec: "marches", id: "kNotch", label: "Surcoût par cran perdu", min: 0, max: 25, step: 1, ref: 8, fmt: v => `${f0(v)} pb`, note: null },
     { sec: "marches", id: "junkJump", label: "Saut quand la dette devient spéculative", min: 0, max: 300, step: 25, ref: 100, fmt: v => `${f0(v)} pb`, note: "Sous BBB−, beaucoup de fonds n'ont plus le droit de détenir la dette." },
     { sec: "marches", id: "attackJump", label: "Saut lors d'une attaque", min: 50, max: 500, step: 25, ref: 250, fmt: v => `${f0(v)} pb`, note: "S'atténue de moitié chaque année ensuite." },
+    { sec: "marches", id: "issueGap", label: "Taux moyen d'émission sous le taux à 10 ans", min: 0, max: 1.5, step: 0.1, ref: 0.6, fmt: v => `${smart(v)} pt`, note: "L'État emprunte aussi à 3 mois, 2 ans ou 5 ans, moins cher qu'à 10 ans. Choix de calage." },
     { sec: "marches", id: "maturity", label: "Durée moyenne de la dette", min: 4, max: 12, step: 0.5, ref: 8.5, fmt: v => `${smart(v)} ans`, note: "Plus elle est longue, plus une hausse des taux met du temps à coûter." },
 
     { sec: "rue", id: "anger0", label: "Colère de départ", min: 20, max: 60, step: 1, ref: 40, fmt: v => `${f0(v)} / 100`, note: "Le climat de 2024 : instabilité politique, pouvoir d'achat sous tension." },
@@ -579,13 +584,13 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
 
     { sec: "eco", id: "growth", label: "Croissance réelle potentielle", min: 0, max: 2.5, step: 0.1, ref: 1.0, fmt: v => `${smart(v)} % par an`, note: "Ce que l'économie peut produire en plus chaque année, hors inflation." },
     { sec: "eco", id: "infl", label: "Inflation", min: 0, max: 4, step: 0.25, ref: 1.75, fmt: v => `${smart(v)} % par an`, note: null },
-    { sec: "eco", id: "demoRet", label: "Hausse annuelle des dépenses de retraite, hors inflation", min: 0, max: 2, step: 0.1, ref: 1.0, fmt: v => `${smart(v)} % par an`, note: "Plus de retraités, des pensions plus élevées à l'entrée." },
+    { sec: "eco", id: "demoRet", label: "Hausse annuelle des dépenses de retraite, hors inflation", min: 0, max: 2, step: 0.1, ref: 1.0, fmt: v => `${smart(v)} % par an`, note: "Le nombre de retraités croît d'environ 1 % par an (DREES)." },
     { sec: "eco", id: "mult", label: "Multiplicateur budgétaire", min: 0, max: 1.5, step: 0.1, ref: 0.7, fmt: v => f1(v), note: "Activité perdue pour 1 € de dépense en moins. Estimations : de 0,3 à 1,5." },
     { sec: "eco", id: "taxMult", label: "Effet d'un impôt relativement à une dépense", min: 0, max: 1.2, step: 0.1, ref: 0.6, fmt: share, note: "Un euro d'impôt en plus pèse moins sur l'activité qu'un euro de dépense en moins : une partie est prise sur l'épargne." },
     { sec: "eco", id: "persist", label: "Persistance d'un choc d'activité", min: 0, max: 0.9, step: 0.05, ref: 0.6, fmt: share, note: "Part de l'écart de production qui demeure d'une année sur l'autre." },
-    { sec: "eco", id: "okun", label: "Chômage par point d'activité perdue", min: 0, max: 1, step: 0.05, ref: 0.5, fmt: v => `${smart(v)} pt`, note: "La loi d'Okun." },
+    { sec: "eco", id: "okun", label: "Chômage par point d'activité perdue", min: 0, max: 1, step: 0.05, ref: 0.4, fmt: v => `${smart(v)} pt`, note: "La loi d'Okun : environ 0,4 pour la France (Ball, Leigh et Loungani)." },
     { sec: "eco", id: "u0", label: "Chômage de départ", min: 5, max: 10, step: 0.1, ref: 7.4, fmt: pct, note: null },
-    { sec: "eco", id: "allegJobs", label: "Chômage par milliard d'allègements supprimés", min: 0, max: 0.06, step: 0.005, ref: 0.025, fmt: v => `${smart(v)} pt`, note: "Tout supprimer coûterait alors près de 2 points. Les évaluations divergent fortement." },
+    { sec: "eco", id: "allegJobs", label: "Chômage par milliard d'allègements supprimés", min: 0, max: 0.06, step: 0.005, ref: 0.025, fmt: v => `${smart(v)} pt`, note: "Tout supprimer coûterait alors près de 2 points. Le rapport Bozio-Wasmer chiffre de 400 000 à un million d'emplois." },
     { sec: "eco", id: "investReturn", label: "Croissance gagnée par point de PIB investi", min: 0, max: 0.4, step: 0.05, ref: 0.1, fmt: v => `${smart(v)} pt par an`, note: "Atteint en 3 ans. Dépend de la qualité des projets." },
     { sec: "eco", id: "fraudReal", label: "Part réellement récupérée sur la fraude visée", min: 0, max: 100, step: 5, ref: 50, fmt: v => `${f0(v)} %`, note: null },
     { sec: "eco", id: "behav", type: "choice", label: "Réaction générale des contribuables", ref: "moyen", options: [["faible", "Faible"], ["moyen", "Moyenne"], ["fort", "Forte"]], note: "Multiplie toutes les fuites : ×0,5, ×1 ou ×1,6." },
@@ -631,7 +636,9 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   // ---------- Modèle ----------
   const BF = { faible: 0.5, moyen: 1, fort: 1.6 };
   // Ce que les décisions accumulent d'une année sur l'autre (indexations, âge atteint, effectifs…)
-  const newAcc = () => ({ ret: 1, prest: 1, point: 1, coll: 1, age: 64, def: 1.9, eff: 0, sante: 255 });
+  const newAcc = () => ({ ret: 1, prest: 1, point: 1, coll: 1, age: AGE0, def: 1.85, eff: 0, sante: 256 });
+  // Âge légal en vigueur en 2026 : 62 ans et 9 mois (réforme de 2023 suspendue pour la génération 1964)
+  const AGE0 = 62.75;
   function advance(acc, Q, t) {
     if (t === 2025) acc.sante *= 1.03;
     if (t < FIRST) return;
@@ -644,25 +651,25 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   }
   function spending(Q, acc, t, k, price) {
     const n = t - 2024, on = t >= FIRST;
-    const retBase = 395 * price * Math.pow(1 + Q.demoRet / 100, n);
+    const retBase = 408 * price * Math.pow(1 + Q.demoRet / 100, n);
     const retIdx = retBase * (acc.ret - 1);
-    const retraites = retBase + retIdx - (acc.age - 64) * 8.5 * (retBase / 395);
-    const prestBase = 130 * price * Math.pow(1.005, n);
+    const retraites = retBase + retIdx - (acc.age - AGE0) * 8.5 * (retBase / 408);
+    const prestBase = 124 * price * Math.pow(1.005, n);
     const prestIdx = prestBase * (acc.prest - 1);
-    const chomBase = 40 * k;
+    const chomBase = 37 * k;
     const chomD = on ? chomBase * Q.chom / 100 : 0;
-    const educ = 155 * k * (on ? 1 + Q.educ / 100 : 1);
-    const secuD = on ? 50 * k * Q.secu / 100 : 0;
+    const educ = 149 * k * (on ? 1 + Q.educ / 100 : 1);
+    const secuD = on ? 52 * k * Q.secu / 100 : 0;
     const defense = acc.def / 100 * Y0 * k;
     const remun = 210 * k * (acc.point - 1);
-    const effD = 350 * k * acc.eff / 100;
-    const collD = 290 * k * (acc.coll - 1);
+    const effD = 363 * k * acc.eff / 100;
+    const collD = 330 * k * (acc.coll - 1);
     const apdD = on ? 14 * k * Q.apd / 100 : 0;
     const investD = on ? Q.invest * k : 0;
     return {
       cat: {
         retraites, sante: acc.sante, prest: prestBase + prestIdx + chomBase + chomD, educ, defense,
-        securite: 50 * k + secuD, eco: 175 * k + investD, autres: 341 * k + remun + effD + collD + 14 * k + apdD
+        securite: 52 * k + secuD, eco: 166 * k + investD, autres: 354.5 * k + remun + effD + collD + 14 * k + apdD
       },
       retIdx, prestIdx, chomD, secuD, remun, effD, collD, apdD, investD
     };
@@ -671,10 +678,10 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   function taxes(Q) {
     const bf = BF[Q.behav];
     const mech = {
-      tva: (Q.tva - 20) * 10.5, tvaInt: (Q.tvaInt - 10) * 1.8, tvaRed: (Q.tvaRed - 5.5) * 3,
-      carbone: (Q.carbone - 45) * 0.25, csg: Q.csg * 15, ir: Q.ir * 4.5,
-      abatRet: Q.abatRet ? 4 : 0, th: Q.th ? 22 : 0, pfu: (Q.pfu - 30) * 0.6, succ: Q.succ / 100 * 18,
-      is: (Q.is - 25) * 2.4, alleg: (100 - Q.alleg) / 100 * 75, cir: (100 - Q.cir) / 100 * 7.6, niches: Q.niches / 100 * 77
+      tva: (Q.tva - 20) * 8.9, tvaInt: (Q.tvaInt - 10) * 1.9, tvaRed: (Q.tvaRed - 5.5) * 2.4,
+      carbone: (Q.carbone - 45) * 0.2, csg: Q.csg * 17.5, ir: Q.ir * 4.5,
+      abatRet: Q.abatRet ? 4.8 : 0, th: Q.th ? 19 : 0, pfu: (Q.pfu - 31.4) * 1, succ: Q.succ / 100 * 20.8,
+      is: (Q.is - 25) * 2.4, alleg: (100 - Q.alleg) / 100 * 78, cir: (100 - Q.cir) / 100 * 7.9, niches: Q.niches / 100 * 75
     };
     const leakOf = { tva: Q.l_tva, tvaInt: Q.l_tva, tvaRed: Q.l_tva, carbone: Q.l_energie, csg: Q.l_csg, ir: Q.l_ir, abatRet: 0, th: 0,
       pfu: Q.l_capital, succ: Q.l_succ, is: Q.l_is, alleg: Q.l_alleg, cir: Q.l_niches, niches: Q.l_niches };
@@ -784,7 +791,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
         } else attackBonus *= 0.5;
         spread += prot ? 0 : attackBonus;
       }
-      const mRate = P.bund / 100 + spread / 10000 + sh("rate") + (P.evRate && t >= 2027 ? 0.015 : 0);
+      const mRate = (t < FIRST ? BUND_HIST[t] : P.bund) / 100 + spread / 10000 + sh("rate") + (P.evRate && t >= 2027 ? 0.015 : 0);
 
       // 2. L'activité
       const angerPrev = n > 0 ? o.anger[n - 1] : P.anger0;
@@ -804,7 +811,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       if (n > 0) {
         const Dn = D + deficit;
         const sh2 = Math.min(1, (D / P.maturity + Math.max(0, deficit)) / Dn);
-        rEff = rEff * (1 - sh2) + mRate * sh2;
+        rEff = rEff * (1 - sh2) + (mRate - P.issueGap / 100) * sh2;
         D = Dn;
       }
       const d = D / Y * 100, defR = deficit / Y * 100;
@@ -813,7 +820,7 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
       const u = P.u0 - P.okun * 100 * gap + P.allegJobs * Math.max(0, on ? tx.mech.alleg : 0);
       const target = P.anger0 + pn.street + P.uWeight * Math.max(0, u - 7.5) + sh("anger") + (forced ? P.force493Anger : 0);
       const anger = n === 0 ? P.anger0 : clamp(P.inertia * angerPrev + (1 - P.inertia) * target, 0, 100);
-      const notch = n === 0 ? 0 : Math.min(RATINGS.length - 1, Math.max(0, Math.floor((spread - 90) / P.notchWidth)));
+      const notch = n === 0 ? 0 : Math.min(RATINGS.length - 1, Math.max(0, Math.floor((spread - NOTCH0) / P.notchWidth)));
 
       o.Y.push(Y); o.sp.push({ ...s.cat, int: interest }); o.spTot.push(spTot + interest);
       o.rev.push(rev); o.revTot.push(revTot); o.int.push(interest);
@@ -1371,37 +1378,51 @@ footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 7
   }
 
   // ---------- Sources ----------
+  // Sources vérifiées : data/sources-2024.md du dépôt
   const SRC = [
-    ["PIB 2024", "2 920 Md€", "INSEE, comptes nationaux annuels"],
-    ["Dépenses publiques 2024", "1 670 Md€ (57 % du PIB)", "INSEE, compte des administrations publiques"],
-    ["Recettes publiques 2024", "1 502 Md€ (51 % du PIB)", "INSEE, compte des administrations publiques"],
-    ["Dette publique fin 2024", "3 300 Md€ (113 % du PIB)", "INSEE, dette au sens de Maastricht"],
-    ["Charge d'intérêts 2024", "60 Md€", "INSEE ; Agence France Trésor"],
-    ["Maturité moyenne de la dette", "8,5 ans", "Agence France Trésor"],
-    ["Écart de taux France-Allemagne", "≈ 80 pb", "Banque de France ; Bundesbank"],
-    ["Note souveraine", "A+", "Agences de notation, publications 2025"],
-    ["Taux de chômage", "≈ 7,4 %", "INSEE, enquête Emploi"],
-    ["Ventilation des recettes", "cotisations 420, TVA 210, CSG 155, IR 95, IS 60…", "INSEE ; PLF, Voies et moyens"],
-    ["Ventilation des dépenses", "retraites 395, santé 255, prestations 130, chômage 40, enseignement 155…", "INSEE, dépenses par fonction (COFOG) ; DREES ; Unédic"],
-    ["Rendement 1 pt de TVA", "normal 10,5 ; intermédiaire 1,8 ; réduit 3 Md€", "PLF, Voies et moyens tome 1"],
-    ["Taxe carbone", "44,6 €/t ; 10 €/t ≈ 2,5 Md€", "PLF ; I4CE"],
-    ["Rendement 1 pt de CSG", "≈ 15 Md€", "Commission des comptes de la Sécurité sociale"],
-    ["Rendement 1 pt d'IR sur toutes les tranches", "≈ 4,5 Md€", "Barèmes IPP ; simulation OpenFisca"],
-    ["Abattement de 10 % des retraités", "≈ 4 Md€", "Cour des comptes ; PLF, Voies et moyens tome 2"],
-    ["Taxe d'habitation sur les résidences principales", "≈ 22 Md€", "DGCL ; rapports sur la réforme 2018-2023"],
-    ["Prélèvement forfaitaire unique", "30 % ; 1 pt ≈ 0,6 Md€", "France Stratégie, évaluation des réformes de la fiscalité du capital"],
-    ["Droits de succession et donation", "≈ 18 Md€", "PLF, Voies et moyens"],
-    ["Allègements généraux de cotisations", "≈ 75 Md€", "Rapport Bozio-Wasmer (2024) ; PLFSS"],
-    ["Crédit d'impôt recherche", "≈ 7,6 Md€", "PLF, Voies et moyens tome 2 ; MESR"],
-    ["Autres dépenses fiscales (niches)", "≈ 77 Md€", "PLF, Voies et moyens tome 2"],
-    ["Impôt plancher sur les très hauts patrimoines", "5 à 20 Md€", "Zucman (2024) ; Conseil d'analyse économique ; contre-expertises"],
-    ["1 an d'âge légal", "≈ 8,5 Md€ à terme", "COR ; étude d'impact de la réforme 2023"],
-    ["1 % de point d'indice ; 1 % d'effectifs", "≈ 2,1 Md€ ; ≈ 3,5 Md€", "DGAFP ; rapport annuel sur la fonction publique"],
-    ["Dépenses des collectivités", "≈ 290 Md€", "Observatoire des finances et de la gestion publique locales"],
-    ["Aide publique au développement", "≈ 14 Md€", "OCDE, CAD ; PLF"],
-    ["Tous les paramètres du moteur", "voir la page Moteur", "Littérature (OFCE, CAE, FMI, IPP), précédents historiques, et choix de conception à confronter aux sondages"]
+    ["PIB 2024", "2 935 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Dépenses publiques 2024", "1 673 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Recettes publiques 2024", "1 504 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Prélèvements obligatoires", "1 254 Md€ (42,7 % du PIB)", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Dette publique fin 2024", "3 306 Md€ (112,6 % du PIB)", "INSEE Première n° 2106", "https://www.insee.fr/fr/statistiques/8997691", "ok"],
+    ["Charge d'intérêts 2024", "58 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Maturité moyenne de la dette", "8,5 ans", "Agence France Trésor, bulletin mensuel", "https://applis.finances.gouv.fr/files/medias-aft/7_Publications/7.2_BM/416_Bulletin%20mensuel%20janvier%202025.pdf", "ok"],
+    ["Écart de taux avec l'Allemagne", "65 pb en 2024, 151 pb le 20 octobre 2026", "BCE, taux longs de convergence", "https://data-api.ecb.europa.eu/service/data/IRS/M.FR.L.L40.CI.0000.EUR.N.Z", "ok"],
+    ["Taux allemand à 10 ans", "3,4 % (octobre 2026)", "BCE, taux longs de convergence", "https://data-api.ecb.europa.eu/service/data/IRS/M.DE.L.L40.CI.0000.EUR.N.Z", "ok"],
+    ["Note souveraine", "A+ (S&P, Fitch) ; Aa3 négative (Moody's)", "Presse, décisions des agences 2025-2026", "https://www.aa.com.tr/en/economy/sp-downgrades-frances-credit-rating/3720211", "ok"],
+    ["Chômage", "7,4 %", "INSEE, évolution du chômage", "https://www.insee.fr/fr/statistiques/8376836", "ok"],
+    ["Recettes par impôt", "cotisations 432, TVA 208, CSG 162, IR 87, IS 57, local 57, énergie 39", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Dépenses par fonction", "enseignement 149, défense 54, sécurité 52, affaires économiques 166", "INSEE, dépenses par fonction 2024", "https://www.insee.fr/fr/statistiques/8574707", "ok"],
+    ["Retraites, tous régimes", "408 Md€ ; 1 % de revalorisation ≈ 4,1 Md€", "COR, rapport annuel 2025", "https://www.cor-retraites.fr/sites/default/files/2025-06/Synth%C3%A8se_Def_.pdf", "ok"],
+    ["Nombre de retraités", "+1 % par an", "DREES, Les retraités et les retraites 2025", "https://drees.solidarites-sante.gouv.fr/sites/default/files/2025-07/Fiche%2001%20-%20Les%20effectifs%20de%20retrait%C3%A9s.pdf", "ok"],
+    ["Âge légal", "62 ans 9 mois en 2026, 64 ans pour la génération 1969", "COR, rapport annuel 2026 ; LFSS 2026", "https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part1_Chap2.pdf", "ok"],
+    ["Économie d'un an d'âge légal", "≈ 8,5 Md€ à terme (5 à 9 selon les sources)", "COR, rapport annuel 2026", "https://www.cor-retraites.fr/sites/default/files/2026-06/RA_Part1_Chap2.pdf", "est"],
+    ["ONDAM", "256 Md€", "Comité d'alerte de l'ONDAM, cité par l'IFRAP", "https://www.ifrap.org/budget-et-fiscalite/ondam-lalerte-est-lancee", "ok"],
+    ["Famille, minima sociaux, logement", "124 Md€", "INSEE, dépenses par fonction 2024", "https://www.insee.fr/fr/statistiques/8574707", "ok"],
+    ["Assurance chômage", "37 Md€", "Unédic, rapport financier 2024", "https://www.unedic.org/qui-sommes-nous/rapports/rapport-financier-de-l-unedic-2024", "ok"],
+    ["Collectivités locales", "330 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Masse salariale publique ; effectifs", "363 Md€ ; 5,85 millions d'agents", "INSEE ; DGAFP, l'emploi public en 2024", "https://www.fonction-publique.gouv.fr/toutes-les-publications/lemploi-dans-la-fonction-publique-en-2024", "ok"],
+    ["1 % de point d'indice", "2,1 Md€", "Cour des comptes, citée par Acteurs publics", "https://acteurspublics.fr/articles/la-facture-de-la-hausse-du-point-dindice-pour-chacun-des-3-versants-de-la-fonction-publique", "ok"],
+    ["Aide publique au développement", "14 Md€", "OCDE, profil de coopération de la France", "https://www.oecd.org/en/publications/development-co-operation-profiles_04b376d7-en/france_b991b2e4-en", "ok"],
+    ["1 point de TVA", "normal 8,9 ; intermédiaire 1,9 ; réduit 2,4 Md€", "DG Trésor, composition des recettes de TVA (2025)", "https://www.tresor.economie.gouv.fr/Articles/2025/09/25/analyse-de-la-composition-des-recettes-de-tva", "ok"],
+    ["1 point de CSG", "17,5 Md€", "Taux et affectation de la CSG en 2024", "https://www.xn--cfdt-retraits-mhb.fr/Taux-et-affectation-de-la-CSG-en-2024", "ok"],
+    ["1 point d'IR sur toutes les tranches", "≈ 4,5 Md€", "Aucune source directe : à simuler avec OpenFisca", null, "est"],
+    ["Abattement de 10 % des retraités", "4,8 Md€", "PLF 2025, Voies et moyens tome 2", "https://www.publicsenat.fr/app/uploads/2025/04/PLF-2025-Voies_et_moyens_Tome_2_Depenses-fiscales-1.pdf", "ok"],
+    ["Taxe d'habitation sur les résidences principales", "19 Md€", "Cour des comptes, répartition des impôts locaux", "https://www.ccomptes.fr/fr/publications/levolution-de-la-repartition-des-impots-locaux-entre-menages-et-entreprises-et-de-la", "ok"],
+    ["Prélèvement forfaitaire sur le capital", "31,4 % ; 1 point ≈ 1 Md€", "BOSS, cité par Moneyvox (taux) ; rendement estimé", "https://www.moneyvox.fr/impot/actualites/108354/declaration-impots-2026-le-casse-tete-de-la-hausse-de-la-csg-a-10-6-sur-les-placements", "est"],
+    ["Droits de succession et donation", "20,8 Md€", "INSEE, comptes des APU 2024", "https://www.insee.fr/fr/statistiques/8988845", "ok"],
+    ["Allègements généraux de cotisations", "78 Md€", "Rapport Bozio-Wasmer", "https://vie-publique.fr/files/rapport/pdf/295596.pdf", "ok"],
+    ["Crédit d'impôt recherche ; autres niches", "7,9 Md€ ; 75 Md€", "PLF 2025, Voies et moyens tome 2", "https://www.publicsenat.fr/app/uploads/2025/04/PLF-2025-Voies_et_moyens_Tome_2_Depenses-fiscales-1.pdf", "ok"],
+    ["Taxe carbone", "44,6 €/t ; 10 €/t ≈ 2 Md€", "Connaissance des Énergies ; I4CE (rendement extrapolé)", "https://www.connaissancedesenergies.org/questions-et-reponses-energies/quel-est-le-montant-de-la-taxe-carbone-en-france", "est"],
+    ["Impôt plancher sur les très hauts patrimoines", "5 à 20 Md€", "Zucman et ses contradicteurs, débat 2025", "https://www.moneyvox.fr/impot/actualites/104927/quest-ce-que-la-taxe-zucman-qui-pourrait-faire-echouer-le-budget-de-compromis-du-gouvernement", "est"],
+    ["Multiplicateur budgétaire", "0,7", "Modèle Mésange (INSEE, DG Trésor), cité par Fipeco", "https://www.fipeco.fr/pdf/TVA.pdf", "ok"],
+    ["Sensibilité de l'écart de taux à la dette", "3 pb par point", "SUERF, dette publique et taux souverains", "https://www.suerf.org/publications/suerf-policy-notes-and-briefs/revisiting-the-link-between-government-debt-and-sovereign-interest-rates-in-the-euro-area", "ok"],
+    ["Loi d'Okun", "0,4", "Ball, Leigh et Loungani, NBER", "https://www.nber.org/papers/w18668", "ok"],
+    ["Fuite de l'impôt sur le revenu", "25 % (élasticité de 0,02 à 0,31 selon les revenus)", "Cabannes, Houdré et Landais, Économie et Statistique", "https://www.insee.fr/fr/statistiques/fichier/1377954/ES467G.pdf", "est"],
+    ["Emplois liés aux allègements", "≈ 2 points de chômage s'ils étaient supprimés", "Rapport Bozio-Wasmer", "https://vie-publique.fr/files/rapport/pdf/295596.pdf", "est"],
+    ["Colère par groupe, capital politique, seuils", "voir le moteur", "Choix de conception, adossés à des précédents", null, "est"]
   ];
-  $("srcRows").innerHTML = SRC.map(([a, b, c]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${c}</td><td><span class="tag">mémoire · à vérifier</span></td></tr>`).join("");
+  $("srcRows").innerHTML = SRC.map(([a, b, c, url, st]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">${c}</a>` : c}</td><td><span class="tag ${st}">${st === "ok" ? "sourcé" : "estimation"}</span></td></tr>`).join("");
 
   // ---------- Sauvegarde et démarrage ----------
   const KEY = "faillite-ou-revolution:v4";
