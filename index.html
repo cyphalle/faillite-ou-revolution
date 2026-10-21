@@ -1,0 +1,1164 @@
+<title>Faillite ou Révolution</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout : bandeau de bord collant (vue + statut + 4 jauges). Vue « Jouer » : pupitre de leviers à gauche, conséquences à droite. Vue « Moteur » : grille de réglages du modèle, le bandeau reste visible pour voir l'effet. */
+:root {
+  --paper: #F1F3F7;
+  --surface: #FFFFFF;
+  --ink: #131A2C;
+  --muted: #586179;
+  --line: #D8DDE7;
+  --accent: #2E45C2;
+  --accent-soft: #E2E7FB;
+  --good: #16775A;
+  --good-soft: #DDF1E9;
+  --bad: #BE3A2B;
+  --bad-soft: #F8E1DD;
+  --warn: #A1660F;
+  --warn-soft: #F7EBD4;
+  --ref: #8790A5;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Public Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --f-data: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1220; --surface: #171C2D; --ink: #E7EBF5; --muted: #9AA3B9; --line: #2A3148;
+    --accent: #8FA3FF; --accent-soft: #232C55; --good: #4FC89B; --good-soft: #163A2F;
+    --bad: #F27D6E; --bad-soft: #43231F; --warn: #E2A84B; --warn-soft: #3A2E17; --ref: #6E7792;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1220; --surface: #171C2D; --ink: #E7EBF5; --muted: #9AA3B9; --line: #2A3148;
+  --accent: #8FA3FF; --accent-soft: #232C55; --good: #4FC89B; --good-soft: #163A2F;
+  --bad: #F27D6E; --bad-soft: #43231F; --warn: #E2A84B; --warn-soft: #3A2E17; --ref: #6E7792;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
+.wrap { max-width: 1260px; margin: 0 auto; }
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+header.hero { padding-block: 28px 14px; display: grid; gap: 10px; }
+.eyebrow { font-family: var(--f-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(38px, 6vw, 64px); line-height: .95; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h1 span { color: var(--accent); }
+.lede { max-width: 66ch; margin: 0; color: var(--muted); font-size: 16px; }
+.lede strong { color: var(--ink); font-weight: 600; }
+.ledger { display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--f-data); font-size: 12.5px; color: var(--muted); padding-top: 6px; border-top: 1px solid var(--line); }
+.ledger b { color: var(--ink); font-weight: 600; }
+
+.dash { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); padding-block: 10px; display: grid; gap: 8px; }
+.viewbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.viewseg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 3px; }
+.viewseg button { border: 0; background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+.viewseg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.viewseg .badge { font-family: var(--f-data); font-size: 11px; margin-left: 6px; color: var(--warn); }
+.viewseg button[aria-pressed="true"] .badge { color: var(--warn-soft); }
+.viewhint { font-size: 12.5px; color: var(--muted); }
+.kpis { display: grid; grid-template-columns: minmax(0, 1.25fr) repeat(4, minmax(0, 1fr)); gap: 8px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; display: grid; gap: 1px; min-width: 0; align-content: start; }
+.kpi .k-label { font-size: 12px; color: var(--muted); }
+.kpi .k-val { font-family: var(--f-display); font-weight: 700; font-size: clamp(19px, 2.4vw, 28px); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi .k-sub { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi.is-bad { border-color: var(--bad); }
+.kpi.is-bad .k-val { color: var(--bad); }
+.kpi.is-warn .k-val { color: var(--warn); }
+.kpi.is-good .k-val { color: var(--good); }
+.kpi.status { border-width: 2px; }
+.kpi.status.ok { border-color: var(--good); background: var(--good-soft); }
+.kpi.status.ok .k-val { color: var(--good); }
+.kpi.status.lost { border-color: var(--bad); background: var(--bad-soft); }
+.kpi.status.lost .k-val { color: var(--bad); }
+
+main.board { display: grid; grid-template-columns: minmax(0, 430px) minmax(0, 1fr); gap: 20px; align-items: start; padding-top: 8px; }
+.console { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 150px); max-height: calc(100vh - 166px); display: flex; flex-direction: column; min-width: 0; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 0; }
+.presets span { font-size: 12px; color: var(--muted); width: 100%; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.chipbtn { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 11px; font-size: 13px; }
+.chipbtn:hover { border-color: var(--accent); }
+.chipbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.tabs { display: flex; gap: 0; padding: 10px 10px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { border: 0; background: none; padding: 8px 10px; font-weight: 600; font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab .tcount { font-family: var(--f-data); font-size: 11px; color: var(--accent); margin-left: 4px; }
+.levers { overflow-y: auto; padding: 4px 14px 14px; }
+.group-intro { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+.group-title { font-family: var(--f-data); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); padding-top: 18px; padding-bottom: 2px; border-bottom: 1px solid var(--line); }
+.lever { display: grid; gap: 4px; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.lever:last-child { border-bottom: 0; }
+.lever-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.lever-head label { font-weight: 600; font-size: 14px; }
+.lever-head output { font-family: var(--f-data); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.lever.changed .lever-head output, .lever.changed .switch label { color: var(--accent); }
+.track { position: relative; }
+.track .refmark { position: absolute; top: -3px; width: 2px; height: 8px; background: var(--ref); left: var(--pos); transform: translateX(-1px); pointer-events: none; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 4px 0; }
+.lever-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.delta { font-family: var(--f-data); font-size: 11px; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.delta.good { background: var(--good-soft); color: var(--good); }
+.delta.bad { background: var(--bad-soft); color: var(--bad); }
+.delta.warn { background: var(--warn-soft); color: var(--warn); }
+.delta.neutral { color: var(--muted); }
+.lever-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.switch label { font-weight: 600; font-size: 14px; }
+.switch input { width: 40px; height: 22px; accent-color: var(--accent); flex: none; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; border: 0; background: none; padding: 6px; font-size: 13px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.console-foot { padding: 10px 14px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.textbtn { border: 0; background: none; color: var(--accent); font-weight: 600; padding: 4px 0; }
+
+.results { display: grid; gap: 20px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+.panel h2 { font-family: var(--f-display); font-weight: 700; font-size: 21px; margin: 0 0 4px; letter-spacing: -.01em; text-wrap: balance; }
+.panel .sub { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+.panel.verdict-panel.lost { border: 2px solid var(--bad); }
+.panel.verdict-panel.ok { border: 2px solid var(--good); }
+.ending { font-family: var(--f-display); font-weight: 800; font-size: clamp(24px, 3.2vw, 34px); line-height: 1.05; margin: 0 0 10px; letter-spacing: -.015em; text-wrap: balance; }
+.lost .ending { color: var(--bad); }
+.ok .ending { color: var(--good); }
+.verdict { font-size: 16px; line-height: 1.6; margin: 0; max-width: 70ch; }
+.verdict b { font-weight: 600; }
+
+.journal { list-style: none; margin: 0; padding: 0; display: grid; }
+.journal li { display: grid; grid-template-columns: 46px 14px minmax(0, 1fr); gap: 10px; padding-block: 8px; }
+.journal li + li { border-top: 1px dashed var(--line); }
+.journal .j-year { font-family: var(--f-data); font-size: 13px; font-weight: 600; color: var(--muted); padding-top: 1px; }
+.journal .j-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; background: var(--ref); }
+.journal .bad .j-dot { background: var(--bad); }
+.journal .good .j-dot { background: var(--good); }
+.journal .warn .j-dot { background: var(--warn); }
+.journal .end .j-dot { background: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
+.journal .j-title { font-weight: 600; font-size: 14.5px; }
+.journal .end .j-title { color: var(--bad); }
+.journal .j-detail { font-size: 13px; color: var(--muted); }
+.journal .empty { display: block; color: var(--muted); font-size: 14px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid var(--accent); vertical-align: middle; margin-right: 6px; }
+.legend i.ref { border-top: 2px dashed var(--ref); }
+.legend i.limit { border-top: 2px dashed var(--warn); }
+.legend i.limit-bad { border-top: 2px dashed var(--bad); }
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.chart text { font-family: var(--f-data); font-size: 11px; fill: var(--muted); }
+svg.chart .grid { stroke: var(--line); stroke-width: 1; }
+svg.chart .axis0 { stroke: var(--muted); stroke-width: 1; }
+svg.chart .l-player { fill: none; stroke: var(--accent); stroke-width: 2.75; stroke-linejoin: round; }
+svg.chart .a-player { fill: var(--accent-soft); opacity: .55; }
+svg.chart .l-ref { fill: none; stroke: var(--ref); stroke-width: 2; stroke-dasharray: 5 4; }
+svg.chart .t-player { fill: var(--accent); font-weight: 600; font-size: 12px; }
+svg.chart .t-limit { fill: var(--warn); }
+svg.chart .t-limit-bad { fill: var(--bad); }
+svg.chart .limit { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 4 4; }
+svg.chart .limit-bad { stroke: var(--bad); stroke-width: 1.5; stroke-dasharray: 4 4; }
+svg.chart .bar-good { fill: var(--good); }
+svg.chart .bar-bad { fill: var(--bad); }
+svg.chart .tick-ref { stroke: var(--ink); stroke-width: 2; opacity: .45; }
+svg.chart .after { fill: var(--bad-soft); opacity: .7; }
+svg.chart .t-after { fill: var(--bad); font-weight: 600; }
+.charts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+
+.groups { display: grid; gap: 8px; }
+.grow { display: grid; grid-template-columns: minmax(0, 1fr) 54px; gap: 2px 10px; font-size: 13px; align-items: center; }
+.grow .g-val { font-family: var(--f-data); font-size: 12.5px; text-align: right; }
+.grow .g-bar { grid-column: 1 / -1; height: 7px; background: var(--paper); border-radius: 4px; position: relative; overflow: hidden; }
+.grow .g-bar div { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 4px; }
+.grow.pos .g-bar div { background: var(--bad); }
+.grow.neg .g-bar div { background: var(--good); }
+.grow.biz .g-bar div { background: var(--warn); }
+.groups-note { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+
+.objectives { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.objectives li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 8px; background: var(--paper); }
+.pill { font-family: var(--f-data); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em; }
+.pill.ok { background: var(--good-soft); color: var(--good); }
+.pill.ko { background: var(--bad-soft); color: var(--bad); }
+.objectives .o-title { font-weight: 600; font-size: 14px; }
+.objectives .o-why { font-size: 12.5px; color: var(--muted); }
+.objectives .o-val { font-family: var(--f-data); font-size: 12.5px; color: var(--muted); text-align: right; }
+.score { font-family: var(--f-display); font-weight: 800; font-size: 28px; float: right; line-height: 1; }
+
+.yearpick { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.split h3 { font-size: 13px; font-family: var(--f-data); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; font-weight: 600; display: flex; justify-content: space-between; }
+.split h3 span { color: var(--ink); }
+.rows { display: grid; gap: 7px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font-size: 13px; }
+.row .r-label { min-width: 0; }
+.row .r-val { font-family: var(--f-data); font-size: 12.5px; text-align: right; white-space: nowrap; }
+.row .r-val small { color: var(--muted); font-size: 11px; margin-left: 4px; }
+.row .r-bar { grid-column: 1 / -1; height: 6px; background: var(--paper); border-radius: 3px; overflow: hidden; }
+.row .r-bar div { height: 100%; background: var(--accent); border-radius: 3px; }
+.row.is-debt .r-bar div { background: var(--bad); }
+.row.is-rev .r-bar div { background: var(--good); }
+.up { color: var(--bad); } .down { color: var(--good); }
+.is-rev .up { color: var(--good); } .is-rev .down { color: var(--bad); }
+
+.engine { display: grid; gap: 20px; padding-top: 8px; }
+.eng-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.eng-head p { margin: 0; max-width: 72ch; color: var(--muted); }
+.eng-head h2 { font-family: var(--f-display); font-weight: 800; font-size: clamp(26px, 3.4vw, 36px); margin: 0 0 6px; letter-spacing: -.015em; }
+.eng-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 20px; align-items: start; }
+.eng-grid .panel { padding-block: 16px 6px; }
+.eng-grid .panel > .sub { margin-bottom: 0; }
+.outline-btn { border: 1px solid var(--accent); color: var(--accent); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 13.5px; }
+
+details.sources summary { cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 19px; }
+.tablewrap { overflow-x: auto; margin-top: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-data); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+td.v { font-family: var(--f-data); white-space: nowrap; }
+.tag { font-family: var(--f-data); font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+.limits { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; display: grid; gap: 4px; max-width: 78ch; }
+footer { color: var(--muted); font-size: 12.5px; padding-top: 24px; max-width: 75ch; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 1060px) {
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .kpi.status { grid-column: 1 / -1; }
+  .console { top: calc(env(safe-area-inset-top, 0px) + 210px); max-height: calc(100vh - 226px); }
+}
+@media (max-width: 960px) {
+  main.board { grid-template-columns: minmax(0, 1fr); }
+  .console { position: static; max-height: none; }
+  .charts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi { padding: 7px 10px; }
+  .kpi .k-sub { display: none; }
+  .kpi.status .k-sub { display: block; white-space: normal; }
+  .viewhint { display: none; }
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .objectives li { grid-template-columns: auto minmax(0, 1fr); }
+  .objectives .o-val { grid-column: 2; text-align: left; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .row .r-bar div, .grow .g-bar div { transition: width .25s ease; }
+}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Finances publiques · simulation 2024 → 2035</div>
+    <h1>Faillite ou <span>Révolution</span></h1>
+    <p class="lede">La France dépense <strong>1 670 milliards d'euros</strong> par an et en prélève <strong>1 500</strong>. Vous tenez les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette réveille les premiers. La réduire trop vite réveille la deuxième. Tenez jusqu'en 2035.</p>
+    <div class="ledger" aria-label="Situation de départ, 2024">
+      <span>Départ 2024</span>
+      <span>PIB <b>2 920 Md€</b></span>
+      <span>Dépenses <b>1 670</b></span>
+      <span>Recettes <b>1 502</b></span>
+      <span>Déficit <b>168 (5,8 %)</b></span>
+      <span>Dette <b>3 300 (113 %)</b></span>
+      <span>Intérêts <b>60</b></span>
+      <span>Note <b>A+</b></span>
+    </div>
+  </header>
+
+  <div class="dash">
+    <div class="viewbar">
+      <div class="viewseg" role="group" aria-label="Vue">
+        <button type="button" data-view="play" aria-pressed="true">Jouer</button>
+        <button type="button" data-view="engine" aria-pressed="false">Régler le moteur<span class="badge" id="engBadge"></span></button>
+      </div>
+      <span class="viewhint" id="viewHint"></span>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <main class="board" id="playView">
+    <section class="console" aria-label="Leviers">
+      <div class="presets" id="presets">
+        <span>Partir d'une stratégie type</span>
+      </div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="levers" id="levers"></div>
+      <div class="console-foot">
+        <span id="changedCount">Aucun levier modifié</span>
+        <button class="textbtn" id="reset" type="button">Remettre les leviers à zéro</button>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="panel verdict-panel" id="verdictPanel">
+        <p class="ending" id="ending"></p>
+        <p class="verdict" id="verdict"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Journal du mandat</h2>
+        <p class="sub">Ce que vos choix déclenchent, année après année. Les seuils se règlent dans le moteur.</p>
+        <ol class="journal" id="journal"></ol>
+      </div>
+
+      <div class="charts">
+        <div class="panel">
+          <h2>Dette publique</h2>
+          <p class="sub">En % du PIB, fin d'année</p>
+          <div class="legend"><span><i></i>Votre politique</span><span><i class="ref"></i>Politique inchangée</span><span><i class="limit"></i>Cible 2035</span></div>
+          <svg class="chart" id="debtChart" viewBox="0 0 520 250" role="img" aria-label="Trajectoire de la dette en pourcentage du PIB"></svg>
+        </div>
+        <div class="panel">
+          <h2>Déficit public</h2>
+          <p class="sub">En % du PIB, intérêts compris</p>
+          <div class="legend"><span><i style="border-color:var(--bad)"></i>Votre politique</span><span><i class="ref" style="border-top-style:solid;border-color:var(--ink);opacity:.45"></i>Politique inchangée</span><span><i class="limit"></i>Seuil de Bruxelles</span></div>
+          <svg class="chart" id="defChart" viewBox="0 0 520 250" role="img" aria-label="Déficit public annuel en pourcentage du PIB"></svg>
+        </div>
+        <div class="panel">
+          <h2>Les marchés</h2>
+          <p class="sub">Écart de taux avec l'Allemagne, en points de base</p>
+          <div class="legend"><span><i></i>Votre politique</span><span><i class="ref"></i>Politique inchangée</span><span><i class="limit-bad"></i>Attaque</span></div>
+          <svg class="chart" id="spreadChart" viewBox="0 0 520 250" role="img" aria-label="Écart de taux avec l'Allemagne"></svg>
+        </div>
+        <div class="panel">
+          <h2>La rue</h2>
+          <p class="sub" id="angerSub">Indice de colère sociale, de 0 à 100</p>
+          <div class="legend"><span><i></i>Votre politique</span><span><i class="ref"></i>Politique inchangée</span><span><i class="limit"></i>Mouvement social</span><span><i class="limit-bad"></i>Chute</span></div>
+          <svg class="chart" id="angerChart" viewBox="0 0 520 250" role="img" aria-label="Indice de colère sociale"></svg>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Qui paie, qui proteste</h2>
+        <p class="sub" id="groupsSub"></p>
+        <div class="yearpick" id="groupYears"></div>
+        <div class="groups" id="groups"></div>
+        <p class="groups-note">Une perte compte plus qu'un gain du même montant : on proteste plus fort contre ce qu'on vous retire qu'on ne remercie pour ce qu'on vous donne. Les entreprises ne descendent pas dans la rue. Leur mécontentement passe par l'investissement et pèse sur les taux.</p>
+      </div>
+
+      <div class="panel">
+        <span class="score num" id="score"></span>
+        <h2>Vos objectifs</h2>
+        <p class="sub">Les seuils viennent du moteur. Ils sont souvent incompatibles entre eux, et c'est tout le sujet.</p>
+        <ul class="objectives" id="objectives"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>Le budget, année par année</h2>
+        <p class="sub">En milliards d'euros courants. L'écart avec la politique inchangée est en couleur.</p>
+        <div class="yearpick" id="yearpick"></div>
+        <div class="split">
+          <div>
+            <h3>Dépenses <span class="num" id="spTotal"></span></h3>
+            <div class="rows" id="spRows"></div>
+          </div>
+          <div>
+            <h3>Recettes <span class="num" id="revTotal"></span></h3>
+            <div class="rows" id="revRows"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <details class="sources">
+          <summary>Chiffres, hypothèses et limites du modèle</summary>
+          <p class="sub" style="margin-top:10px">Version 0.3. Tous les chiffres ci-dessous sont des ordres de grandeur 2024 tirés de mémoire. Ils seront remplacés un par un par les données publiées (INSEE, PLF, COR, Agence France Trésor, barèmes IPP).</p>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
+              <tbody id="srcRows"></tbody>
+            </table>
+          </div>
+          <ul class="limits">
+            <li>Les recettes suivent le PIB effectif, les dépenses suivent le PIB potentiel. L'écart joue le rôle de stabilisateur automatique.</li>
+            <li>La dette se refinance par tranches, au taux allemand plus l'écart de taux. L'écart réagit avec un an de retard.</li>
+            <li>La colère suit avec inertie la somme des pertes infligées à chaque groupe, plus le chômage. Ses coefficients sont des choix de conception, réglables dans le moteur.</li>
+            <li>Les seuils de fin de partie sont des conventions de jeu adossées à des précédents. Aucun seuil réel n'est mécanique.</li>
+            <li>Pas encore de ménages types : le modèle dit quel groupe perd, pas combien chaque foyer paie. Les dépenses des collectivités et les effectifs publics recoupent d'autres postes : leurs effets s'ajoutent sans détail par fonction.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <section class="engine" id="engineView" hidden>
+    <div class="eng-head">
+      <div>
+        <h2>Le moteur</h2>
+        <p>Toutes les hypothèses qui transforment vos choix en conséquences. Aucune n'est une loi de la nature : beaucoup sont des choix de conception, signalés comme tels. Changez-en une et regardez le bandeau du haut. Si une partie bascule, c'est que la conclusion dépendait de cette hypothèse.</p>
+      </div>
+      <button class="outline-btn" id="resetEngine" type="button">Remettre le moteur par défaut</button>
+    </div>
+    <div class="eng-grid" id="engGrid"></div>
+  </section>
+
+  <footer>Projet pédagogique indépendant, sans lien avec aucune administration ni aucune agence de notation. Le modèle est volontairement simple : il montre des ordres de grandeur et des mécanismes. Il ne prévoit rien.<br>Conçu par Glamdring Labs.</footer>
+</div>
+
+<script>
+(() => {
+  // ---------- Données de départ (2024, Md€, de mémoire, à vérifier) ----------
+  const Y0 = 2920, D0 = 3300, I0 = 60, POP = 68.4, SPREAD0 = 80;
+  const RATINGS = ["A+", "A", "A−", "BBB+", "BBB", "BBB−", "BB+", "BB", "B"];
+  const JUNK = 6;
+  const REV0 = { cotis: 420, tva: 210, csg: 155, ir: 95, is: 60, local: 55, energie: 35, autres: 222, nonfisc: 250 };
+  const REV_LABELS = {
+    cotis: "Cotisations sociales", tva: "TVA", csg: "CSG et CRDS", ir: "Impôt sur le revenu et prélèvements sur le capital",
+    is: "Impôt sur les sociétés", local: "Impôts locaux (foncier, habitation…)", energie: "Taxes sur l'énergie",
+    autres: "Autres impôts (successions, production, tabac…)", nonfisc: "Recettes non fiscales"
+  };
+  const SP_LABELS = {
+    retraites: "Retraites", sante: "Santé", prest: "Famille, chômage, minima sociaux, logement",
+    educ: "Enseignement", defense: "Défense", securite: "Sécurité et justice",
+    eco: "Économie, transports, énergie, investissement",
+    autres: "Autres (administration, collectivités, culture, aide au développement…)", int: "Intérêts de la dette"
+  };
+  const GROUPS = {
+    retraites: "Retraités", actifs: "Actifs proches de la retraite", modestes: "Ménages modestes",
+    chomeurs: "Demandeurs d'emploi", menages: "Tous les ménages (prix, CSG, habitation)",
+    automob: "Ménages qui roulent et se chauffent (carbone)", aises: "Classes moyennes et aisées",
+    heritiers: "Familles qui transmettent un patrimoine", agents: "Agents publics", sante: "Soignants et patients",
+    ecole: "Familles et enseignants", usagers: "Usagers des services publics", solidarite: "Solidarité internationale",
+    opinion: "Sentiment de justice fiscale", entreprises: "Entreprises et investisseurs"
+  };
+  const YEARS = []; for (let y = 2024; y <= 2035; y++) YEARS.push(y);
+
+  // ---------- Formatage ----------
+  const nf = (d) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const f0 = nf(0).format, f1 = nf(1).format, f2 = nf(2).format;
+  const smart = (v) => Number.isInteger(v) ? f0(v) : (Math.abs(v * 10 - Math.round(v * 10)) < 1e-9 ? f1(v) : f2(v));
+  const signed = (v, f = smart) => (v > 0 ? "+" : v < 0 ? "−" : "") + f(Math.abs(v));
+  const vsInfl = (v) => Math.abs(v) < 1e-9 ? "= inflation" : `inflation ${v > 0 ? "+" : "−"} ${smart(Math.abs(v))} pt`;
+  const ageFmt = (v) => { const y = Math.floor(v + 1e-9), m = Math.round((v - y) * 12); return `${y} ans${m ? " " + m + " mois" : ""}`; };
+  const pct = (v) => `${smart(v)} %`;
+  const sPct = (v) => v === 0 ? "inchangé" : `${signed(v)} %`;
+  const sPt = (v) => v === 0 ? "inchangé" : `${signed(v)} pt`;
+  const md = (v) => `${smart(v)} Md€`;
+  const coef = (v) => `${smart(v)} pt / Md€`;
+  const share = (v) => `${f0(v * 100)} %`;
+
+  // ---------- Leviers de politique (vue « Jouer ») ----------
+  // sec : onglet-section. Les montants sont des ordres de grandeur 2024.
+  const LEVERS = [
+    { id: "tva", sec: "rec-conso", label: "TVA, taux normal", min: 15, max: 25, step: 0.5, ref: 20, fmt: pct, note: "Deux tiers de la consommation. 1 point ≈ 10,5 Md€." },
+    { id: "tvaInt", sec: "rec-conso", label: "TVA, taux intermédiaire", min: 5.5, max: 20, step: 0.5, ref: 10, fmt: pct, note: "Restauration, travaux, transports. 1 point ≈ 1,8 Md€." },
+    { id: "tvaRed", sec: "rec-conso", label: "TVA, taux réduit", min: 2.5, max: 10, step: 0.5, ref: 5.5, fmt: pct, note: "Alimentation, énergie, livres. 1 point ≈ 3 Md€. Le taux de 2,1 % (médicaments, presse) ne bouge pas." },
+    { id: "carbone", sec: "rec-conso", label: "Taxe carbone sur l'énergie", min: 0, max: 150, step: 5, ref: 45, fmt: v => `${f0(v)} € / tonne`, note: "Gelée à 44,6 €/t depuis 2018, après les gilets jaunes. 10 €/t ≈ 2,5 Md€." },
+
+    { id: "csg", sec: "rec-revenus", label: "CSG, tous les taux", min: -3, max: 3, step: 0.25, ref: 0, fmt: sPt, note: "9,2 % sur les salaires, 8,3 % sur la plupart des pensions. 1 point ≈ 15 Md€." },
+    { id: "ir", sec: "rec-revenus", label: "Impôt sur le revenu, toutes les tranches", min: -5, max: 5, step: 0.5, ref: 0, fmt: sPt, note: null },
+    { id: "abatRet", sec: "rec-revenus", type: "toggle", label: "Supprimer l'abattement de 10 % des retraités", ref: false, note: "Les pensions bénéficient du même abattement que les salaires, sans frais professionnels. ≈ 4 Md€." },
+    { id: "th", sec: "rec-revenus", type: "toggle", label: "Rétablir la taxe d'habitation sur les résidences principales", ref: false, note: "Supprimée entre 2018 et 2023. ≈ 22 Md€, compensés aujourd'hui aux communes par l'État." },
+
+    { id: "pfu", sec: "rec-capital", label: "Prélèvement forfaitaire sur le capital", min: 20, max: 45, step: 1, ref: 30, fmt: pct, note: "Dividendes, intérêts, plus-values. 1 point ≈ 0,6 Md€, très sensible à l'optimisation." },
+    { id: "succ", sec: "rec-capital", label: "Droits de succession et de donation", min: -50, max: 50, step: 5, ref: 0, fmt: sPct, note: "≈ 18 Md€. L'un des impôts les plus impopulaires, y compris chez ceux qui ne le paient pas." },
+    { id: "zucman", sec: "rec-capital", type: "toggle", label: "Impôt plancher de 2 % sur les patrimoines de plus de 100 M€", ref: false, note: "Populaire, mais les investisseurs le lisent comme un signal hostile. Rendement débattu : de 5 à 20 Md€." },
+
+    { id: "is", sec: "rec-entreprises", label: "Impôt sur les sociétés", min: 15, max: 35, step: 0.5, ref: 25, fmt: pct, note: "1 point ≈ 2,4 Md€ avant réaction des entreprises." },
+    { id: "alleg", sec: "rec-entreprises", label: "Allègements de cotisations patronales", min: 0, max: 120, step: 5, ref: 100, fmt: v => `${f0(v)} % conservés`, note: "≈ 75 Md€ par an, surtout sur les bas salaires. Les réduire rapporte, au prix d'emplois peu qualifiés." },
+    { id: "cir", sec: "rec-entreprises", label: "Crédit d'impôt recherche", min: 0, max: 150, step: 10, ref: 100, fmt: v => `${f0(v)} % conservé`, note: "≈ 7,6 Md€, l'un des dispositifs les plus généreux de l'OCDE." },
+    { id: "niches", sec: "rec-entreprises", label: "Autres niches fiscales supprimées", min: 0, max: 50, step: 5, ref: 0, fmt: v => `${f0(v)} %`, note: "≈ 77 Md€ hors crédit d'impôt recherche : emploi à domicile, dons, investissement outre-mer, carburants professionnels…" },
+
+    { id: "fraude", sec: "rec-controle", label: "Lutte contre la fraude : recettes visées", min: 0, max: 15, step: 1, ref: 0, fmt: md, note: "Les estimations de la fraude fiscale et sociale varient du simple au double. Une part seulement se récupère (réglable dans le moteur)." },
+
+    { id: "age", sec: "dep-retraites", label: "Âge légal de départ à la retraite", min: 60, max: 67, step: 0.25, ref: 64, fmt: ageFmt, note: "64 ans : cible de la réforme de 2023, dont l'application a été suspendue (à vérifier). Le changement avance de 3 mois par an. 1 an ≈ 8,5 Md€ à terme." },
+    { id: "idxRet", sec: "dep-retraites", label: "Revalorisation des pensions", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Masse ≈ 395 Md€. 1 point sous l'inflation ≈ 4 Md€ de moins, cumulés chaque année." },
+
+    { id: "idxPrest", sec: "dep-social", label: "Revalorisation des prestations sociales", min: -2, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "Allocations familiales, RSA, AAH, aides au logement : ≈ 130 Md€." },
+    { id: "chom", sec: "dep-social", label: "Assurance chômage", min: -30, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 40 Md€ d'indemnisation. Se règle par la durée et le montant des droits." },
+    { id: "ondam", sec: "dep-social", label: "Hausse annuelle des dépenses de santé", min: 1, max: 5, step: 0.1, ref: 3, fmt: v => `${smart(v)} % par an`, note: "L'objectif national (ONDAM) ≈ 255 Md€. Vieillissement et innovation poussent vers 3 à 4 %." },
+
+    { id: "point", sec: "dep-services", label: "Point d'indice des fonctionnaires", min: -1, max: 2, step: 0.1, ref: 0, fmt: vsInfl, note: "1 % de point d'indice ≈ 2,1 Md€." },
+    { id: "eff", sec: "dep-services", label: "Effectifs de la fonction publique", min: -5, max: 5, step: 0.5, ref: 0, fmt: sPct, note: "5,7 millions d'agents. 1 % ≈ 57 000 postes et 3,5 Md€. Effet étalé sur 3 ans." },
+    { id: "educ", sec: "dep-services", label: "Budget de l'enseignement", min: -15, max: 15, step: 1, ref: 0, fmt: sPct, note: "≈ 155 Md€. 1 Md€ ≈ 16 000 enseignants au coût complet." },
+    { id: "secu", sec: "dep-services", label: "Sécurité et justice", min: -15, max: 20, step: 1, ref: 0, fmt: sPct, note: "Police, gendarmerie, justice, prisons : ≈ 50 Md€." },
+    { id: "coll", sec: "dep-services", label: "Dépenses des collectivités locales", min: -1.5, max: 1, step: 0.1, ref: 0, fmt: vsInfl, note: "≈ 290 Md€. L'État agit par les dotations et les règles d'encadrement." },
+
+    { id: "invest", sec: "dep-avenir", label: "Investissement public supplémentaire", min: -20, max: 40, step: 1, ref: 0, fmt: v => v === 0 ? "inchangé" : `${signed(v)} Md€ par an`, note: "Transition écologique, réseaux, recherche. Il peut relever la croissance future : effet réglable dans le moteur." },
+
+    { id: "def", sec: "dep-monde", label: "Effort de défense visé en 2030", min: 1.5, max: 3.5, step: 0.1, ref: 1.9, fmt: v => `${smart(v)} % du PIB`, note: "≈ 55 Md€ aujourd'hui. L'OTAN demande au moins 2 %." },
+    { id: "apd", sec: "dep-monde", label: "Aide publique au développement", min: -50, max: 20, step: 5, ref: 0, fmt: sPct, note: "≈ 14 Md€, environ 0,5 % du revenu national. Peu visible, donc souvent coupée en premier." }
+  ];
+  const SEC_TITLES = {
+    "rec-conso": "Consommation", "rec-revenus": "Revenus", "rec-capital": "Patrimoine et capital",
+    "rec-entreprises": "Entreprises", "rec-controle": "Contrôle",
+    "dep-retraites": "Retraites", "dep-social": "Protection sociale et santé", "dep-services": "Services publics",
+    "dep-avenir": "Avenir", "dep-monde": "La France dans le monde"
+  };
+
+  // ---------- Paramètres du moteur (vue « Moteur ») ----------
+  const ENGINE = [
+    { sec: "seuils", id: "ruleUE", label: "Déficit toléré par Bruxelles", min: 2, max: 6, step: 0.5, ref: 3, fmt: v => `${smart(v)} % du PIB`, note: "Traité de Maastricht, 1992. La France est en procédure pour déficit excessif depuis juillet 2024. Au-delà, la BCE ne vous protège plus." },
+    { sec: "seuils", id: "ruleAttack", label: "Écart de taux qui déclenche une attaque", min: 150, max: 600, step: 25, ref: 300, fmt: v => `${f0(v)} pb`, note: "Italie, novembre 2011 : l'écart avec l'Allemagne touche 575 pb, Silvio Berlusconi démissionne." },
+    { sec: "seuils", id: "ruleFMI", label: "Taux à 10 ans qui met la France sous tutelle", min: 5, max: 10, step: 0.5, ref: 7, fmt: pct, note: "Grèce et Irlande en 2010, Portugal en 2011 : l'appel à l'aide internationale est venu quand leur taux a franchi environ 7 %." },
+    { sec: "seuils", id: "ruleMouv", label: "Colère qui déclenche un mouvement social", min: 40, max: 80, step: 5, ref: 55, fmt: v => `${f0(v)} / 100`, note: "Repères : gilets jaunes en 2018, réforme des retraites en 2023." },
+    { sec: "seuils", id: "ruleChute", label: "Colère qui fait tomber le gouvernement", min: 50, max: 95, step: 5, ref: 70, fmt: v => `${f0(v)} / 100`, note: "Décembre 2024 : le gouvernement Barnier est censuré sur le budget de la Sécurité sociale." },
+    { sec: "seuils", id: "ruleDebt", label: "Dette visée en 2035", min: 60, max: 160, step: 5, ref: 120, fmt: v => `${f0(v)} % du PIB`, note: "Le traité de Maastricht fixe 60 %. La France l'a dépassé au début des années 2000." },
+    { sec: "seuils", id: "ecb", type: "toggle", label: "La BCE protège les pays qui respectent les règles", ref: true, note: "Instrument créé en 2022 : la BCE peut acheter la dette d'un pays attaqué, s'il respecte le cadre budgétaire européen." },
+    { sec: "seuils", id: "ecbCap", label: "Écart maximal toléré par la BCE", min: 100, max: 400, step: 25, ref: 200, fmt: v => `${f0(v)} pb`, note: "Niveau auquel le bouclier contient l'écart quand il s'active. Choix de conception." },
+
+    { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 5, step: 0.1, ref: 2.6, fmt: pct, note: "Le taux de référence en zone euro. La France emprunte à ce taux plus son écart." },
+    { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 150, step: 5, ref: 50, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part." },
+    { sec: "marches", id: "prime", label: "Par point de dette au-delà de 113 %", min: 0, max: 8, step: 0.5, ref: 2, fmt: v => `${smart(v)} pb`, note: "La littérature trouve de 2 à 5 pb par point pour les pays de la zone euro." },
+    { sec: "marches", id: "kDef", label: "Par point de déficit au-delà du seuil de Bruxelles", min: 0, max: 20, step: 1, ref: 6, fmt: v => `${f0(v)} pb`, note: null },
+    { sec: "marches", id: "kRise", label: "Par point de hausse annuelle de la dette", min: 0, max: 20, step: 1, ref: 5, fmt: v => `${f0(v)} pb`, note: "Les marchés regardent la pente autant que le niveau." },
+    { sec: "marches", id: "kAnger", label: "Par point de colère au-delà de 50", min: 0, max: 4, step: 0.25, ref: 1, fmt: v => `${smart(v)} pb`, note: "Le risque politique. Juin 2024 : la dissolution fait bondir l'écart d'environ 30 pb." },
+    { sec: "marches", id: "kBiz", label: "Par point de mécontentement des entreprises", min: 0, max: 2, step: 0.1, ref: 0.6, fmt: v => `${smart(v)} pb`, note: null },
+    { sec: "marches", id: "notchWidth", label: "Écart qui fait perdre un cran de note", min: 15, max: 80, step: 5, ref: 35, fmt: v => `tous les ${f0(v)} pb`, note: "On part de A+. Le premier cran tombe à 90 pb + cette valeur." },
+    { sec: "marches", id: "kNotch", label: "Surcoût par cran perdu", min: 0, max: 25, step: 1, ref: 8, fmt: v => `${f0(v)} pb`, note: null },
+    { sec: "marches", id: "junkJump", label: "Saut quand la dette devient spéculative", min: 0, max: 300, step: 25, ref: 100, fmt: v => `${f0(v)} pb`, note: "Sous BBB−, beaucoup de fonds n'ont plus le droit de détenir la dette." },
+    { sec: "marches", id: "attackJump", label: "Saut lors d'une attaque", min: 50, max: 500, step: 25, ref: 250, fmt: v => `${f0(v)} pb`, note: "S'atténue de moitié chaque année ensuite." },
+    { sec: "marches", id: "maturity", label: "Durée moyenne de la dette", min: 4, max: 12, step: 0.5, ref: 8.5, fmt: v => `${smart(v)} ans`, note: "Plus elle est longue, plus une hausse des taux met du temps à coûter." },
+
+    { sec: "rue", id: "anger0", label: "Colère de départ", min: 20, max: 60, step: 1, ref: 40, fmt: v => `${f0(v)} / 100`, note: "Le climat de 2024 : instabilité politique, pouvoir d'achat sous tension." },
+    { sec: "rue", id: "inertia", label: "Inertie de la colère", min: 0, max: 0.9, step: 0.05, ref: 0.6, fmt: share, note: "Part de la colère de l'an passé qui demeure. À 0, l'opinion réagit sans délai." },
+    { sec: "rue", id: "giftRatio", label: "Poids d'un gain par rapport à une perte", min: 0, max: 1, step: 0.05, ref: 0.4, fmt: share, note: "L'aversion à la perte : un euro donné calme moins qu'un euro retiré n'irrite." },
+    { sec: "rue", id: "ageWeight", label: "Colère par année d'âge légal en plus", min: 0, max: 15, step: 0.5, ref: 6, fmt: v => `${smart(v)} pt`, note: "La réforme de 2023 (+2 ans) a fait descendre plus d'un million de personnes dans la rue. Reculer l'âge apaise 2,5 fois moins." },
+    { sec: "rue", id: "uWeight", label: "Colère par point de chômage au-delà de 7,5 %", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} pt`, note: null },
+    { sec: "rue", id: "strikeCost", label: "Activité perdue pendant un mouvement social", min: 0, max: 1, step: 0.1, ref: 0.3, fmt: v => `${smart(v)} % du PIB`, note: null },
+    { sec: "rue", id: "zucmanPop", label: "Apaisement par un impôt sur les très riches", min: 0, max: 10, step: 0.5, ref: 3, fmt: v => `${smart(v)} pt`, note: "Le sentiment que l'effort est partagé." },
+
+    { sec: "groupes", id: "c_retraites", label: "Retraités", min: 0, max: 1.5, step: 0.05, ref: 0.5, fmt: coef, note: "17 millions de personnes, la plus forte participation électorale." },
+    { sec: "groupes", id: "c_modestes", label: "Ménages modestes", min: 0, max: 1.5, step: 0.05, ref: 0.6, fmt: coef, note: null },
+    { sec: "groupes", id: "c_chomeurs", label: "Demandeurs d'emploi", min: 0, max: 1.5, step: 0.05, ref: 0.7, fmt: coef, note: null },
+    { sec: "groupes", id: "c_menages", label: "Tous les ménages (TVA, CSG, habitation)", min: 0, max: 1.5, step: 0.05, ref: 0.55, fmt: coef, note: null },
+    { sec: "groupes", id: "c_automob", label: "Ménages qui roulent et se chauffent", min: 0, max: 1.5, step: 0.05, ref: 0.8, fmt: coef, note: "Les gilets jaunes sont partis d'une hausse de taxe sur les carburants." },
+    { sec: "groupes", id: "c_aises", label: "Classes moyennes et aisées", min: 0, max: 1.5, step: 0.05, ref: 0.35, fmt: coef, note: null },
+    { sec: "groupes", id: "c_heritiers", label: "Familles qui transmettent", min: 0, max: 1.5, step: 0.05, ref: 0.5, fmt: coef, note: null },
+    { sec: "groupes", id: "c_agents", label: "Agents publics", min: 0, max: 1.5, step: 0.05, ref: 0.5, fmt: coef, note: "5,7 millions d'agents, un taux de syndicalisation supérieur au privé." },
+    { sec: "groupes", id: "c_sante", label: "Soignants et patients", min: 0, max: 1.5, step: 0.05, ref: 0.4, fmt: coef, note: null },
+    { sec: "groupes", id: "c_ecole", label: "Familles et enseignants", min: 0, max: 1.5, step: 0.05, ref: 0.4, fmt: coef, note: null },
+    { sec: "groupes", id: "c_usagers", label: "Usagers des services publics", min: 0, max: 1.5, step: 0.05, ref: 0.3, fmt: coef, note: null },
+    { sec: "groupes", id: "c_solidarite", label: "Solidarité internationale", min: 0, max: 1.5, step: 0.05, ref: 0.1, fmt: coef, note: null },
+    { sec: "groupes", id: "c_entreprises", label: "Entreprises et investisseurs", min: 0, max: 1.5, step: 0.05, ref: 0.8, fmt: coef, note: "Ne compte pas dans la rue. Pèse sur l'écart de taux." },
+
+    { sec: "eco", id: "growth", label: "Croissance réelle potentielle", min: 0, max: 2.5, step: 0.1, ref: 1.0, fmt: v => `${smart(v)} % par an`, note: "Ce que l'économie peut produire en plus chaque année, hors inflation." },
+    { sec: "eco", id: "infl", label: "Inflation", min: 0, max: 4, step: 0.25, ref: 1.75, fmt: v => `${smart(v)} % par an`, note: null },
+    { sec: "eco", id: "demoRet", label: "Hausse annuelle des dépenses de retraite, hors inflation", min: 0, max: 2, step: 0.1, ref: 1.0, fmt: v => `${smart(v)} % par an`, note: "Plus de retraités, des pensions plus élevées à l'entrée." },
+    { sec: "eco", id: "mult", label: "Multiplicateur budgétaire", min: 0, max: 1.5, step: 0.1, ref: 0.7, fmt: v => f1(v), note: "Activité perdue pour 1 € de dépense en moins. Estimations : de 0,3 à 1,5." },
+    { sec: "eco", id: "taxMult", label: "Effet d'un impôt relativement à une dépense", min: 0, max: 1.2, step: 0.1, ref: 0.6, fmt: share, note: "Un euro d'impôt en plus pèse moins sur l'activité qu'un euro de dépense en moins : une partie est prise sur l'épargne." },
+    { sec: "eco", id: "persist", label: "Persistance d'un choc d'activité", min: 0, max: 0.9, step: 0.05, ref: 0.6, fmt: share, note: "Part de l'écart de production qui demeure d'une année sur l'autre." },
+    { sec: "eco", id: "okun", label: "Chômage par point d'activité perdue", min: 0, max: 1, step: 0.05, ref: 0.5, fmt: v => `${smart(v)} pt`, note: "La loi d'Okun." },
+    { sec: "eco", id: "u0", label: "Chômage de départ", min: 5, max: 10, step: 0.1, ref: 7.4, fmt: pct, note: null },
+    { sec: "eco", id: "allegJobs", label: "Chômage par milliard d'allègements supprimés", min: 0, max: 0.06, step: 0.005, ref: 0.025, fmt: v => `${smart(v)} pt`, note: "Tout supprimer coûterait alors près de 2 points. Les évaluations divergent fortement." },
+    { sec: "eco", id: "investReturn", label: "Croissance gagnée par point de PIB investi", min: 0, max: 0.4, step: 0.05, ref: 0.1, fmt: v => `${smart(v)} pt par an`, note: "Atteint en 3 ans. Dépend de la qualité des projets." },
+    { sec: "eco", id: "fraudReal", label: "Part réellement récupérée sur la fraude visée", min: 0, max: 100, step: 5, ref: 50, fmt: v => `${f0(v)} %`, note: null },
+    { sec: "eco", id: "behav", type: "choice", label: "Réaction générale des contribuables", ref: "moyen", options: [["faible", "Faible"], ["moyen", "Moyenne"], ["fort", "Forte"]], note: "Multiplie toutes les fuites ci-contre : ×0,5, ×1 ou ×1,6." },
+
+    { sec: "fuites", id: "l_tva", label: "TVA", min: 0, max: 0.8, step: 0.05, ref: 0.10, fmt: share, note: "Part du rendement théorique qui disparaît : moins de consommation, fraude, évasion." },
+    { sec: "fuites", id: "l_energie", label: "Taxe carbone", min: 0, max: 0.8, step: 0.05, ref: 0.15, fmt: share, note: "Ici, la baisse de consommation est le but recherché." },
+    { sec: "fuites", id: "l_csg", label: "CSG", min: 0, max: 0.8, step: 0.05, ref: 0.05, fmt: share, note: null },
+    { sec: "fuites", id: "l_ir", label: "Impôt sur le revenu", min: 0, max: 0.8, step: 0.05, ref: 0.25, fmt: share, note: null },
+    { sec: "fuites", id: "l_capital", label: "Capital", min: 0, max: 0.8, step: 0.05, ref: 0.40, fmt: share, note: "Les revenus du capital se déplacent ou se reportent facilement." },
+    { sec: "fuites", id: "l_succ", label: "Successions", min: 0, max: 0.8, step: 0.05, ref: 0.20, fmt: share, note: null },
+    { sec: "fuites", id: "l_is", label: "Impôt sur les sociétés", min: 0, max: 0.8, step: 0.05, ref: 0.30, fmt: share, note: null },
+    { sec: "fuites", id: "l_alleg", label: "Allègements de cotisations", min: 0, max: 0.8, step: 0.05, ref: 0.35, fmt: share, note: "Emplois perdus, donc cotisations perdues." },
+    { sec: "fuites", id: "l_niches", label: "Niches fiscales et CIR", min: 0, max: 0.8, step: 0.05, ref: 0.30, fmt: share, note: null },
+    { sec: "fuites", id: "zucYield", label: "Rendement de l'impôt plancher (réaction moyenne)", min: 0, max: 25, step: 1, ref: 12, fmt: md, note: "×1,6 si la réaction est faible, ×0,4 si elle est forte." },
+
+    { sec: "evt", id: "evRec", type: "toggle", label: "Récession en 2028", ref: false, note: "Le PIB décroche de 2 %, puis rattrape." },
+    { sec: "evt", id: "evRate", type: "toggle", label: "Choc de taux mondial dès 2027", ref: false, note: "+1,5 point sur tous les nouveaux emprunts, durablement." }
+  ];
+  const ENG_SECS = [
+    ["seuils", "Seuils de fin de partie", "Les bornes du jeu. Chacune est adossée à un précédent, aucune n'est automatique dans la réalité."],
+    ["marches", "Les marchés", "Écart de taux avec l'Allemagne, en points de base (pb). Il réagit à l'année écoulée."],
+    ["rue", "La rue", "Comment la colère naît, dure et retombe."],
+    ["groupes", "Colère par milliard retiré, groupe par groupe", "Combien de points d'indice coûte 1 Md€ pris à chaque groupe. Ce sont les paramètres les plus politiques du jeu."],
+    ["eco", "L'économie", "Croissance, activité, chômage."],
+    ["fuites", "Réactions aux impôts", "Part du rendement théorique d'une hausse d'impôt qui disparaît."],
+    ["evt", "Coups du sort", "Des chocs que vous ne contrôlez pas."]
+  ];
+  const ALL = LEVERS.concat(ENGINE);
+  const REF = Object.fromEntries(ALL.map(p => [p.id, p.ref]));
+  const TABS = [["rec", "Recettes"], ["dep", "Dépenses"]];
+  const PRESETS = [
+    ["ref", "Politique inchangée", {}],
+    ["dep", "Tout par la dépense", { age: 65, idxRet: -0.5, idxPrest: -0.5, chom: -10, ondam: 2.5, educ: -3, point: -0.3, eff: -1, coll: -0.3, apd: -30 }],
+    ["imp", "Tout par l'impôt", { tva: 21, csg: 1, ir: 1, is: 27, niches: 15, zucman: true, succ: 15, pfu: 33 }],
+    ["mix", "Moitié-moitié", { age: 64.5, idxRet: -0.3, ondam: 2.7, csg: 0.5, niches: 10, alleg: 85, zucman: true, fraude: 5, apd: -20 }],
+    ["fil", "Tout lâcher", { tva: 18, ir: -2, age: 62, idxRet: 0.5, idxPrest: 0.5, ondam: 4, point: 1, educ: 8, def: 3, invest: 20 }]
+  ];
+
+  let state = { ...REF };
+  let activeTab = "rec";
+  let pickYear = 2030;
+  let view = "play";
+
+  // ---------- Modèle ----------
+  const BF = { faible: 0.5, moyen: 1, fort: 1.6 };
+  function spending(Q, t, k, pi) {
+    const n = t - 2024, m = Math.max(0, t - 2025);
+    const retBase = 395 * Math.pow((1 + pi) * (1 + Q.demoRet / 100), n);
+    const dAge = Math.sign(Q.age - 64) * Math.min(Math.abs(Q.age - 64), 0.25 * m);
+    const retIdx = retBase * (Math.pow(1 + Q.idxRet / 100, m) - 1);
+    const retraites = retBase + retIdx - dAge * 8.5 * (retBase / 395);
+    const sante = n === 0 ? 255 : 255 * 1.03 * Math.pow(1 + Q.ondam / 100, m);
+    const prestBase = 130 * Math.pow((1 + pi) * 1.005, n);
+    const prestIdx = prestBase * (Math.pow(1 + Q.idxPrest / 100, m) - 1);
+    const chomBase = 40 * k;
+    const chomD = m > 0 ? chomBase * Q.chom / 100 : 0;
+    const educ = 155 * k * (m > 0 ? 1 + Q.educ / 100 : 1);
+    const secuD = m > 0 ? 50 * k * Q.secu / 100 : 0;
+    const defense = (1.9 + (Q.def - 1.9) * Math.min(1, m / 5)) / 100 * Y0 * k;
+    const remun = 210 * k * (Math.pow(1 + Q.point / 100, m) - 1);
+    const effD = 350 * k * Q.eff / 100 * Math.min(1, m / 3);
+    const collD = 290 * k * (Math.pow(1 + Q.coll / 100, m) - 1);
+    const apdD = m > 0 ? 14 * k * Q.apd / 100 : 0;
+    const investD = m > 0 ? Q.invest * k : 0;
+    return {
+      cat: {
+        retraites, sante, prest: prestBase + prestIdx + chomBase + chomD, educ, defense,
+        securite: 50 * k + secuD, eco: 175 * k + investD, autres: (355 - 14) * k + remun + effD + collD + 14 * k + apdD
+      },
+      retIdx, prestIdx, chomD, secuD, remun, effD, collD, apdD, investD
+    };
+  }
+  // Effet mécanique (avant fuite) et effet net de chaque levier fiscal, en Md€ de 2024
+  function taxes(Q) {
+    const bf = BF[Q.behav];
+    const mech = {
+      tva: (Q.tva - 20) * 10.5, tvaInt: (Q.tvaInt - 10) * 1.8, tvaRed: (Q.tvaRed - 5.5) * 3,
+      carbone: (Q.carbone - 45) * 0.25, csg: Q.csg * 15, ir: Q.ir * 4.5,
+      abatRet: Q.abatRet ? 4 : 0, th: Q.th ? 22 : 0, pfu: (Q.pfu - 30) * 0.6, succ: Q.succ / 100 * 18,
+      is: (Q.is - 25) * 2.4, alleg: (100 - Q.alleg) / 100 * 75, cir: (100 - Q.cir) / 100 * 7.6, niches: Q.niches / 100 * 77
+    };
+    const leakOf = { tva: Q.l_tva, tvaInt: Q.l_tva, tvaRed: Q.l_tva, carbone: Q.l_energie, csg: Q.l_csg, ir: Q.l_ir, abatRet: 0, th: 0,
+      pfu: Q.l_capital, succ: Q.l_succ, is: Q.l_is, alleg: Q.l_alleg, cir: Q.l_niches, niches: Q.l_niches };
+    const net = {};
+    for (const key in mech) net[key] = mech[key] * (1 - Math.min(0.95, leakOf[key] * bf));
+    net.zucman = Q.zucman ? Q.zucYield * { faible: 1.6, moyen: 1, fort: 0.4 }[Q.behav] : 0;
+    net.fraude = Q.fraude * Q.fraudReal / 100;
+    const cat = {
+      tva: net.tva + net.tvaInt + net.tvaRed, energie: net.carbone, csg: net.csg, ir: net.ir + net.abatRet + net.pfu,
+      local: net.th, is: net.is, cotis: net.alleg, autres: net.succ + net.cir + net.niches + net.zucman + net.fraude
+    };
+    return { mech, net, cat };
+  }
+  // Colère : pertes infligées à chaque groupe, en Md€ de 2024. Une perte pèse plus qu'un gain.
+  const PAIN_MAP = [
+    ["idxRet", "retraites", (s) => -s.retIdx], ["abatRet", "retraites", (s, r, tx) => tx.mech.abatRet],
+    ["idxPrest", "modestes", (s) => -s.prestIdx], ["chom", "chomeurs", (s) => -s.chomD],
+    ["ondam", "sante", (s, r) => r.cat.sante - s.cat.sante], ["educ", "ecole", (s, r) => r.cat.educ - s.cat.educ],
+    ["point", "agents", (s) => -s.remun], ["eff", "agents", (s) => -s.effD],
+    ["secu", "usagers", (s) => -s.secuD], ["coll", "usagers", (s) => -s.collD], ["invest", "usagers", (s) => -s.investD],
+    ["apd", "solidarite", (s) => -s.apdD],
+    ["tva", "menages", (s, r, tx) => tx.mech.tva], ["tvaInt", "menages", (s, r, tx) => tx.mech.tvaInt], ["tvaRed", "menages", (s, r, tx) => tx.mech.tvaRed],
+    ["csg", "menages", (s, r, tx) => tx.mech.csg], ["th", "menages", (s, r, tx) => tx.mech.th],
+    ["carbone", "automob", (s, r, tx) => tx.mech.carbone],
+    ["ir", "aises", (s, r, tx) => tx.mech.ir], ["pfu", "aises", (s, r, tx) => tx.mech.pfu], ["niches", "aises", (s, r, tx) => tx.mech.niches],
+    ["succ", "heritiers", (s, r, tx) => tx.mech.succ],
+    ["is", "entreprises", (s, r, tx) => tx.mech.is], ["alleg", "entreprises", (s, r, tx) => tx.mech.alleg], ["cir", "entreprises", (s, r, tx) => tx.mech.cir]
+  ];
+  function pain(Q, s, sRef, k, tx) {
+    const per = {}, groups = {};
+    let street = 0, business = 0;
+    const add = (id, g, v) => {
+      if (!v) return;
+      per[id] = per[id] || { street: 0, biz: 0 };
+      groups[g] = (groups[g] || 0) + v;
+      if (g === "entreprises") { business += v; per[id].biz += v; } else { street += v; per[id].street += v; }
+    };
+    PAIN_MAP.forEach(([id, g, fn]) => {
+      const amt = fn(s, sRef, tx) / (tx === null ? 1 : (["tva", "tvaInt", "tvaRed", "csg", "th", "carbone", "ir", "pfu", "niches", "succ", "is", "alleg", "cir", "abatRet"].includes(id) ? 1 : k));
+      const c = Q["c_" + g];
+      add(id, g, amt >= 0 ? amt * c : amt * c * Q.giftRatio);
+    });
+    add("age", "actifs", Q.age >= 64 ? Q.ageWeight * (Q.age - 64) : Q.ageWeight / 2.5 * (Q.age - 64));
+    if (Q.zucman) { add("zucman", "opinion", -Q.zucmanPop); add("zucman", "entreprises", 4); }
+    if (Q.fraude) add("fraude", "opinion", -0.1 * Q.fraude);
+    return { per, groups, street, business };
+  }
+  const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+  const NOPAIN = { per: {}, groups: {}, street: 0, business: 0 };
+
+  function simulate(P) {
+    const R = { ...P }; LEVERS.forEach(l => { R[l.id] = l.ref; });
+    const pi = P.infl / 100;
+    const o = { Y: [], sp: [], spTot: [], rev: [], revTot: [], int: [], def: [], defR: [], D: [], d: [], prim: [], po: [],
+      spread: [], rate: [], anger: [], u: [], notch: [], groups: [], per: [], events: [], defeat: null };
+    let Ypot = Y0, D = D0, rEff = I0 / D0, gap = 0, impPrev = 0, attackBonus = 0;
+    let streakUp = 0, inMouv = false, ecbAnnounced = false, ecbRefused = false, debtFell = false, outPDE = false, fined = false;
+    const ev = (year, kind, title, detail) => o.events.push({ year, kind, title, detail });
+
+    YEARS.forEach((t, n) => {
+      const m = Math.max(0, t - 2025);
+      const boost = P.investReturn * (P.invest / Y0 * 100) * Math.min(1, m / 3);
+      if (n > 0) Ypot *= (1 + (P.growth + boost) / 100) * (1 + pi);
+      const k = Ypot / Y0, on = t >= 2026;
+      const s = spending(P, t, k, pi), sRef = spending(R, t, k, pi);
+      const tx = taxes(on ? P : R);
+      const pn = on ? pain(P, s, sRef, k, tx) : NOPAIN;
+      const dRev = sum(tx.cat) * k;
+      const imp = ((sum(s.cat) - sum(sRef.cat)) - P.taxMult * dRev) / Ypot;
+
+      // 1. Les marchés réagissent à l'année écoulée
+      let spread = SPREAD0, attack = false, prot = false;
+      if (n > 0) {
+        const dPrev = o.d[n - 1], defPrev = o.defR[n - 1], dd = n > 1 ? o.d[n - 1] - o.d[n - 2] : 2.7;
+        const notchPrev = o.notch[n - 1], angerLast = o.anger[n - 1];
+        const raw = P.spreadBase + P.prime * Math.max(0, dPrev - 113) + P.kDef * Math.max(0, defPrev - P.ruleUE)
+          + P.kRise * Math.max(0, dd) + P.kAnger * Math.max(0, angerLast - 50) + P.kBiz * Math.max(0, pn.business)
+          + P.kNotch * notchPrev + (notchPrev >= JUNK ? P.junkJump : 0);
+        const compliant = defPrev <= P.ruleUE || (n > 1 && defPrev <= o.defR[n - 2] - 0.4);
+        spread = raw;
+        if (P.ecb && raw > P.ecbCap) {
+          if (compliant) {
+            prot = true; spread = P.ecbCap;
+            if (!ecbAnnounced) { ecbAnnounced = true; ev(t, "good", "La BCE active son bouclier anti-écart", `Sans elle, l'écart atteindrait ${f0(raw)} pb. Elle achète de la dette française pour le contenir à ${f0(P.ecbCap)} pb, parce que la France tient sa trajectoire européenne.`); }
+          } else if (!ecbRefused) {
+            ecbRefused = true; ev(t, "bad", "La BCE refuse d'intervenir", `Le déficit dépasse ${smart(P.ruleUE)} % et ne se résorbe pas. Son bouclier est réservé aux pays qui respectent les règles.`);
+          }
+        }
+        if (!prot && spread > P.ruleAttack) {
+          attack = true; attackBonus = P.attackJump;
+          if (!o.defeat) ev(t, "bad", "Les marchés attaquent la dette française", `L'écart dépasse ${f0(P.ruleAttack)} pb. Les fonds vendent et parient contre la France : l'écart bondit de ${f0(P.attackJump)} pb et l'activité recule de 1 %.`);
+        } else attackBonus *= 0.5;
+        spread += prot ? 0 : attackBonus;
+      }
+      const mRate = P.bund / 100 + spread / 10000 + (P.evRate && t >= 2027 ? 0.015 : 0);
+
+      // 2. L'activité
+      const angerPrev = n > 0 ? o.anger[n - 1] : P.anger0;
+      gap = P.persist * gap + P.mult * (imp - impPrev)
+        + (P.evRec && t === 2028 ? -0.02 : 0)
+        + (attack ? -0.01 : 0)
+        + (n > 0 && angerPrev > P.ruleMouv ? -P.strikeCost / 100 : 0);
+      impPrev = imp;
+      const Y = Ypot * (1 + gap);
+
+      // 3. Les comptes
+      const rev = {};
+      for (const c in REV0) rev[c] = REV0[c] * Y / Y0 + (on ? (tx.cat[c] || 0) * k : 0);
+      const interest = n === 0 ? I0 : rEff * D;
+      const spTot = sum(s.cat), revTot = sum(rev);
+      const deficit = spTot + interest - revTot;
+      if (n > 0) {
+        const Dn = D + deficit;
+        const sh = Math.min(1, (D / P.maturity + Math.max(0, deficit)) / Dn);
+        rEff = rEff * (1 - sh) + mRate * sh;
+        D = Dn;
+      }
+      const d = D / Y * 100, defR = deficit / Y * 100;
+
+      // 4. La rue
+      const u = P.u0 - P.okun * 100 * gap + P.allegJobs * Math.max(0, on ? tx.mech.alleg : 0);
+      const target = P.anger0 + pn.street + P.uWeight * Math.max(0, u - 7.5);
+      const anger = n === 0 ? P.anger0 : Math.max(0, Math.min(100, P.inertia * angerPrev + (1 - P.inertia) * target));
+      const notch = n === 0 ? 0 : Math.min(RATINGS.length - 1, Math.max(0, Math.floor((spread - 90) / P.notchWidth)));
+
+      o.Y.push(Y); o.sp.push({ ...s.cat, int: interest }); o.spTot.push(spTot + interest);
+      o.rev.push(rev); o.revTot.push(revTot); o.int.push(interest);
+      o.def.push(deficit); o.defR.push(defR); o.D.push(D); o.d.push(d);
+      o.prim.push(revTot - spTot); o.po.push((revTot - rev.nonfisc) / Y * 100);
+      o.spread.push(spread); o.rate.push(mRate * 100); o.anger.push(anger); o.u.push(u); o.notch.push(notch);
+      o.groups.push(pn.groups); o.per.push(pn.per);
+      if (n === 0 || o.defeat) return;
+
+      // 5. Le journal
+      if (notch > o.notch[n - 1]) {
+        const junk = notch >= JUNK && o.notch[n - 1] < JUNK;
+        ev(t, junk ? "bad" : "warn",
+          junk ? `La dette française devient spéculative (${RATINGS[notch]})` : `Les agences abaissent la note de la France à ${RATINGS[notch]}`,
+          junk ? "Sous BBB−, beaucoup de fonds n'ont plus le droit de la détenir. Ils la vendent, et l'écart de taux s'envole." : `L'écart de taux avec l'Allemagne atteint ${f0(spread)} pb. Chaque cran perdu renchérit les emprunts suivants.`);
+      } else if (notch < o.notch[n - 1]) {
+        ev(t, "good", `La note de la France remonte à ${RATINGS[notch]}`, `L'écart de taux redescend à ${f0(spread)} pb.`);
+      }
+      if (anger > P.ruleMouv && !inMouv) {
+        inMouv = true;
+        ev(t, "warn", "Grèves et manifestations massives", `Colère à ${f0(anger)}/100, au-delà du seuil de ${f0(P.ruleMouv)}. ${topGroups(pn.groups)} Le pays tourne au ralenti : −${smart(P.strikeCost)} % d'activité tant que ça dure.`);
+      } else if (anger <= P.ruleMouv - 3 && inMouv) {
+        inMouv = false; ev(t, "good", "Le mouvement social s'essouffle", `La colère redescend à ${f0(anger)}/100.`);
+      }
+      if (on && defR <= P.ruleUE && !outPDE) {
+        outPDE = true; ev(t, "good", "Sortie de la procédure pour déficit excessif", `Le déficit passe à ${f1(defR)} % du PIB, sous le seuil de ${smart(P.ruleUE)} %.`);
+      }
+      if (on && defR > P.ruleUE && defR > o.defR[n - 1] + 0.05) {
+        streakUp++;
+        if (streakUp === 1) ev(t, "warn", "Bruxelles hausse le ton", `Le déficit remonte à ${f1(defR)} % au lieu de baisser. La Commission exige des mesures correctrices.`);
+        if (streakUp === 3 && !fined) { fined = true; ev(t, "bad", "Amende européenne", "Trois ans de dérive : l'Union peut infliger jusqu'à 0,2 % du PIB d'amende. Elle ne l'a jamais fait, mais la menace pèse sur la crédibilité."); }
+      } else streakUp = 0;
+      if (!debtFell && on && d < o.d[n - 1] - 0.05) {
+        debtFell = true; ev(t, "good", "La dette baisse en % du PIB", `Elle passe de ${f1(o.d[n - 1])} % à ${f1(d)} %. Une première depuis des années.`);
+      }
+      if (mRate * 100 > P.ruleFMI) {
+        o.defeat = { year: t, type: "fmi" };
+        ev(t, "end", "Le FMI et l'Europe prennent la main", `L'État emprunte à ${f1(mRate * 100)} % à dix ans, au-delà du seuil de ${smart(P.ruleFMI)} % : il ne peut plus se financer seul. Comme la Grèce en 2010, la France reçoit un prêt contre un programme d'austérité qu'elle ne choisit plus.`);
+      } else if (anger > P.ruleChute) {
+        o.defeat = { year: t, type: "chute" };
+        ev(t, "end", "Le gouvernement est renversé", `Colère à ${f0(anger)}/100, au-delà du seuil de ${f0(P.ruleChute)}. ${topGroups(pn.groups)} Une motion de censure emporte la majorité.`);
+      }
+    });
+    return o;
+  }
+  function topGroups(groups) {
+    const top = Object.entries(groups).filter(([g, v]) => g !== "entreprises" && v > 1.5).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([g]) => GROUPS[g].toLowerCase());
+    return top.length ? `En tête du cortège : ${top.join(" et ")}.` : "";
+  }
+  const idx = (y) => y - 2024;
+
+  // ---------- Construction de l'interface ----------
+  const $ = (id) => document.getElementById(id);
+  const isLever = (p) => !!p.sec && (p.sec.startsWith("rec") || p.sec.startsWith("dep"));
+
+  function paramHTML(p) {
+    const chips = isLever(p) ? `<span class="chips"><span class="delta neutral" data-delta></span><span class="delta neutral" data-pain></span></span>` : "";
+    const today = isLever(p) ? "Aujourd'hui" : "Par défaut";
+    if (p.type === "toggle") {
+      return `<div class="lever" data-param="${p.id}"><div class="switch"><label for="in-${p.id}">${p.label}</label><input type="checkbox" role="switch" id="in-${p.id}"></div>
+        <div class="lever-meta"><span>${today} : ${p.ref ? "oui" : "non"}</span>${chips}</div>
+        ${p.note ? `<p class="lever-note">${p.note}</p>` : ""}</div>`;
+    }
+    if (p.type === "choice") {
+      return `<div class="lever" data-param="${p.id}"><div class="lever-head"><label id="lb-${p.id}">${p.label}</label></div>
+        <div class="seg" role="group" aria-labelledby="lb-${p.id}">${p.options.map(([v, t]) => `<button type="button" data-choice="${v}">${t}</button>`).join("")}</div>
+        ${p.note ? `<p class="lever-note">${p.note}</p>` : ""}</div>`;
+    }
+    const pos = (p.ref - p.min) / (p.max - p.min) * 100;
+    return `<div class="lever" data-param="${p.id}">
+      <div class="lever-head"><label for="in-${p.id}">${p.label}</label><output id="out-${p.id}" for="in-${p.id}"></output></div>
+      <div class="track"><span class="refmark" style="--pos:${pos}%"></span><input type="range" id="in-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}"></div>
+      <div class="lever-meta"><span>${today} : ${p.fmt(p.ref)}</span>${chips}</div>
+      ${p.note || p.id === "ir" ? `<p class="lever-note" ${p.id === "ir" ? 'id="irNote"' : ""}>${p.note || ""}</p>` : ""}
+    </div>`;
+  }
+
+  // Vue Jouer
+  const presetsEl = $("presets");
+  PRESETS.forEach(([key, label]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chipbtn"; b.dataset.preset = key; b.textContent = label;
+    b.setAttribute("aria-pressed", key === "ref" ? "true" : "false");
+    presetsEl.appendChild(b);
+  });
+  presetsEl.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-preset]"); if (!b) return;
+    const p = PRESETS.find(x => x[0] === b.dataset.preset);
+    LEVERS.forEach(l => { state[l.id] = l.ref; });
+    Object.assign(state, p[2]);
+    syncInputs(); update();
+    presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+  });
+  const tabsEl = $("tabs");
+  TABS.forEach(([key, label]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "tab"; b.setAttribute("role", "tab"); b.dataset.tab = key; b.id = "tab-" + key;
+    b.innerHTML = `${label}<span class="tcount"></span>`;
+    tabsEl.appendChild(b);
+  });
+  tabsEl.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    activeTab = b.dataset.tab; renderTabs();
+  });
+  const leversEl = $("levers");
+  const secs = [...new Set(LEVERS.map(l => l.sec))];
+  leversEl.innerHTML = TABS.map(([tab]) =>
+    `<div data-tab-body="${tab}"><p class="group-intro">Chaque levier affiche ce qu'il rapporte au déficit 2030 et la colère qu'il provoque, à terme.</p>${secs.filter(s => s.startsWith(tab)).map(s =>
+      `<div class="group-title">${SEC_TITLES[s]}</div>${LEVERS.filter(l => l.sec === s).map(paramHTML).join("")}`).join("")}</div>`
+  ).join("");
+
+  // Vue Moteur
+  $("engGrid").innerHTML = ENG_SECS.map(([key, title, sub]) =>
+    `<div class="panel"><h2>${title}</h2><p class="sub">${sub}</p>${ENGINE.filter(p => p.sec === key).map(paramHTML).join("")}</div>`).join("");
+
+  const paramById = Object.fromEntries(ALL.map(p => [p.id, p]));
+  function onInput(e) {
+    const el = e.target; if (!el.id || !el.id.startsWith("in-")) return;
+    const id = el.id.slice(3);
+    state[id] = el.type === "checkbox" ? el.checked : parseFloat(el.value);
+    if (isLever(paramById[id])) clearPreset();
+    update();
+  }
+  function onChoice(e) {
+    const b = e.target.closest("[data-choice]"); if (!b) return;
+    const id = b.closest("[data-param]").dataset.param;
+    state[id] = b.dataset.choice; syncInputs(); update();
+  }
+  [leversEl, $("engGrid")].forEach(c => { c.addEventListener("input", onInput); c.addEventListener("click", onChoice); });
+  $("reset").addEventListener("click", () => { presetsEl.querySelector('[data-preset="ref"]').click(); });
+  $("resetEngine").addEventListener("click", () => { ENGINE.forEach(p => { state[p.id] = p.ref; }); syncInputs(); update(); });
+
+  function clearPreset() { presetsEl.querySelectorAll("[data-preset]").forEach(x => x.setAttribute("aria-pressed", "false")); }
+  function syncInputs() {
+    ALL.forEach(p => {
+      if (p.type === "choice") {
+        document.querySelectorAll(`[data-param="${p.id}"] [data-choice]`).forEach(b => b.setAttribute("aria-pressed", b.dataset.choice === state[p.id] ? "true" : "false"));
+      } else {
+        const el = $("in-" + p.id);
+        if (p.type === "toggle") el.checked = !!state[p.id]; else el.value = state[p.id];
+      }
+    });
+  }
+  function renderTabs() {
+    tabsEl.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === activeTab ? "true" : "false"));
+    leversEl.querySelectorAll("[data-tab-body]").forEach(g => { g.hidden = g.dataset.tabBody !== activeTab; });
+  }
+  const viewSeg = document.querySelector(".viewseg");
+  function setView(v) {
+    view = v;
+    $("playView").hidden = v !== "play"; $("engineView").hidden = v !== "engine";
+    viewSeg.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === v ? "true" : "false"));
+    $("viewHint").textContent = v === "engine" ? "Le bandeau reflète vos leviers actuels avec ce moteur." : "Les leviers d'un gouvernement. Les hypothèses sont dans le moteur.";
+  }
+  viewSeg.addEventListener("click", (e) => { const b = e.target.closest("[data-view]"); if (b) { setView(b.dataset.view); window.scrollTo({ top: 0 }); } });
+
+  function yearButtons(container, onPick) {
+    [2026, 2030, 2035].forEach(y => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chipbtn num"; b.dataset.year = y; b.textContent = y; container.appendChild(b);
+    });
+    container.addEventListener("click", (e) => { const b = e.target.closest("[data-year]"); if (b) onPick(+b.dataset.year); });
+  }
+  yearButtons($("yearpick"), (y) => { pickYear = y; update(); });
+  yearButtons($("groupYears"), (y) => { pickYear = y; update(); });
+
+  // ---------- Graphiques ----------
+  const svgNS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(svgNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const W = 520, H = 250, PL = 44, PR = 60, PT = 14, PB = 26;
+  const xAt = (i) => PL + i * (W - PL - PR) / (YEARS.length - 1);
+  function frame(svg, yMin, yMax, step, unit, defeat) {
+    const yAt = (v) => PT + (yMax - v) / (yMax - yMin) * (H - PT - PB);
+    if (defeat) {
+      const i = idx(defeat.year);
+      svg.appendChild(el("rect", { x: xAt(i), y: PT, width: W - PR - xAt(i), height: H - PT - PB, class: "after" }));
+      svg.appendChild(el("text", { x: xAt(i) + 4, y: PT + 12, class: "t-after" }, "fin de partie"));
+    }
+    for (let v = yMin; v <= yMax + 1e-9; v += step) {
+      svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(v), y2: yAt(v), class: v === 0 ? "axis0" : "grid" }));
+      svg.appendChild(el("text", { x: PL - 6, y: yAt(v) + 4, "text-anchor": "end" }, `${f0(v)}${unit}`));
+    }
+    YEARS.forEach((y, i) => { if (i % 2 === 0 || i === YEARS.length - 1) svg.appendChild(el("text", { x: xAt(i), y: H - 6, "text-anchor": "middle" }, y)); });
+    return yAt;
+  }
+  const niceStep = (range) => [5, 10, 20, 25, 50, 100, 200].find(s => range / s <= 6) || 500;
+  function placeLabels(svg, labels) {
+    labels.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13;
+    labels.forEach(l => svg.appendChild(el("text", { x: W - PR + 6, y: l.y + 4, class: l.cls }, l.text)));
+  }
+  function lineChart(svg, P, R, opts) {
+    svg.replaceChildren();
+    const all = P.concat(R, (opts.limits || []).map(l => l.v));
+    const step = niceStep(Math.max(...all) - Math.min(...all) + 8);
+    let yMin = Math.floor((Math.min(...all) - step / 2) / step) * step;
+    if (opts.floor != null) yMin = Math.max(opts.floor, yMin);
+    const yMax = Math.ceil((Math.max(...all) + step / 3) / step) * step;
+    const yAt = frame(svg, yMin, yMax, step, opts.unit, opts.defeat);
+    const pts = (arr) => arr.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+    const labels = [];
+    (opts.limits || []).forEach(l => {
+      svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(l.v), y2: yAt(l.v), class: l.cls }));
+      labels.push({ y: yAt(l.v), text: l.label, cls: "t-" + l.cls });
+    });
+    svg.appendChild(el("polygon", { points: `${xAt(0)},${yAt(yMin)} ${pts(P)} ${xAt(YEARS.length - 1)},${yAt(yMin)}`, class: "a-player" }));
+    svg.appendChild(el("polyline", { points: pts(R), class: "l-ref" }));
+    svg.appendChild(el("polyline", { points: pts(P), class: "l-player" }));
+    const last = YEARS.length - 1;
+    svg.appendChild(el("circle", { cx: xAt(last), cy: yAt(P[last]), r: 4, fill: "var(--accent)" }));
+    labels.push({ y: yAt(P[last]), text: opts.fmt(P[last]), cls: "t-player" });
+    labels.push({ y: yAt(R[last]), text: opts.fmt(R[last]), cls: "" });
+    placeLabels(svg, labels);
+  }
+  function drawDef(svg, P, R, rule, defeat) {
+    svg.replaceChildren();
+    const all = P.defR.concat(R.defR, [rule, 0]);
+    const yMax = Math.ceil(Math.max(...all) + 0.5), yMin = Math.min(0, Math.floor(Math.min(...all) - 0.5));
+    const step = yMax - yMin > 10 ? 2 : 1;
+    const yAt = frame(svg, yMin, yMax, step, " %", defeat);
+    const bw = (W - PL - PR) / YEARS.length * 0.62;
+    P.defR.forEach((v, i) => {
+      const y1 = yAt(Math.max(v, 0)), y2 = yAt(Math.min(v, 0));
+      svg.appendChild(el("rect", { x: xAt(i) - bw / 2, y: y1, width: bw, height: Math.max(1, y2 - y1), rx: 2, class: v > rule ? "bar-bad" : "bar-good" }));
+      svg.appendChild(el("line", { x1: xAt(i) - bw / 2 - 2, x2: xAt(i) + bw / 2 + 2, y1: yAt(R.defR[i]), y2: yAt(R.defR[i]), class: "tick-ref" }));
+    });
+    svg.appendChild(el("line", { x1: PL, x2: W - PR, y1: yAt(rule), y2: yAt(rule), class: "limit" }));
+    const last = YEARS.length - 1;
+    placeLabels(svg, [{ y: yAt(rule), text: `${smart(rule)} %`, cls: "t-limit" }, { y: yAt(P.defR[last]), text: `${f1(P.defR[last])} %`, cls: "t-player" }]);
+  }
+
+  // ---------- Rendu ----------
+  function moneyChip(node, dMd) {
+    if (Math.abs(dMd) < 0.05) { node.className = "delta neutral"; node.textContent = "0 Md€"; return; }
+    node.className = "delta " + (dMd > 0 ? "good" : "bad");
+    node.textContent = `${signed(dMd, f1)} Md€`;
+  }
+  function painChip(node, pv) {
+    const street = pv ? pv.street : 0, biz = pv ? pv.biz : 0;
+    if (Math.abs(street) < 0.1 && Math.abs(biz) >= 0.1) {
+      node.className = "delta " + (biz > 0 ? "warn" : "good");
+      node.textContent = `entreprises ${signed(biz, f1)}`;
+      return;
+    }
+    if (Math.abs(street) < 0.1) { node.className = "delta neutral"; node.textContent = "colère 0"; return; }
+    node.className = "delta " + (street > 0 ? "bad" : "good");
+    node.textContent = `colère ${signed(street, f1)}`;
+  }
+  function kpi(label, val, sub, cls) {
+    return `<div class="kpi ${cls || ""}"><span class="k-label">${label}</span><span class="k-val">${val}</span><span class="k-sub">${sub}</span></div>`;
+  }
+
+  function update() {
+    const P = simulate(state);
+    const refState = { ...state }; LEVERS.forEach(l => { refState[l.id] = l.ref; });
+    const R = simulate(refState);
+    const i29 = idx(2029), i30 = idx(2030), i35 = idx(2035);
+    const end = P.defeat ? idx(P.defeat.year) : i35;
+
+    // Paramètres : état, valeurs, pastilles
+    let changedL = 0, changedE = 0;
+    const perTab = { rec: 0, dep: 0 };
+    ALL.forEach(p => {
+      const node = document.querySelector(`[data-param="${p.id}"]`);
+      const ch = state[p.id] !== p.ref;
+      node.classList.toggle("changed", ch);
+      if (ch) { if (isLever(p)) { changedL++; perTab[p.sec.slice(0, 3)]++; } else changedE++; }
+      const out = $("out-" + p.id); if (out) out.textContent = p.fmt(state[p.id]);
+      if (isLever(p)) {
+        const solo = ch ? simulate({ ...refState, [p.id]: state[p.id] }) : R;
+        moneyChip(node.querySelector("[data-delta]"), R.def[i30] - solo.def[i30]);
+        painChip(node.querySelector("[data-pain]"), P.per[i30][p.id]);
+      }
+    });
+    tabsEl.querySelectorAll("[data-tab]").forEach(b => { b.querySelector(".tcount").textContent = perTab[b.dataset.tab] || ""; });
+    $("changedCount").textContent = changedL ? `${changedL} levier${changedL > 1 ? "s" : ""} modifié${changedL > 1 ? "s" : ""}` : "Aucun levier modifié";
+    $("engBadge").textContent = changedE ? `${changedE} modifié${changedE > 1 ? "s" : ""}` : "";
+    const ir = state.ir, rate = (r) => smart(Math.max(0, r + ir));
+    $("irNote").textContent = `Barème : 0 / ${rate(11)} / ${rate(30)} / ${rate(41)} / ${rate(45)} %. Aujourd'hui 0 / 11 / 30 / 41 / 45 %. 1 point sur toutes les tranches ≈ 4,5 Md€.`;
+
+    // Bandeau
+    const maxRate = Math.max(...P.rate.slice(1, end + 1)), maxAnger = Math.max(...P.anger.slice(1, end + 1));
+    const iRate = P.rate.indexOf(maxRate), iAnger = P.anger.indexOf(maxAnger);
+    const status = P.defeat
+      ? kpi("Statut", P.defeat.type === "fmi" ? `Tutelle ${P.defeat.year}` : `Renversé ${P.defeat.year}`, P.defeat.type === "fmi" ? "Le FMI et l'Europe prennent la main" : "Motion de censure adoptée", "status lost")
+      : kpi("Statut", "Mandat tenu", `Jusqu'en 2035 · note ${RATINGS[P.notch[i35]]}`, "status ok");
+    $("kpis").innerHTML = status +
+      kpi("Déficit 2029", `${f1(P.defR[i29])} %`, `du PIB · seuil ${smart(state.ruleUE)} %`, P.defR[i29] <= state.ruleUE ? "is-good" : "is-bad") +
+      kpi("Dette 2035", `${f0(P.d[i35])} %`, `du PIB · cible ${f0(state.ruleDebt)} %`, P.d[i35] <= state.ruleDebt ? "is-good" : "is-bad") +
+      kpi("Taux à 10 ans", `${f1(maxRate)} %`, `pic en ${YEARS[iRate]} · tutelle à ${smart(state.ruleFMI)} %`, maxRate > state.ruleFMI ? "is-bad" : maxRate > state.ruleFMI - 1.5 ? "is-warn" : "") +
+      kpi("Colère", `${f0(maxAnger)}/100`, `pic en ${YEARS[iAnger]} · chute à ${f0(state.ruleChute)}`, maxAnger > state.ruleChute ? "is-bad" : maxAnger > state.ruleMouv ? "is-warn" : "");
+
+    // Verdict
+    const effort = P.prim[i30] - R.prim[i30];
+    const perHab = effort * 1e9 / (POP * 1e6);
+    const vp = $("verdictPanel");
+    vp.classList.toggle("lost", !!P.defeat); vp.classList.toggle("ok", !P.defeat);
+    let head, v;
+    if (P.defeat && P.defeat.type === "fmi") {
+      head = `Partie perdue en ${P.defeat.year}. La France passe sous tutelle.`;
+      v = `Les marchés ne prêtent plus qu'à ${f1(P.rate[end])} %. Il faut désormais appliquer le programme des créanciers. En Grèce, ce programme a fait passer la TVA à 23 % et baissé certaines pensions de plus d'un quart.`;
+    } else if (P.defeat) {
+      head = `Partie perdue en ${P.defeat.year}. Le gouvernement tombe.`;
+      v = `La colère atteint ${f0(P.anger[end])}/100. Vos réformes s'arrêtent là, et le déficit reste à ${f1(P.defR[end])} % du PIB.`;
+    } else {
+      head = P.d[i35] <= state.ruleDebt && P.defR[i29] <= state.ruleUE ? "Mandat tenu, comptes redressés." : "Mandat tenu, mais la dette court toujours.";
+      v = `En 2035, la dette atteint <b>${f0(P.D[i35])} milliards d'euros</b>, soit <b>${f0(P.d[i35])} % du PIB</b>`;
+      v += Math.abs(P.d[i35] - R.d[i35]) < 0.5 ? `, comme si rien n'avait changé. ` : `, ${f0(Math.abs(P.d[i35] - R.d[i35]))} points ${P.d[i35] < R.d[i35] ? "de moins" : "de plus"} qu'en laissant faire. `;
+      v += `Ses intérêts coûtent <b>${f0(P.int[i35])} Md€</b> par an, ${P.int[i35] > P.sp[i35].educ ? "plus" : "moins"} que l'enseignement. Le chômage finit à ${f1(P.u[i35])} %.`;
+    }
+    if (Math.abs(effort) >= 1) v += ` En 2030, vous ${effort > 0 ? "demandez" : "rendez"} <b>${f0(Math.abs(effort))} Md€</b>, environ ${f0(Math.abs(perHab))} € par habitant.`;
+    else if (!P.defeat) v += ` Vous n'avez touché à aucun levier : c'est la trajectoire « politique inchangée ».`;
+    $("ending").textContent = head;
+    $("verdict").innerHTML = v;
+
+    // Journal
+    $("journal").innerHTML = P.events.length
+      ? P.events.map(e => `<li class="${e.kind}"><span class="j-year">${e.year}</span><span class="j-dot"></span><div><div class="j-title">${e.title}</div><div class="j-detail">${e.detail}</div></div></li>`).join("")
+      : `<li><span class="empty">Rien à signaler : ni les marchés, ni la rue, ni Bruxelles ne réagissent.</span></li>`;
+
+    // Courbes
+    const lim = (val, label, cls) => ({ v: val, label, cls });
+    lineChart($("debtChart"), P.d, R.d, { unit: " %", fmt: x => `${f0(x)} %`, limits: [lim(state.ruleDebt, `cible ${f0(state.ruleDebt)}`, "limit")], defeat: P.defeat });
+    drawDef($("defChart"), P, R, state.ruleUE, P.defeat);
+    lineChart($("spreadChart"), P.spread, R.spread, { unit: "", fmt: x => `${f0(x)} pb`, limits: [lim(state.ruleAttack, "attaque", "limit-bad")], defeat: P.defeat, floor: 0 });
+    lineChart($("angerChart"), P.anger, R.anger, { unit: "", fmt: x => f0(x), limits: [lim(state.ruleMouv, "grèves", "limit"), lim(state.ruleChute, "chute", "limit-bad")], defeat: P.defeat, floor: 0 });
+    $("angerSub").textContent = `Indice de colère sociale, de 0 à 100. ${f0(state.anger0)} = climat de 2024.`;
+
+    // Qui paie, qui proteste
+    document.querySelectorAll("#yearpick [data-year], #groupYears [data-year]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.year === pickYear ? "true" : "false"));
+    const iy = idx(pickYear);
+    $("groupsSub").textContent = `Colère ajoutée par vos choix en ${pickYear}, groupe par groupe, en points de l'indice une fois l'inertie passée.`;
+    const gEntries = Object.entries(P.groups[iy]).filter(([, x]) => Math.abs(x) >= 0.05).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+    const gMax = Math.max(10, ...gEntries.map(e => Math.abs(e[1])));
+    $("groups").innerHTML = gEntries.length ? gEntries.map(([g, x]) => {
+      const cls = g === "entreprises" ? (x > 0 ? "biz" : "neg") : (x > 0 ? "pos" : "neg");
+      return `<div class="grow ${cls}"><span>${GROUPS[g]}</span><span class="g-val">${signed(x, f1)}</span><div class="g-bar"><div style="width:${(Math.abs(x) / gMax * 100).toFixed(1)}%"></div></div></div>`;
+    }).join("") : `<p class="lever-note">Personne ne perd rien en ${pickYear}, personne ne proteste. La dette, elle, continue de courir.</p>`;
+
+    // Objectifs
+    const OBJ = [
+      [!P.defeat, "Finir le mandat", "Ni tutelle des créanciers, ni chute du gouvernement avant 2035.", P.defeat ? `perdu en ${P.defeat.year}` : "tenu"],
+      [P.defR[i29] <= state.ruleUE, `Déficit sous ${smart(state.ruleUE)} % en 2029`, "Le seuil de Bruxelles, réglable dans le moteur.", `${f1(P.defR[i29])} %`],
+      [P.d[i35] <= state.ruleDebt, `Dette sous ${f0(state.ruleDebt)} % du PIB en 2035`, "Votre cible, réglable dans le moteur.", `${f0(P.d[i35])} %`],
+      [P.notch[i35] <= 1, "Garder une note A ou mieux", "La confiance des prêteurs. On part de A+.", RATINGS[P.notch[i35]]],
+      [maxAnger <= state.ruleMouv, "Pas de mouvement social", "La colère ne franchit jamais le seuil des grèves.", `pic ${f0(maxAnger)}/100`]
+    ];
+    $("objectives").innerHTML = OBJ.map(([ok, t, why, val]) =>
+      `<li><span class="pill ${ok ? "ok" : "ko"}">${ok ? "TENU" : "RATÉ"}</span><div><div class="o-title">${t}</div><div class="o-why">${why}</div></div><span class="o-val">${val}</span></li>`).join("");
+    $("score").textContent = `${OBJ.filter(o => o[0]).length}/${OBJ.length}`;
+
+    // Budget par année
+    const rowsHTML = (obj, ref, labels, cls) => {
+      const entries = Object.keys(obj).map(key => [key, obj[key], ref[key]]).sort((a, b) => b[1] - a[1]);
+      const max = Math.max(...entries.map(e => e[1]));
+      return entries.map(([key, val, r]) => {
+        const dlt = val - r;
+        const dTxt = Math.abs(dlt) >= 0.5 ? `<small class="${dlt > 0 ? "up" : "down"}">${signed(dlt, f0)}</small>` : "";
+        return `<div class="row ${cls} ${key === "int" ? "is-debt" : ""}"><span class="r-label">${labels[key]}</span><span class="r-val">${f0(val)}${dTxt}</span><div class="r-bar"><div style="width:${(val / max * 100).toFixed(1)}%"></div></div></div>`;
+      }).join("");
+    };
+    $("spRows").innerHTML = rowsHTML(P.sp[iy], R.sp[iy], SP_LABELS, "");
+    $("revRows").innerHTML = rowsHTML(P.rev[iy], R.rev[iy], REV_LABELS, "is-rev");
+    $("spTotal").textContent = `${f0(P.spTot[iy])} Md€`;
+    $("revTotal").textContent = `${f0(P.revTot[iy])} Md€`;
+  }
+
+  // ---------- Sources ----------
+  const SRC = [
+    ["PIB 2024", "2 920 Md€", "INSEE, comptes nationaux annuels"],
+    ["Dépenses publiques 2024", "1 670 Md€ (57 % du PIB)", "INSEE, compte des administrations publiques"],
+    ["Recettes publiques 2024", "1 502 Md€ (51 % du PIB)", "INSEE, compte des administrations publiques"],
+    ["Dette publique fin 2024", "3 300 Md€ (113 % du PIB)", "INSEE, dette au sens de Maastricht"],
+    ["Charge d'intérêts 2024", "60 Md€", "INSEE ; Agence France Trésor"],
+    ["Maturité moyenne de la dette", "8,5 ans", "Agence France Trésor"],
+    ["Écart de taux France-Allemagne", "≈ 80 pb", "Banque de France ; Bundesbank"],
+    ["Note souveraine", "A+", "Agences de notation, publications 2025"],
+    ["Taux de chômage", "≈ 7,4 %", "INSEE, enquête Emploi"],
+    ["Ventilation des recettes", "cotisations 420, TVA 210, CSG 155, IR 95, IS 60…", "INSEE ; PLF, Voies et moyens"],
+    ["Ventilation des dépenses", "retraites 395, santé 255, prestations 130, chômage 40, enseignement 155…", "INSEE, dépenses par fonction (COFOG) ; DREES ; Unédic"],
+    ["Rendement 1 pt de TVA", "normal 10,5 ; intermédiaire 1,8 ; réduit 3 Md€", "PLF, Voies et moyens tome 1"],
+    ["Taxe carbone", "44,6 €/t ; 10 €/t ≈ 2,5 Md€", "PLF ; I4CE"],
+    ["Rendement 1 pt de CSG", "≈ 15 Md€", "Commission des comptes de la Sécurité sociale"],
+    ["Rendement 1 pt d'IR sur toutes les tranches", "≈ 4,5 Md€", "Barèmes IPP ; simulation OpenFisca"],
+    ["Abattement de 10 % des retraités", "≈ 4 Md€", "Cour des comptes ; PLF, Voies et moyens tome 2"],
+    ["Taxe d'habitation sur les résidences principales", "≈ 22 Md€", "DGCL ; rapports sur la réforme 2018-2023"],
+    ["Prélèvement forfaitaire unique", "30 % ; 1 pt ≈ 0,6 Md€", "France Stratégie, évaluation des réformes de la fiscalité du capital"],
+    ["Droits de succession et donation", "≈ 18 Md€", "PLF, Voies et moyens"],
+    ["Allègements généraux de cotisations", "≈ 75 Md€", "Rapport Bozio-Wasmer (2024) ; PLFSS"],
+    ["Crédit d'impôt recherche", "≈ 7,6 Md€", "PLF, Voies et moyens tome 2 ; MESR"],
+    ["Autres dépenses fiscales (niches)", "≈ 77 Md€", "PLF, Voies et moyens tome 2"],
+    ["Impôt plancher sur les très hauts patrimoines", "5 à 20 Md€", "Zucman (2024) ; Conseil d'analyse économique ; contre-expertises"],
+    ["1 an d'âge légal", "≈ 8,5 Md€ à terme", "COR ; étude d'impact de la réforme 2023"],
+    ["1 % de point d'indice ; 1 % d'effectifs", "≈ 2,1 Md€ ; ≈ 3,5 Md€", "DGAFP ; rapport annuel sur la fonction publique"],
+    ["Dépenses des collectivités", "≈ 290 Md€", "Observatoire des finances et de la gestion publique locales"],
+    ["Aide publique au développement", "≈ 14 Md€", "OCDE, CAD ; PLF"],
+    ["Tous les paramètres du moteur", "voir la page Moteur", "Littérature (OFCE, CAE, FMI, IPP), précédents historiques, et choix de conception à confronter aux sondages"]
+  ];
+  $("srcRows").innerHTML = SRC.map(([a, b, c]) => `<tr><td>${a}</td><td class="v">${b}</td><td>${c}</td><td><span class="tag">mémoire · à vérifier</span></td></tr>`).join("");
+
+  syncInputs(); renderTabs();
+  setView(location.hash === "#moteur" ? "engine" : "play");
+  update();
+})();
+</script>
