@@ -445,9 +445,11 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .hist li { display: grid; grid-template-columns: 11em 6.5em minmax(0, 1fr) 7em; gap: 2px 10px; align-items: baseline; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
 .hist li .h-date, .hist li .h-turns { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); }
 .hist li .h-turns { text-align: right; white-space: nowrap; }
-.hist li b { font-weight: 700; }
-.hist li.faillite b, .hist li.revolution b { color: var(--bad); }
-.hist li.victoire b { color: var(--good); }
+.hist li > b { font-weight: 700; }
+.hist li.faillite > b, .hist li.revolution > b { color: var(--bad); }
+.hist li.victoire > b { color: var(--good); }
+.hist li .h-kpis { grid-column: 3 / -1; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 12px; color: var(--muted); }
+.hist li .h-kpis b { font-family: var(--f-data); font-weight: 600; color: var(--ink); }
 .hist li .h-how { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .end-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .end-acts .btn { height: 42px; padding: 0 18px; font-size: 14px; }
@@ -526,7 +528,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .end-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .evg-list { grid-template-columns: minmax(0, 1fr); }
   .hist li { grid-template-columns: minmax(0, 1fr) auto; }
-  .hist li .h-how { grid-column: 1 / -1; }
+  .hist li .h-how { grid-column: 1 / -1; white-space: normal; }
+  .hist li .h-kpis { grid-column: 1; grid-row: 3; }
+  .hist li .h-turns { grid-column: 2; grid-row: 3; }
   .end-years { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .end-acts { width: 100%; }
   .end-acts .btn { flex: 1; }
@@ -890,7 +894,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const P = simulate(state, gameOpt()), last = played(), i = idx(last);
     const h = loadHist();
     h.unshift({ at: Date.now(), mode: game.mode || "difficile", gov: game.govKey || "centre", type: game.over.type, year: game.over.year,
-      turns: last - FIRST + 1, debt: Math.round(P.d[i]), rating: RATINGS[P.notch[i]] });
+      turns: last - FIRST + 1, defR: Math.round(P.defR[i] * 10) / 10, debt: Math.round(P.d[i]), anger: Math.round(P.anger[i]), rating: RATINGS[P.notch[i]] });
     try { localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 100))); } catch (e) { /* stockage indisponible : l'historique ne survit pas à la page */ }
   }
   const histDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -905,7 +909,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       const fam = FAMILY[x.type], how = x.type === "fin" ? "mandat tenu jusqu'en 2035" : `${lc(DEFEAT_SUB[x.type])} en ${x.year}`;
       return `<li class="${fam}"><span class="h-date">${histDate.format(x.at)}</span><b>${FAMILY_LABEL[fam]}</b>`
         + `<span class="h-how">${how} · ${(MODES[x.mode] || MODES.difficile).label}, ${GOV_SHORT[x.gov] || x.gov}</span>`
-        + `<span class="h-turns">${x.turns}/10 tour${x.turns > 1 ? "s" : ""}</span></li>`;
+        + `<span class="h-turns">${x.turns}/10 tour${x.turns > 1 ? "s" : ""}</span>`
+        + (x.defR != null ? `<span class="h-kpis"><span>déficit <b>${f1(x.defR)} %</b></span><span>dette <b>${f0(x.debt)} %</b></span><span>colère <b>${f0(x.anger)}/100</b></span></span>` : "") + `</li>`;
     }).join("");
     return sum + `<ul class="hist">${rows}</ul>`;
   }
