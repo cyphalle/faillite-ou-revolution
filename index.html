@@ -455,6 +455,7 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .hist li .h-kpis { grid-column: 3 / -1; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 12px; color: var(--muted); }
 .hist li .h-kpis b { font-family: var(--f-data); font-weight: 600; color: var(--ink); }
 .hist li .h-how { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.end-share { margin: 0; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 8px; background: var(--secondary); font-family: var(--f-data); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; user-select: all; -webkit-user-select: all; }
 .end-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .end-acts .btn { height: 42px; padding: 0 18px; font-size: 14px; }
 .recap-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
@@ -536,8 +537,11 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .hist li .h-kpis { grid-column: 1; grid-row: 3; }
   .hist li .h-turns { grid-column: 2; grid-row: 3; }
   .end-years { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .end-acts { width: 100%; }
-  .end-acts .btn { flex: 1; }
+  /* Pied du bilan sur deux lignes : détail, partage et rejouer, puis la nouvelle partie */
+  .modal-card.end .modal-foot { flex-wrap: wrap; }
+  .modal-card.end .end-acts { display: contents; }
+  .modal-card.end .modal-foot .btn { flex: 1 1 0; min-width: 0; height: 40px; padding: 0 8px; }
+  .modal-card.end .modal-foot .btn-primary { flex-basis: 100%; margin-left: 0; }
   .stepbtn { width: 44px; height: 40px; font-size: 20px; }
   .track input[type="range"] { pointer-events: none; }
   .kpi.fc .k-sub { display: flex; }
@@ -604,7 +608,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.14</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.15</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -733,7 +737,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="panel" data-pane="src">
         <details class="sources" open>
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.14. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.15. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -801,6 +805,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <p class="sub" id="endText"></p>
       <div class="evg-list" id="endGauges"></div>
       <ol class="end-years" id="endYears" aria-label="Les budgets du mandat"></ol>
+      <pre class="end-share" id="endShare" hidden></pre>
       <div class="end-kpis" id="endKpis"></div>
       <div class="end-hist" id="endHist"></div>
       <div class="end-press" id="endPress"></div>
@@ -1127,12 +1132,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     { sec: "assemblee", id: "b_rn", label: "Opposition de principe : RN et alliés", min: -10, max: 2, step: 0.5, ref: -3.5, fmt: v => signed(v), note: null },
 
     { sec: "marches", id: "bund", label: "Taux allemand à 10 ans", min: 0.5, max: 6, step: 0.1, ref: 3.4, fmt: pct, note: "Le taux de référence en zone euro : 3,4 % en octobre 2026. La France emprunte à ce taux plus son écart." },
-    { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 200, step: 5, ref: 70, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part. Calé pour retrouver un écart d'environ 105 pb en 2026 (97 pb en moyenne en septembre 2026, 151 pb le 20 octobre, 65 pb en moyenne en 2024) : il inclut la prime d'instabilité politique." },
+    { sec: "marches", id: "spreadBase", label: "Écart de base", min: 0, max: 200, step: 5, ref: 45, fmt: v => `${f0(v)} pb`, note: "Ce que la France paie de plus que l'Allemagne, dette et déficit mis à part. Calé pour retrouver un écart d'environ 105 pb en 2026 (97 pb en moyenne en septembre 2026, 151 pb le 20 octobre, 65 pb en moyenne en 2024) : il inclut la prime d'instabilité politique." },
     { sec: "marches", id: "prime", label: "Par point de dette au-delà de 113 %", min: 0, max: 8, step: 0.5, ref: 3, fmt: v => `${smart(v)} pb`, note: "Environ 3 pb par point en zone euro, jusqu'au double quand la dette est élevée (SUERF)." },
-    { sec: "marches", id: "kDef", label: "Par point de déficit au-delà du seuil de Bruxelles", min: 0, max: 20, step: 1, ref: 6, fmt: v => `${f0(v)} pb`, note: null },
+    { sec: "marches", id: "kDef", label: "Par point de déficit au-delà du seuil de Bruxelles", min: 0, max: 30, step: 1, ref: 15, fmt: v => `${f0(v)} pb`, note: "Les études sur la zone euro trouvent 10 à 30 pb par point de déficit. Pris bas dans la fourchette : c'est surtout la durée du dérapage qui coûte." },
     { sec: "marches", id: "kRise", label: "Par point de hausse annuelle de la dette", min: 0, max: 20, step: 1, ref: 5, fmt: v => `${f0(v)} pb`, note: "Les marchés regardent la pente autant que le niveau." },
     { sec: "marches", id: "kAnger", label: "Par point de colère au-delà de 50", min: 0, max: 4, step: 0.25, ref: 1, fmt: v => `${smart(v)} pb`, note: "Le risque politique. Juin 2024 : la dissolution fait bondir l'écart d'environ 30 pb." },
-    { sec: "marches", id: "kBiz", label: "Par point de mécontentement des entreprises", min: 0, max: 2, step: 0.1, ref: 0.6, fmt: v => `${smart(v)} pb`, note: null },
+    { sec: "marches", id: "kBiz", label: "Par point de mécontentement des entreprises", min: 0, max: 3, step: 0.1, ref: 1, fmt: v => `${smart(v)} pb`, note: "Choix de calage : un budget qui pèse sur l'investissement inquiète aussi les prêteurs. C'est ce qui fait payer un effort tout par l'impôt." },
     { sec: "marches", id: "notchWidth", label: "Écart qui fait perdre un cran de note", min: 15, max: 80, step: 5, ref: 35, fmt: v => `tous les ${f0(v)} pb`, note: "On part de A+ (S&P et Fitch). Le premier cran tombe à 130 pb + cette valeur." },
     { sec: "marches", id: "kNotch", label: "Surcoût par cran perdu", min: 0, max: 25, step: 1, ref: 8, fmt: v => `${f0(v)} pb`, note: null },
     { sec: "marches", id: "junkJump", label: "Saut quand la dette devient spéculative", min: 0, max: 300, step: 25, ref: 100, fmt: v => `${f0(v)} pb`, note: "Sous BBB−, beaucoup de fonds n'ont plus le droit de détenir la dette." },
@@ -1209,7 +1214,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   const TABS = [["rec", "Recettes"], ["dep", "Dépenses"]];
   const PRESETS = [
     ["ref", "Politique inchangée", {}],
-    ["dep", "Tout par la dépense", { age: 65, idxRet: -0.5, idxPrest: -0.5, chom: -10, ondam: 2.5, educ: -3, point: -0.3, eff: -1, coll: -0.3, apd: -30 }],
+    ["dep", "Tout par la dépense", { age: 64.5, idxPrest: -0.3, chom: -15, ondam: 2.6, point: -0.4, eff: -1.5, coll: -0.6, apd: -40 }],
     ["imp", "Tout par l'impôt", { tva: 21, csg: 1, ir: 1, is: 27, niches: 15, zucman: true, succ: 15, pfu: 33 }],
     ["mix", "Moitié-moitié", { age: 64.5, idxRet: -0.3, ondam: 2.7, csg: 0.5, niches: 10, alleg: 85, zucman: true, fraude: 5, apd: -20 }],
     ["fil", "Tout lâcher", { tva: 18, ir: -2, age: 62, idxRet: 0.5, idxPrest: 0.5, ondam: 4, point: 1, educ: 8, def: 3, invest: 20 }]
@@ -1828,7 +1833,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   function closeRecap() { endOpen = !!(game && game.over); recap = null; dossierLater = false; setMview(game && game.over ? "results" : "levers"); update(); window.scrollTo({ top: 0 }); }
   $("endModal").addEventListener("click", (e) => {
     const b = e.target.closest("[data-end]");
-    if (b) { if (b.dataset.end === "close") { endOpen = false; update(); } else startNew(b.dataset.end === "replay"); return; }
+    if (b) { if (b.dataset.end === "share") { shareResult(b); return; } if (b.dataset.end === "close") { endOpen = false; update(); } else startNew(b.dataset.end === "replay"); return; }
     if (e.target === $("endModal")) { endOpen = false; update(); }
   });
   $("rtabs").addEventListener("click", (e) => {
@@ -2133,6 +2138,15 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   // ---------- Bilan du mandat ----------
   // Ordres de grandeur pour les équivalences : un porte-avions de nouvelle génération ≈ 10 Md€, une baguette ≈ 1,10 €.
   const ANGER_WORD = (a) => a < 45 ? "calme plat" : a < 55 ? "grogne de comptoir" : a < 65 ? "cortèges du jeudi" : a < 75 ? "ronds-points occupés" : "barricades";
+  // Le résultat se partage comme un texte : une ligne par budget en carrés de couleur, et le lien du jeu
+  const SHARE_URL = "https://cyphalle.github.io/faillite-ou-revolution/";
+  let shareMsg = "";
+  async function shareResult(btn) {
+    try { if (navigator.share) { await navigator.share({ text: shareMsg }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(shareMsg); btn.textContent = "Copié !"; setTimeout(() => { btn.textContent = "Partager"; }, 2000); return; } catch (e) { /* presse-papiers refusé : on affiche le texte */ }
+    const box = $("endShare"); box.hidden = false; box.textContent = shareMsg;
+    const r = document.createRange(); r.selectNodeContents(box); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); box.scrollIntoView?.({ block: "nearest" });
+  }
   function renderEnd(mandat, P, R) {
     const show = mandat && !!game && !!game.over && endOpen && !recap && !tourOn();
     $("endModal").hidden = !show;
@@ -2176,7 +2190,13 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const press = (game.press || []).filter(x => x.y <= last);
     $("endPress").innerHTML = press.length ? `<p class="end-h">La revue de presse</p><ul>${press.map(x => `<li><span>${x.y}</span><i>${x.h}</i><small>${x.paper}</small></li>`).join("")}</ul>` : "";
     $("endHist").innerHTML = `<p class="end-h">Vos dernières parties</p>${histHTML(5)}`;
-    $("endActs").innerHTML = `${won ? "" : `<button type="button" class="btn btn-outline" data-end="replay">Rejouer la même partie</button>`}<button type="button" class="btn btn-primary" data-end="new">Nouvelle partie</button>`;
+    const grid = YEARS.filter(y => y >= FIRST).map(y => y > last ? "⬜" : !won && y === o.year ? "🟥" : game.force[y] ? "🟧" : "🟩").join("");
+    shareMsg = [`Faillite ou Révolution · ${MODES[game.mode || "difficile"].label}`,
+      `${FAMILY_LABEL[fam]}${won ? "" : ` en ${o.year}`} : « ${$("endTitle").textContent} »`, grid,
+      `Dette ${f0(P.d[i0])} → ${f0(P.d[i])} % · déficit ${f1(P.defR[i])} % · colère ${f0(P.anger[i])}/100`,
+      won ? "J'ai tenu les dix budgets. Et vous ?" : `${passed} budget${passed > 1 ? "s" : ""} sur 10. Et vous, vous tenez combien ?`, SHARE_URL].join("\n");
+    $("endShare").hidden = true;
+    $("endActs").innerHTML = `<button type="button" class="btn btn-outline" data-end="share">Partager</button>${won ? "" : `<button type="button" class="btn btn-outline" data-end="replay">Rejouer<span class="tb-long"> la même partie</span></button>`}<button type="button" class="btn btn-primary" data-end="new">Nouvelle partie</button>`;
   }
   const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["hist", "Parties"], ["src", "Sources"]];
   let rtab = "asm";

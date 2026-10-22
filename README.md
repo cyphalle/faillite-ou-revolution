@@ -21,15 +21,17 @@ Or open `index.html` in a browser. It is a single static file with no build step
 - **Difficulty.** Three levels, picked before the first vote or for the next game: Facile (fewer shocks, more capital, more patient street and markets), Difficile (the default calibration) and Dinguerie (a shock almost every year, a dossier every year, nervous markets, an angrier street and a trigger-happy Assembly). Each level only sets engine parameters, so every value stays visible in the engine view.
 - **Verdict.** Every game ends on one of the title's two words, or on a win. Bankruptcy ("Faillite") is the IMF taking over once the 10-year rate crosses its threshold. Revolution ("Révolution") is the government brought down by the street, by a censure motion, or by losing the presidential election. The summary says which judge gave up first, and shows how close the game came to each outcome (peak rate against the IMF threshold, peak anger or censure votes against theirs).
 - **History.** Each finished game is saved in the browser: date, difficulty, coalition, number of turns played, outcome (bankruptcy, revolution or win), and final deficit, debt and anger. The last five show in the end-of-term summary, and all of them in the "Parties" tab.
+- **Share.** The end-of-term summary has a share button. It sends a short text: difficulty, outcome, one coloured square per budget (voted, forced through with 49.3, fatal, never reached), final debt, deficit and anger, and the link to the game. It uses the phone's share sheet when there is one, and the clipboard otherwise.
 - **Replay.** A lost game says by how much it was lost (votes short, points over the threshold) and can be replayed with the same seed: same shocks, same dossiers, same years.
 - **Tutorial.** A guided tour of eight steps opens on the first visit. The "Comment jouer" button replays it.
 - **Sandbox mode.** The same 34 levers held constant from 2026 to 2035, no randomness, everything visible at once.
 - **Engine view.** 86 model parameters: end-of-game thresholds, market reaction, anger per group, behavioural responses to taxes, macroeconomics. Every parameter is editable, so a player can test which conclusions depend on which assumption.
+- **Balance.** Strategies are checked by simulating full terms at each difficulty: doing nothing, a balanced effort, everything through spending, everything through tax. Doing nothing should lose more often than a balanced effort, and no doctrine should be impossible by construction.
 - **Model.** Annual loop from 2024 to 2035. Revenue follows actual GDP and spending follows potential GDP. Debt is refinanced at the German rate plus a spread, and the spread reacts with a one-year lag. Social anger follows the losses imposed on each group, with inertia.
 
 ## Status
 
-Version 0.14. Figures come from INSEE 2024 accounts (May 2026 revision), PLF, COR, DREES, Unédic, Agence France Trésor and ECB market data as of October 2026. The sourcing work is in `data/sources-2024.md`. Figures without a direct source are flagged as estimates in the game. The anger coefficients are design choices and are flagged as such.
+Version 0.15. Figures come from INSEE 2024 accounts (May 2026 revision), PLF, COR, DREES, Unédic, Agence France Trésor and ECB market data as of October 2026. The sourcing work is in `data/sources-2024.md`. Figures without a direct source are flagged as estimates in the game. The anger coefficients are design choices and are flagged as such.
 
 ## Credits
 

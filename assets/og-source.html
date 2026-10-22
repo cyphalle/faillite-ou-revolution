@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@500&display=swap">
+<style>
+*{box-sizing:border-box}body{margin:0}
+.og{width:1200px;height:630px;background:#FAFAFA;color:#09090B;font-family:Geist,sans-serif;position:relative;overflow:hidden;padding:72px 80px}
+.eb{display:inline-flex;gap:10px;align-items:center;font-size:22px;color:#71717A;border:1.5px solid #E4E4E7;background:#fff;border-radius:999px;padding:6px 18px}
+.eb i{width:10px;height:10px;border-radius:50%;background:#2563EB}
+h1{font-size:96px;line-height:.98;letter-spacing:-.045em;margin:36px 0 0;font-weight:700}h1 span{color:#A1A1AA;display:block}
+p{font-size:28px;line-height:1.4;color:#52525B;margin:30px 0 0;max-width:600px}
+.chips{position:absolute;left:80px;bottom:64px;display:flex;gap:12px}
+.chips span{font-family:"Geist Mono",monospace;font-size:22px;border:1.5px solid #E4E4E7;background:#fff;border-radius:8px;padding:6px 14px;color:#71717A}.chips b{color:#09090B;font-weight:500}
+svg{position:absolute;right:-30px;bottom:40px}
+.icon{width:512px;height:512px;background:#18181B;border-radius:0;display:grid;place-items:center;position:relative}
+.icon svg{position:static}
+</style></head><body>
+<div class="og" id="og"><span class="eb"><i></i>Finances publiques · mandat 2026 → 2035</span>
+<h1>Faillite ou<span>Révolution</span></h1>
+<p>Dix budgets pour redresser les comptes de la France. Les marchés, la rue et Bruxelles vous regardent.</p>
+<div class="chips"><span>Dette <b>113 %</b></span><span>Déficit <b>5,8 %</b></span><span>577 députés</span></div>
+<svg id="h1" width="560" height="300" viewBox="-280 -290 560 300"></svg></div>
+<div class="icon" id="icon"><svg id="h2" width="440" height="240" viewBox="-280 -290 560 300"></svg></div>
+<script>
+const blocs=[["#B91C1C",71],["#DB2777",66],["#A1A1AA",23],["#F59E0B",161],["#3B82F6",49],["#1E3A8A",143],["#1E3A8A",64]];
+function hemi(svg,r0){const rows=9,seats=[];let tot=0;const R=[];for(let k=0;k<rows;k++){const r=r0+k*(270-r0)/(rows-1);R.push(r);tot+=r;}
+ const N=577;let pts=[];R.forEach(r=>{const n=Math.round(N*r/tot);for(let j=0;j<n;j++){const a=Math.PI*(1-j/(n-1));pts.push([a,r]);}});
+ pts.sort((p,q)=>q[0]-p[0]);let c=0,out="";blocs.forEach(([col,n])=>{for(let j=0;j<n&&c<pts.length;j++,c++){const[a,r]=pts[c];out+=`<circle cx="${(r*Math.cos(a)).toFixed(1)}" cy="${(-r*Math.sin(a)).toFixed(1)}" r="7" fill="${col}"/>`;}});svg.innerHTML=out;}
+hemi(document.getElementById('h1'),110);hemi(document.getElementById('h2'),110);
+</script></body></html>
