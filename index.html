@@ -60,6 +60,8 @@ body {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 0 48px;
 }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: manipulation; }
+button { -webkit-tap-highlight-color: transparent; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); }
 .wrap { max-width: 1280px; margin: 0 auto; }
 .num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
@@ -404,7 +406,9 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .modal-card.dossier { border-top: 4px solid var(--warn); }
 .modal-card.lost { border-top: 4px solid var(--bad); }
 .modal-card.good { border-top: 4px solid var(--good); }
-.modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding-top: 4px; font-size: 12.5px; color: var(--muted); }
+.modal-card { overscroll-behavior: contain; }
+/* Le pied de fenêtre colle au bas de la carte : le bouton pour continuer reste visible sans défiler */
+.modal-foot { position: sticky; bottom: -22px; margin-bottom: -22px; padding-bottom: 22px; background: var(--surface); border-top: 1px solid var(--line); padding-top: 12px; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
 .modal-foot .btn-primary { height: 42px; padding: 0 20px; font-size: 14px; margin-left: auto; }
 .modal-card.end { width: min(760px, 100%); }
 .end-years { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
@@ -550,6 +554,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .recap-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .modal { place-items: end center; }
   .modal-card { padding: 18px 16px; }
+  .modal-foot { bottom: -18px; margin-bottom: -18px; padding-bottom: 18px; }
 }
 @media (max-width: 640px) {
   .dash { position: static; }
