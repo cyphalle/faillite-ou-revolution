@@ -160,7 +160,8 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px 
 .stepbtn:hover { background: var(--secondary); }
 .stepbtn:active { transform: scale(.94); }
 .morebtn { width: 100%; margin-top: 14px; }
-.kpi.fc .k-sub { display: flex; align-items: center; gap: 6px; }
+.kpi.fc .k-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; }
+.k-note { flex-basis: 100%; overflow: hidden; text-overflow: ellipsis; }
 .k-was { color: var(--muted); }
 .rk-fc { font-size: 11.5px; }
 .rk-fc.bad { color: var(--bad); } .rk-fc.good { color: var(--good); }
@@ -1002,7 +1003,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     { sec: "assemblee", id: "dissCost", label: "Coût d'une dissolution", min: 0, max: 60, step: 5, ref: 20, fmt: v => `${f0(v)} points`, note: "Capital dépensé pour dissoudre. Le résultat varie de 12 sièges autour de la prévision." },
     { sec: "assemblee", id: "b_lfi", label: "Opposition de principe : LFI et communistes", min: -10, max: 2, step: 0.5, ref: -6, fmt: v => signed(v), note: "Score de départ d'un groupe qui ne gouverne pas, avant l'effet du budget." },
     { sec: "assemblee", id: "b_ps", label: "Opposition de principe : socialistes et écologistes", min: -10, max: 2, step: 0.5, ref: -2.5, fmt: v => signed(v), note: null },
-    { sec: "assemblee", id: "b_liot", label: "Opposition de principe : indépendants", min: -10, max: 2, step: 0.5, ref: -1, fmt: v => signed(v), note: null },
+    { sec: "assemblee", id: "b_liot", label: "Opposition de principe : indépendants", min: -10, max: 2, step: 0.5, ref: -0.5, fmt: v => signed(v), note: "Calé pour qu'un budget inchangé passe avec deux accords : la gauche modérée qui s'abstient, les indépendants qui votent pour." },
     { sec: "assemblee", id: "b_centre", label: "Opposition de principe : bloc central", min: -10, max: 2, step: 0.5, ref: -1.5, fmt: v => signed(v), note: null },
     { sec: "assemblee", id: "b_lr", label: "Opposition de principe : droite républicaine", min: -10, max: 2, step: 0.5, ref: -1.5, fmt: v => signed(v), note: null },
     { sec: "assemblee", id: "b_rn", label: "Opposition de principe : RN et alliés", min: -10, max: 2, step: 0.5, ref: -3.5, fmt: v => signed(v), note: null },
@@ -1265,6 +1266,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         spread += prot ? 0 : attackBonus;
       }
       const mRate = (t < FIRST ? BUND_HIST[t] : P.bund) / 100 + spread / 10000 + sh("rate") + (P.evRate && t >= 2027 ? 0.015 : 0);
+      if (on && t === FIRST && Math.abs(P.bund - BUND_HIST[t - 1]) >= 0.1) ev(t, P.bund > BUND_HIST[t - 1] ? "warn" : "good", `Le taux allemand passe de ${smart(BUND_HIST[t - 1])} % à ${smart(P.bund)} %`, `Avant votre premier budget, toute la zone euro emprunte plus cher. La France paie ce taux plus son écart avec l'Allemagne, qui atteint ${f0(spread)} pb.`);
 
       // 2. L'activité
       const angerPrev = n > 0 ? o.anger[n - 1] : P.anger0;
@@ -2224,10 +2226,13 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         return `<span class="k-was">${fmt(before)} →</span><span class="delta ${cls}">${signed(Math.round(dl * 10) / 10, f1)}</span>`;
       };
       const pc1 = (x) => `${f1(x)} %`, pc0 = (x) => `${f0(x)} %`;
+      // La première année, la hausse du taux allemand précède tout budget : la dire, sinon le joueur se l'attribue
+      const dBund = y === FIRST ? state.bund - BUND_HIST[y - 1] : 0;
+      const bundNote = Math.abs(dBund) >= 0.1 ? `<span class="k-was k-note">dont ${signed(Math.round(dBund * 10) / 10, f1)} dus au taux allemand</span>` : "";
       $("kpis").innerHTML = status +
         kpi(`Capital<span class="k-x"> politique</span>`, f0(avail), negoSpent() ? `dont ${f0(negoSpent())} engagés en accords` : `un accord coûte ${f0(state.negoCost)}`, "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
         kpi(`Bruxelles<span class="k-x"> · déficit ${y}</span>`, pc1(F.defR[iy]), arrow(F.defR[iy], P.defR[j], pc1, true), F.defR[iy] <= state.ruleUE ? "is-good fc" : "is-bad fc") +
-        kpi(`Marchés<span class="k-x"> · taux ${y}</span>`, pc1(F.rate[iy]), arrow(F.rate[iy], P.rate[j], pc1, true), F.rate[iy] > state.ruleFMI ? "is-bad fc" : F.rate[iy] > state.ruleFMI - 1.5 ? "is-warn fc" : "fc") +
+        kpi(`Marchés<span class="k-x"> · taux ${y}</span>`, pc1(F.rate[iy]), arrow(F.rate[iy], P.rate[j], pc1, true) + bundNote, F.rate[iy] > state.ruleFMI ? "is-bad fc" : F.rate[iy] > state.ruleFMI - 1.5 ? "is-warn fc" : "fc") +
         kpi(`La rue<span class="k-x"> · colère ${y}</span>`, `${f0(F.anger[iy])}/100`, arrow(F.anger[iy], P.anger[j], f0, true), F.anger[iy] > state.ruleChute ? "is-bad fc" : F.anger[iy] > state.ruleMouv ? "is-warn fc" : "fc");
     } else if (mandat) {
       const avail = game.capital;
