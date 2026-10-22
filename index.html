@@ -427,6 +427,28 @@ body { padding-bottom: calc(var(--ab-h, 88px) + 24px); }
 .end-press li span { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); padding-top: 2px; }
 .end-press li i { font-family: Georgia, "Times New Roman", serif; font-size: 14.5px; color: var(--ink); line-height: 1.35; }
 .end-press li small { grid-column: 2; font-size: 11px; color: var(--muted); }
+.ev-word { justify-self: start; margin: 0; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.ev-word.faillite, .ev-word.revolution { background: var(--bad-soft); color: var(--bad); }
+.ev-word.victoire { background: var(--good-soft); color: var(--good); }
+.evg-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.evg { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+.evg span { font-size: 12px; font-weight: 600; }
+.evg em { font-size: 12px; font-style: normal; color: var(--muted); }
+.evg-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.evg-bar i { display: block; height: 100%; background: var(--muted); border-radius: 3px; }
+.evg.near .evg-bar i { background: var(--warn); }
+.evg.hit { border-color: var(--bad); }
+.evg.hit span { color: var(--bad); }
+.evg.hit .evg-bar i { background: var(--bad); }
+.hist-sum { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.hist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.hist li { display: grid; grid-template-columns: 11em 6.5em minmax(0, 1fr) 7em; gap: 2px 10px; align-items: baseline; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+.hist li .h-date, .hist li .h-turns { font-family: var(--f-data); font-size: 11.5px; color: var(--muted); }
+.hist li .h-turns { text-align: right; white-space: nowrap; }
+.hist li b { font-weight: 700; }
+.hist li.faillite b, .hist li.revolution b { color: var(--bad); }
+.hist li.victoire b { color: var(--good); }
+.hist li .h-how { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .end-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
 .end-acts .btn { height: 42px; padding: 0 18px; font-size: 14px; }
 .recap-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
@@ -502,6 +524,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .lever-note { display: none; }
   .press blockquote { font-size: 16px; }
   .end-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .evg-list { grid-template-columns: minmax(0, 1fr); }
+  .hist li { grid-template-columns: minmax(0, 1fr) auto; }
+  .hist li .h-how { grid-column: 1 / -1; }
   .end-years { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .end-acts { width: 100%; }
   .end-acts .btn { flex: 1; }
@@ -553,7 +578,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.13</div>
+    <div class="eyebrow">Finances publiques · mandat 2026 → 2035 · version 0.14</div>
     <h1>Faillite ou <span>Révolution</span></h1>
     <p class="lede">La France dépense <strong>1 673 milliards d'euros</strong> par an et en prélève <strong>1 504</strong>. Chaque automne, vous votez un budget avec les vrais leviers, et trois juges vous regardent : <strong>les marchés</strong>, qui prêtent à l'État, <strong>la rue</strong>, qui paie les efforts, et <strong>Bruxelles</strong>, qui fixe les règles. Laisser filer la dette mène à la faillite. La réduire trop vite mène à la révolte. Tenez jusqu'en 2035.</p>
     <div class="ledger" aria-label="Situation de départ, 2024">
@@ -657,6 +682,12 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         <ul class="objectives" id="objectives"></ul>
       </div>
 
+      <div class="panel" data-pane="hist">
+        <h2>Vos parties</h2>
+        <p class="sub">Toutes les parties terminées dans ce navigateur, la plus récente en haut.</p>
+        <div id="histList"></div>
+      </div>
+
       <div class="panel" data-pane="budget">
         <h2>Le budget, année par année</h2>
         <p class="sub">En milliards d'euros courants. L'écart avec la politique inchangée est en couleur.</p>
@@ -676,7 +707,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       <div class="panel" data-pane="src">
         <details class="sources" open>
           <summary>Chiffres, hypothèses et limites du modèle</summary>
-          <p class="sub" style="margin-top:10px">Version 0.13. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
+          <p class="sub" style="margin-top:10px">Version 0.14. Comptes 2024 de l'INSEE (révision de mai 2026), marchés d'octobre 2026. « Sourcé » : vérifié contre une source publique. « Estimation » : aucune source directe, valeur déduite ou débattue.</p>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Donnée</th><th>Valeur</th><th>Source à consulter</th><th>Statut</th></tr></thead>
@@ -739,10 +770,13 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   <div class="modal" id="endModal" hidden>
     <div class="modal-card end" role="dialog" aria-modal="true" aria-labelledby="endTitle">
       <p class="d-kicker" id="endKicker"></p>
+      <p class="ev-word" id="endWord"></p>
       <h2 id="endTitle"></h2>
       <p class="sub" id="endText"></p>
+      <div class="evg-list" id="endGauges"></div>
       <ol class="end-years" id="endYears" aria-label="Les budgets du mandat"></ol>
       <div class="end-kpis" id="endKpis"></div>
+      <div class="end-hist" id="endHist"></div>
       <div class="end-press" id="endPress"></div>
       <div class="modal-foot"><button type="button" class="btn btn-ghost" data-end="close">Voir le détail</button><span class="end-acts" id="endActs"></span></div>
     </div>
@@ -840,6 +874,63 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     apd: { min: "Aide au développement divisée par deux : petite économie, grand silence au G20." },
     invest: { max: "40 Md€ d'investissement : rupture de stock sur les rubans d'inauguration." }
   };
+  // ---------- Historique des parties ----------
+  // Trois issues, comme le titre : la faillite (les créanciers prennent la main), la révolution (la rue, l'Assemblée ou les urnes
+  // renvoient le gouvernement), ou la victoire, quand le mandat passe entre les deux.
+  const FAMILY = { fmi: "faillite", chute: "revolution", censure: "revolution", battu: "revolution", fin: "victoire" };
+  const FAMILY_LABEL = { faillite: "Faillite", revolution: "Révolution", victoire: "Victoire" };
+  const GOV_SHORT = { centre: "centre et LR", gauche: "gauche unie", rn: "RN et LR" };
+  const HKEY = "faillite-ou-revolution:history";
+  function loadHist() {
+    try { const h = JSON.parse(localStorage.getItem(HKEY) || "[]"); return Array.isArray(h) ? h : []; } catch (e) { return []; }
+  }
+  function logGame() {
+    if (!game || !game.over || game.logged) return;
+    game.logged = true;
+    const P = simulate(state, gameOpt()), last = played(), i = idx(last);
+    const h = loadHist();
+    h.unshift({ at: Date.now(), mode: game.mode || "difficile", gov: game.govKey || "centre", type: game.over.type, year: game.over.year,
+      turns: last - FIRST + 1, debt: Math.round(P.d[i]), rating: RATINGS[P.notch[i]] });
+    try { localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 100))); } catch (e) { /* stockage indisponible : l'historique ne survit pas à la page */ }
+  }
+  const histDate = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  function histHTML(limit) {
+    const h = loadHist();
+    if (!h.length) return `<p class="sub">Aucune partie terminée pour l'instant.</p>`;
+    const c = { victoire: 0, revolution: 0, faillite: 0 };
+    h.forEach(x => { c[FAMILY[x.type]]++; });
+    const pl = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
+    const sum = `<p class="hist-sum">${pl(h.length, "partie")} : ${pl(c.victoire, "victoire")}, ${pl(c.faillite, "faillite")}, ${pl(c.revolution, "révolution")}.</p>`;
+    const rows = h.slice(0, limit || h.length).map(x => {
+      const fam = FAMILY[x.type], how = x.type === "fin" ? "mandat tenu jusqu'en 2035" : `${lc(DEFEAT_SUB[x.type])} en ${x.year}`;
+      return `<li class="${fam}"><span class="h-date">${histDate.format(x.at)}</span><b>${FAMILY_LABEL[fam]}</b>`
+        + `<span class="h-how">${how} · ${(MODES[x.mode] || MODES.difficile).label}, ${GOV_SHORT[x.gov] || x.gov}</span>`
+        + `<span class="h-turns">${x.turns}/10 tour${x.turns > 1 ? "s" : ""}</span></li>`;
+    }).join("");
+    return sum + `<ul class="hist">${rows}</ul>`;
+  }
+  // Pourquoi la partie finit sur ce mot : quel juge a lâché le premier
+  function verdictWhy(o) {
+    if (o.type === "fmi") return `Les créanciers ont lâché avant la rue : le taux à dix ans a franchi les ${smart(state.ruleFMI)} % au-delà desquels l'État ne peut plus se financer seul. Trop de dette, trop peu d'efforts, et ce sont le FMI et l'Europe qui écrivent désormais le budget.`;
+    if (o.type === "chute") return `La rue a lâché avant les marchés : la colère a franchi ${f0(state.ruleChute)}/100. Des efforts trop rudes ou trop mal répartis, et le gouvernement tombe sous la pression des manifestations.`;
+    if (o.type === "censure") return `L'Assemblée a lâché avant les marchés : ${f0(o.votes)} députés votent la censure, il en fallait ${MAJ}. Une révolution de palais : le budget frappait trop les électeurs des groupes d'opposition.`;
+    if (o.type === "battu") return `Les électeurs ont lâché avant les marchés : à la présidentielle, la colère dépassait les ${f0(state.ruleElection)}/100 qui font perdre une élection. Une révolution par les urnes.`;
+    return `Ni les créanciers ni la rue n'ont eu votre peau : le mandat passe entre les deux écueils.`;
+  }
+  // À quelle distance de chaque écueil la partie est passée
+  function verdictGauges(P, i, fam) {
+    const peak = (a) => Math.max(...a.slice(idx(FIRST), i + 1));
+    const rate = peak(P.rate), anger = peak(P.anger);
+    const g = (label, val, thr, hit, txt) => {
+      const r = clamp(val / thr, 0, 1);
+      return `<div class="evg ${hit ? "hit" : r > 0.85 ? "near" : ""}"><span>${label}</span><div class="evg-bar"><i style="width:${Math.round(r * 100)}%"></i></div><em>${txt}</em></div>`;
+    };
+    // Une censure est une révolution de l'hémicycle : la jauge compte alors les voix, la colère n'y est pour rien
+    const o = game.over, cens = o && o.type === "censure";
+    return g("Vers la faillite", rate, state.ruleFMI, fam === "faillite", `taux au plus haut ${f1(rate)} %, tutelle à ${smart(state.ruleFMI)} %`)
+      + (cens ? g("Vers la révolution", o.votes, MAJ, true, `${f0(o.votes)} voix pour la censure, il en fallait ${MAJ}`)
+        : g("Vers la révolution", anger, state.ruleChute, fam === "revolution", `colère au plus haut ${f0(anger)}/100, chute à ${f0(state.ruleChute)}`));
+  }
   // Le titre de la fin, qu'on a envie de raconter
   function endingTitle(type, P, R, i) {
     if (type === "fmi") return "Le syndrome d'Athènes";
@@ -1492,7 +1583,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       const near = A.blocs.filter(b => b.pos === "censure").map(b => ({ id: b.id, n: b.n, gap: -state.censureAt - b.score }))
         .filter(b => b.n >= A.censure - MAJ + 1).sort((a, b) => a.gap - b.gap)[0];
       game.over = { type: "censure", year: y, votes: A.censure, near };
-      save(); syncInputs(); update(); return;
+      logGame(); save(); syncInputs(); update(); return;
     }
     game.path[y] = policyOf(state);
     if (force) {
@@ -1511,7 +1602,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       game.year = y + 1;
       if (game.year > LAST) game.over = { type: "fin", year: LAST };
     }
-    save(); syncInputs(); update();
+    logGame(); save(); syncInputs(); update();
   }
   // Hauteurs réelles du bandeau collé en haut : le pupitre se cale juste dessous et prend tout le reste de l'écran
   function layoutVars() {
@@ -2023,12 +2114,16 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     const n = last - FIRST + 1, card = $("endModal").querySelector(".modal-card");
     card.classList.toggle("lost", !won); card.classList.toggle("good", won);
     $("endKicker").textContent = `Bilan du mandat · ${FIRST} → ${last} · ${MODES[game.mode || "difficile"].label}`;
+    const fam = FAMILY[o.type];
+    $("endWord").className = `ev-word ${fam}`;
+    $("endWord").textContent = FAMILY_LABEL[fam];
     $("endTitle").textContent = endingTitle(o.type, P, R, i);
+    $("endGauges").innerHTML = verdictGauges(P, i, fam);
     const forced = Object.keys(game.force).length, deals = game.extra.filter(e => e.title.startsWith("Accord avec")).length;
     // Un budget censuré n'est pas adopté : il ne compte pas
     const passed = o.type === "censure" ? n - 1 : n;
-    $("endText").innerHTML = (won ? `Vous tenez les <b>dix budgets</b> du mandat.`
-      : `${DEFEAT_SUB[o.type]} en ${o.year}, ${passed ? `après <b>${passed} budget${passed > 1 ? "s" : ""} adopté${passed > 1 ? "s" : ""}</b> sur 10` : "avant même votre premier budget"}.`) + ` ${nearMiss(P)}`;
+    $("endText").innerHTML = `${verdictWhy(o)} ` + (won ? `Vous tenez les <b>dix budgets</b> du mandat.`
+      : `Fin en ${o.year}, ${passed ? `après <b>${passed} budget${passed > 1 ? "s" : ""} adopté${passed > 1 ? "s" : ""}</b> sur 10` : "avant même votre premier budget"}.`) + ` ${nearMiss(P)}`;
     // Une case par année : voté, 49.3, l'année fatale, ou jamais vu
     $("endYears").innerHTML = YEARS.filter(y => y >= FIRST).map(y => {
       const k = y > last ? "none" : !won && y === o.year ? "lost" : game.force[y] ? "force" : "ok";
@@ -2053,9 +2148,10 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
       ek("Arbitrages", `${Object.keys(game.picks).length} dossier${Object.keys(game.picks).length > 1 ? "s" : ""}`, deals ? `et ${deals} accord${deals > 1 ? "s" : ""} négocié${deals > 1 ? "s" : ""} en coulisses` : "aucun accord négocié : la ligne, rien que la ligne");
     const press = (game.press || []).filter(x => x.y <= last);
     $("endPress").innerHTML = press.length ? `<p class="end-h">La revue de presse</p><ul>${press.map(x => `<li><span>${x.y}</span><i>${x.h}</i><small>${x.paper}</small></li>`).join("")}</ul>` : "";
+    $("endHist").innerHTML = `<p class="end-h">Vos dernières parties</p>${histHTML(5)}`;
     $("endActs").innerHTML = `${won ? "" : `<button type="button" class="btn btn-outline" data-end="replay">Rejouer la même partie</button>`}<button type="button" class="btn btn-primary" data-end="new">Nouvelle partie</button>`;
   }
-  const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["src", "Sources"]];
+  const RTABS = [["asm", "Assemblée"], ["journal", "Journal"], ["traj", "Trajectoires"], ["groups", "Qui paie"], ["budget", "Budget"], ["obj", "Objectifs"], ["hist", "Parties"], ["src", "Sources"]];
   let rtab = "asm";
   // Sur téléphone, leviers et résultats sont deux écrans : la barre du bas bascule de l'un à l'autre
   let mview = "levers";
@@ -2063,7 +2159,8 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     `<button type="button" data-mview="${k}" aria-pressed="${mview === k}">${l}</button>`).join("")}</div>`;
   function setMview(v) { mview = v; $("playView").dataset.mview = v; }
   function renderRtabs() {
-    const n = { journal: [...$("journal").children].filter(li => !li.querySelector(".empty")).length, obj: $("score").textContent };
+    const n = { journal: [...$("journal").children].filter(li => !li.querySelector(".empty")).length, obj: $("score").textContent, hist: loadHist().length };
+    if (rtab === "hist") $("histList").innerHTML = histHTML();
     $("rtabs").innerHTML = RTABS.map(([k, l]) => `<button type="button" role="tab" data-rtab="${k}" aria-selected="${k === rtab}">${l}${n[k] ? `<span class="rt-n">${n[k]}</span>` : ""}</button>`).join("");
     document.querySelectorAll("[data-pane]").forEach(p => { p.hidden = p.dataset.pane !== rtab; });
   }
@@ -2449,7 +2546,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
     { target: null, title: "Le dossier de l'année", text: () => `À partir de 2027, l'actualité impose souvent un arbitrage : une grève, une crue, une usine qui ferme. Une fenêtre s'ouvre en début d'année, et il faut trancher <b>avant de voter</b>. Chaque option coûte de l'argent, de la colère ou des voix à l'Assemblée.` },
     { target: "assemblyPanel", tab: "asm", title: "L'Assemblée", text: () => `Aucune coalition n'a la majorité de ${MAJ} sièges. Chaque groupe vote selon ce que le budget coûte à ses électeurs. Une négociation achète son soutien pour l'année, contre ${f0(state.negoCost)} points de capital. En dernier recours, vous pouvez dissoudre, au risque de perdre des sièges.` },
     { target: "actionBar", title: "Le vote", text: () => `La barre du bas suit votre année : dossier, leviers, vote. Son bouton fait toujours le geste suivant. Sur téléphone, elle bascule aussi entre les leviers et les résultats. Le budget passe s'il réunit plus de voix pour que contre. Sinon, le <b>49.3</b> le fait passer sans vote : la colère monte, et si ${MAJ} députés votent la censure, le gouvernement tombe.` },
-    { target: "journalPanel", tab: "journal", title: "Les trois juges", text: () => `Après chaque vote, un bilan de l'année s'affiche, et le journal en garde la trace. Les onglets donnent aussi les trajectoires, le budget détaillé et vos objectifs. Les marchés relèvent vos taux si la dette dérape, la rue se soulève si vous frappez trop fort, Bruxelles sanctionne un déficit au-dessus de ${smart(state.ruleUE)} %. Vous perdez sous tutelle du FMI, renversé par la rue ou par la censure, ou battu à la présidentielle.` },
+    { target: "journalPanel", tab: "journal", title: "Les trois juges", text: () => `Après chaque vote, un bilan de l'année s'affiche, et le journal en garde la trace. Les onglets donnent aussi les trajectoires, le budget détaillé, vos objectifs et l'historique de vos parties. Les marchés relèvent vos taux si la dette dérape, la rue se soulève si vous frappez trop fort, Bruxelles sanctionne un déficit au-dessus de ${smart(state.ruleUE)} %. Vous perdez sous tutelle du FMI, renversé par la rue ou par la censure, ou battu à la présidentielle.` },
     { target: "viewbar", title: "Bac à sable et moteur", text: () => `Le bac à sable applique une politique fixe sur dix ans, sans hasard, pour comparer des stratégies. Le moteur montre les ${ENGINE.length} hypothèses du modèle, toutes réglables. À vous de jouer.` }
   ];
   const TOUR_KEY = "faillite-ou-revolution:tour";
