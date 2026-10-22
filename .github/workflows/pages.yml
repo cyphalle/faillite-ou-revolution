@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+# index.html is written for the claude.ai artifact viewer, which adds the
+# doctype and viewport at publish time. This job adds them for the standalone page.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build standalone page
+        run: |
+          mkdir _site
+          {
+            echo '<!doctype html>'
+            echo '<html lang="fr">'
+            echo '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+            echo '<meta name="apple-mobile-web-app-capable" content="yes">'
+            echo '<meta name="mobile-web-app-capable" content="yes">'
+            echo '<meta name="apple-mobile-web-app-title" content="Faillite">'
+            cat index.html
+          } > _site/index.html
+          cp LICENSE README.md _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+      - id: deployment
+        uses: actions/deploy-pages@v4
