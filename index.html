@@ -551,6 +551,20 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .dash.turn .k-val { font-size: 16px; }
   .dash.turn .k-label { font-size: 11px; }
   .lever.changed .lever-note, .lever-note#irNote { display: block; }
+  /* Sur iPhone, l'en-tête de claude.ai et les barres de Safari laissent environ 600 px : chaque ligne compte */
+  .dash.turn .kpis { grid-template-columns: minmax(0, .55fr) repeat(3, minmax(0, 1fr)); }
+  .dash.turn .k-u { display: none; }
+  .dash.turn .kpi { display: flex; flex-wrap: wrap; align-items: center; gap: 1px 4px; padding: 5px 6px; }
+  .dash.turn .kpi .k-label { flex-basis: 100%; }
+  .dash.turn .k-val { font-size: 15px; }
+  .dash.turn .kpi .delta { padding: 0 4px; font-size: 10.5px; }
+  .dash.turn .capbar { flex-basis: 100%; margin-top: 2px; }
+  .ab-in.turn { padding-block: 6px; gap: 6px; }
+  .ab-in.turn .steps li { padding: 1px 8px 1px 2px; font-size: 12px; }
+  .ab-in.turn .steps .n { width: 16px; height: 16px; font-size: 10px; }
+  .ab-in.turn .ab-undo { height: 26px; }
+  .mswitch button { padding: 0 9px; }
+  .ab-acts .btn-primary, .ab-acts .btn-destructive { padding: 0 8px; }
   .recap-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .modal { place-items: end center; }
   .modal-card { padding: 18px 16px; }
@@ -563,6 +577,9 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
   .kpi .k-sub { display: none; }
   .kpi.status .k-sub { display: block; white-space: normal; }
   .viewhint, .tb-long { display: none; }
+  .ledger { display: none; }
+  .viewseg { flex-wrap: nowrap; }
+  .viewseg button { padding: 5px 9px; white-space: nowrap; }
   .tb-short { display: inline; }
   .viewbar { flex-wrap: nowrap; }
   .viewseg button { padding: 5px 10px; }
@@ -2340,7 +2357,7 @@ header.hero.compact h1 { font-size: clamp(26px, 3.4vw, 34px); }
         kpi(`Capital<span class="k-x"> politique</span>`, f0(avail), negoSpent() ? `dont ${f0(negoSpent())} engagés en accords` : `un accord coûte ${f0(state.negoCost)}`, "", `<div class="capbar"><div style="width:${capPct}%"></div></div>`) +
         kpi(`Bruxelles<span class="k-x"> · déficit ${y}</span>`, pc1(F.defR[iy]), arrow(F.defR[iy], P.defR[j], pc1, true), F.defR[iy] <= state.ruleUE ? "is-good fc" : "is-bad fc") +
         kpi(`Marchés<span class="k-x"> · taux ${y}</span>`, pc1(F.rate[iy]), arrow(F.rate[iy], P.rate[j], pc1, true) + bundNote, F.rate[iy] > state.ruleFMI ? "is-bad fc" : F.rate[iy] > state.ruleFMI - 1.5 ? "is-warn fc" : "fc") +
-        kpi(`La rue<span class="k-x"> · colère ${y}</span>`, `${f0(F.anger[iy])}/100`, arrow(F.anger[iy], P.anger[j], f0, true), F.anger[iy] > state.ruleChute ? "is-bad fc" : F.anger[iy] > state.ruleMouv ? "is-warn fc" : "fc");
+        kpi(`La rue<span class="k-x"> · colère ${y}</span>`, `${f0(F.anger[iy])}<span class="k-u">/100</span>`, arrow(F.anger[iy], P.anger[j], f0, true), F.anger[iy] > state.ruleChute ? "is-bad fc" : F.anger[iy] > state.ruleMouv ? "is-warn fc" : "fc");
     } else if (mandat) {
       const avail = game.capital;
       const capPct = clamp(avail / 150 * 100, 0, 100);
