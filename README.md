@@ -4,7 +4,9 @@ A serious game about French public finances, in French. You set the real levers 
 
 ## Play
 
-Open `index.html` in a browser. It is a single static file with no build step and no dependencies other than Google Fonts.
+Play online at https://cyphalle.github.io/faillite-ou-revolution/. On a phone, add it to the home screen to play full screen.
+
+Or open `index.html` in a browser. It is a single static file with no build step and no dependencies other than Google Fonts.
 
 ## How it works
 
